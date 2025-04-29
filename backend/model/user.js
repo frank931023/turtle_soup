@@ -16,7 +16,6 @@ module.exports = (sequelize, Sequelize) => {
         },
         role: {
             type: Sequelize.STRING,
-            unique: true
         }
     }, {
         timestamps: true // 自動加 createdAt 和 updatedAt

@@ -1,19 +1,14 @@
 <template>
-  <div>
-    <nav>
-      <!-- <router-link to="/">首頁</router-link> |
-      <router-link to="/about">關於我們</router-link> -->
-    </nav>
-    <router-view />
-  </div>
-</template>
+  <!--  一級路由的出口組件-->
+  <RouterView/>
 
-<style>
-nav {
-  margin-bottom: 20px;
-}
-a {
-  text-decoration: none;
-  margin: 0 10px;
+</template>
+<script setup lang="ts">
+
+</script>
+
+<style lang="scss" scoped>
+div{
+  color: $textColor;
 }
 </style>

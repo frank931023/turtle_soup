@@ -10,7 +10,7 @@ app.use(bodyParser.json());  // 解析 JSON 格式
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 前端path
-const frontPath = "http://localhost:5173/";
+const frontPath = "http://localhost:5173";
 
 
 // sequelize 更新資料庫

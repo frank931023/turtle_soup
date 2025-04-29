@@ -3,12 +3,12 @@ import request from '@/util/http.js'
 
 
 // post 方法處理登入請求
-export const logingAPI = ({ account, password }) => {
+export function logingAPI({ username, password }) {
   return request({
-    url: '/login',
+    url: '/api/user/login',
     method: 'POST',
     data: {
-      account,
+      username,
       password,
     }
   })

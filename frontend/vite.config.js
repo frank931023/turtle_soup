@@ -35,7 +35,9 @@ export default defineConfig({
         // 自動導入並覆蓋scss
         additionalData: `
           @use "@/styles/element/index.scss" as *;
-          @use "@/styles/var.scss" as *;        `,
+          @use "@/styles/var.scss" as *;
+           @use "@/styles/common.scss" as *;
+          `,
       }
     },
   }

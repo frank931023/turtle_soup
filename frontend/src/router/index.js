@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 匯入頁面元件
-import Home from '../views/HomePage.vue'
-import About from '../views/AboutPage.vue'
 import Login from '../views/login/index.vue'
+import Layout from '../views/layout/index.vue'
+import About from '../views/about/index.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Layout',
+    component: Layout,
+    children: []
   },
   {
     path: '/about',
@@ -24,7 +25,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 

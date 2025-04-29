@@ -1,16 +1,21 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useUserStore } from "@/stores/user.js";
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const showEntry = ref(false);
+const router = useRouter()
+const userStore = useUserStore()
 
 const form = ref({
-  account: '',
+  username: '',
   password: '',
   agree: false,
 })
 
 const rules = {
-  account: [
+  username: [
     {required: true, message: '用戶名不能為空', trigger: 'blur'},
   ],
   password: [
@@ -36,9 +41,19 @@ const rules = {
 // 指向form元素
 const formRef = ref(null)
 const doLogin = () => {
+  const {username, password} = form.value
   // 呼叫form元素的校驗方法
-  formRef.value.validate((valid) => {
+  formRef.value.validate( async (valid) => {
     console.log(valid);
+
+    // 如果true 才登入
+    if(valid) {
+      // 用pinia封装過的user store 獲取用戶資料 以及登入
+      await userStore.getUserInfo({username, password})
+
+      ElMessage({type: 'success', message: '登入成功'})
+      router.replace({path: "/"})
+    }
   })
 }
 
@@ -73,8 +88,8 @@ onMounted(() => {
           <div class="form">
             <el-form :model="form" :rules="rules" label-position="right" label-width="60px"
                      status-icon ref="formRef" >
-              <el-form-item  label="帳號" prop="account">
-                <el-input v-model="form.account" />
+              <el-form-item  label="帳號" prop="username">
+                <el-input v-model="form.username" />
               </el-form-item>
               <el-form-item label="密碼" prop="password" >
                 <el-input v-model="form.password" type="password" />
