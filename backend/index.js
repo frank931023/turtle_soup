@@ -6,8 +6,9 @@ import db from "./db.js";
 const app = express();
 const port = 3000;
 
-app.use(cors());
+// 正確的寫法 - 只使用已安裝的中間件
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Hello World! Express後端伺服器運行中！");

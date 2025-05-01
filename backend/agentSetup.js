@@ -2,8 +2,30 @@
 import { model } from "./models/gemini.js";
 import { DynamicTool } from "langchain/tools";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
+import { BufferMemory } from "langchain/memory";
 import dotenv from "dotenv";
 dotenv.config();
+
+// 創建各個 agent 的記憶實例
+const modelMemory = new BufferMemory({
+  returnMessages: true,   // 讓 agent 可以處理訊息陣列
+  memoryKey: "chat_history" // LangChain 預設 key
+});
+
+const questionMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history"
+});
+
+const hostMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history"
+});
+
+const aiPlayerMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history"
+});
 
 // 原有的回答工具
 const turtleExpert = new DynamicTool({
@@ -52,40 +74,48 @@ const aiPlayerGenerator = new DynamicTool({
   },
 });
 
-// 原有的回答 agent
+// 原有的回答 agent (加入記憶功能)
 const modelAgent = await initializeAgentExecutorWithOptions(
   [turtleExpert, soupMaster, funAgent],
   model,
   {
     agentType: "chat-conversational-react-description",
     verbose: true,
+    memory: modelMemory,
   }
 );
 
-// 新增問題生成 agent
+// 新增問題生成 agent (加入記憶功能)
 const questionAgent = await initializeAgentExecutorWithOptions(
   [riddleGenerator],
   model,
   {
     agentType: "chat-conversational-react-description",
     verbose: true,
+    memory: questionMemory,
   }
 );
 
-// 初始化謎題關主Agent
-const hostAgent = await initializeAgentExecutorWithOptions([gameHost], model, {
-  agentType: "chat-conversational-react-description",
-  verbose: true,
-});
+// 初始化謎題關主Agent (加入記憶功能)
+const hostAgent = await initializeAgentExecutorWithOptions(
+  [gameHost],
+  model,
+  {
+    agentType: "chat-conversational-react-description",
+    verbose: true,
+    memory: hostMemory,
+  }
+);
 
-// 初始化AI玩家Agent
+// 初始化AI玩家Agent (加入記憶功能)
 const aiPlayerAgent = await initializeAgentExecutorWithOptions(
   [aiPlayerGenerator],
   model,
   {
     agentType: "chat-conversational-react-description",
     verbose: true,
+    memory: aiPlayerMemory,
   }
 );
 
-export { hostAgent, aiPlayerAgent };
+export { modelAgent, questionAgent, hostAgent, aiPlayerAgent };
