@@ -21,6 +21,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/game',
+    name: 'Game',
+    component: () => import('../components/ChatGame.vue')
   }
 ]
 
