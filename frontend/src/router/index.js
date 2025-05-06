@@ -5,6 +5,7 @@ import Login from '../views/login/index.vue'
 import Layout from '../views/layout/index.vue'
 import About from '../views/about/index.vue'
 import Game from '../views/game/index.vue'
+import Home from '../views/table/HomePage.vue'
 
 const routes = [
   {
@@ -22,15 +23,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
-  },
-  {
-    path: '/game',
-    name: 'Game',
-<<<<<<< HEAD
-    component: Game
-=======
-    component: () => import('../components/ChatGame.vue')
->>>>>>> origin/main
   }
 ]
 
