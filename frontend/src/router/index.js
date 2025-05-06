@@ -5,14 +5,23 @@ import Login from '../views/login/index.vue'
 import Layout from '../views/layout/index.vue'
 import About from '../views/about/index.vue'
 import Game from '../views/game/index.vue'
-import Home from '../views/table/HomePage.vue'
+import Home from '../views/home/HomePage.vue'
+import Chatgame from '../views/chatgame/index.vue'
+
+// import Chatgame from '../views/chatgame/index.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Layout',
     component: Layout,
-    children: []
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: Home
+      }
+    ]
   },
   {
     path: '/about',
@@ -23,6 +32,17 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/game',
+    name: 'Game',
+    component: Game 
+  },
+
+  {
+    path: '/chatgame',
+    name: 'chatgame',
+    component: Chatgame
   }
 ]
 
