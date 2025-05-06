@@ -26,7 +26,11 @@ const routes = [
   {
     path: '/game',
     name: 'Game',
+<<<<<<< HEAD
     component: Game
+=======
+    component: () => import('../components/ChatGame.vue')
+>>>>>>> origin/main
   }
 ]
 
