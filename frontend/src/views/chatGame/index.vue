@@ -68,8 +68,11 @@
 <script>
 import axios from 'axios'
 
-// 設定API基本URL
-axios.defaults.baseURL = 'http://localhost:3000'
+// 明確設定 API 基本 URL 並顯示在控制台中
+const apiBaseUrl = 'http://localhost:3000';
+console.log('設置 API 基本 URL:', apiBaseUrl);
+axios.defaults.baseURL = apiBaseUrl;
+axios.defaults.timeout = 10000; // 增加超時時間
 
 export default {
   name: 'ChatGame',
@@ -167,7 +170,7 @@ export default {
 
       try {
         // 關主提出謎題
-        const response = await axios.post('/api/host', { isNewGame: true })
+        const response = await axios.post('/api/agent/host', { isNewGame: true })
 
         // 添加關主謎題到對話
         this.addMessage('host', response.data.reply)
@@ -187,68 +190,71 @@ export default {
 
     // 用戶發送問題
     async sendMessage() {
-      if (!this.userInput.trim() || this.loading || !this.canUserAsk) return
+      if (!this.userInput.trim() || this.loading || !this.canUserAsk) return;
 
       // 添加用戶訊息到對話
-      this.addMessage('user', this.userInput.trim())
-
-      // 清空輸入框並設置加載狀態
-      const userQuestion = this.userInput
-      this.userInput = ''
-      this.loading = true
-      this.currentTurn = 'host' // 防止用戶連續提問
+      const userQuestion = this.userInput.trim();
+      this.addMessage('user', userQuestion);
+      this.userInput = '';
+      
+      this.loading = true;
+      this.currentTurn = 'host'; // 防止用戶連續提問
 
       try {
         // 關主回答用戶問題
-        this.updateGameContext()
-        const hostResponse = await axios.post('/api/host', {
+        console.log("發送用戶問題到關主...");
+        this.updateGameContext();
+        const hostResponse = await axios.post('/api/agent/host', {
           input: userQuestion,
           isNewGame: false,
-        })
-
-        // 添加關主回答
-        this.addMessage('host', hostResponse.data.reply)
-
-        // 現在輪到AI玩家提問
-        this.currentTurn = 'ai-player'
-
-        // 延遲，讓用戶有時間閱讀關主回答
-        setTimeout(async () => {
-          try {
-            // AI玩家提問
-            this.updateGameContext()
-            const aiPlayerResponse = await axios.post('/api/ai-player', {
-              context: this.gameContext,
-            })
-
-            // 添加AI玩家問題
-            this.addMessage('ai-player', aiPlayerResponse.data.question)
-
-            // 關主回答AI玩家問題
-            this.updateGameContext()
-            const hostResponseToAI = await axios.post('/api/host', {
-              input: aiPlayerResponse.data.question,
-              isNewGame: false,
-            })
-
-            // 添加關主回答
-            this.addMessage('host', hostResponseToAI.data.reply)
-
-            // 輪到用戶回合
-            this.currentTurn = 'user'
-          } catch (error) {
-            console.error('AI玩家回合出錯', error)
-            this.addMessage('system', 'AI玩家思考時發生錯誤，輪到你提問。')
-            this.currentTurn = 'user'
-          } finally {
-            this.loading = false
-          }
-        }, 1000)
+        });
+        
+        console.log("關主回答收到:", hostResponse.data);
+        this.addMessage('host', hostResponse.data.reply);
+        
+        // 現在輪到AI玩家提問 - 這裡先不設置，等待 AI 玩家回合完成後再設置
+        this.currentTurn = 'ai-player';
+        
+        // 延遲 AI 玩家提問
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // AI玩家提問
+        console.log("正在讓 AI 玩家提問...");
+        this.updateGameContext();
+        const aiPlayerResponse = await axios.post('/api/agent/ai-player', {
+          context: this.gameContext,
+        });
+        
+        console.log("AI玩家提問收到:", aiPlayerResponse.data);
+        // 確保有問題才添加，避免空字符串或 undefined
+        if (aiPlayerResponse.data.question) {
+          this.addMessage('ai-player', aiPlayerResponse.data.question);
+          
+          // 關主回答AI玩家問題
+          console.log("發送 AI 玩家問題到關主...");
+          this.updateGameContext();
+          const hostResponseToAI = await axios.post('/api/agent/host', {
+            input: aiPlayerResponse.data.question,
+            isNewGame: false,
+          });
+          
+          console.log("關主對 AI 玩家回答收到:", hostResponseToAI.data);
+          this.addMessage('host', hostResponseToAI.data.reply);
+        } else {
+          console.warn("AI 玩家未返回有效問題");
+          this.addMessage('system', 'AI 玩家沒有問題要提出');
+        }
+        
+        // 所有流程完成，輪到用戶
+        this.currentTurn = 'user';
+        
       } catch (error) {
-        console.error('遊戲流程出錯', error)
-        this.addMessage('system', '與伺服器通訊時發生錯誤。請檢查網路連接，或重新開始遊戲。')
-        this.loading = false
-        this.currentTurn = 'user'
+        console.error('遊戲流程出錯', error);
+        this.addMessage('system', '與伺服器通訊時發生錯誤。請檢查網路連接，或重新開始遊戲。');
+        this.currentTurn = 'user'; // 恢復用戶回合
+      } finally {
+        // 無論如何都要結束加載狀態
+        this.loading = false;
       }
     },
 
@@ -279,31 +285,42 @@ export default {
 
     // 檢查後端連接
     async checkBackendConnection() {
+      console.log('正在檢查後端連接...');
       try {
-        // 先嘗試 hello 端點
-        await axios.get('/api/hello')
-        this.connectedToBackend = true
-        return true
-      } catch (error) {
-        if (this.retryCount < 1) {
-          // 嘗試一次後再試一次
-          this.retryCount++
-          console.log('第一次連接失敗，再試一次...')
-          
-          try {
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            await axios.get('/api/hello')
-            this.connectedToBackend = true
-            return true
-          } catch (retryError) {
-            console.error('無法連接到後端', retryError)
-            this.connectedToBackend = false
-            return false
+        const response = await axios.get('/api/hello', { 
+          timeout: 5000,
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
           }
+        });
+        
+        console.log('後端連接成功:', response.data);
+        this.connectedToBackend = true;
+        return true;
+      } catch (error) {
+        console.error('後端連接失敗:', error.message);
+        console.error('錯誤詳情:', {
+          message: error.message,
+          code: error.code,
+          status: error.response?.status,
+          data: error.response?.data,
+          config: error.config ? {
+            url: error.config.url,
+            method: error.config.method,
+            headers: error.config.headers
+          } : 'No config'
+        });
+        if (this.retryCount < 2) {
+          this.retryCount++;
+          console.log(`連接失敗，第 ${this.retryCount} 次重試...`);
+          
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return this.checkBackendConnection(); // 遞迴嘗試
         } else {
-          console.error('無法連接到後端', error)
-          this.connectedToBackend = false
-          return false
+          console.error('後端連接最終失敗');
+          this.connectedToBackend = false;
+          return false;
         }
       }
     }

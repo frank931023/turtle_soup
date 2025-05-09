@@ -1,8 +1,30 @@
-import { model } from "./models/gemini.js";
-import { DynamicTool } from "langchain/tools";
-import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import dotenv from "dotenv";
+const model = require("./models/gemini.js"); // 引入 Gemini 模型
+const { DynamicTool } = require("langchain/tools");
+const { initializeAgentExecutorWithOptions } = require("langchain/agents");
+const { BufferMemory } = require("langchain/memory");
+const dotenv = require("dotenv");
 dotenv.config();
+
+// 創建各個 agent 的記憶實例
+const modelMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history",
+});
+
+const questionMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history",
+});
+
+const hostMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history",
+});
+
+const aiPlayerMemory = new BufferMemory({
+  returnMessages: true,
+  memoryKey: "chat_history",
+});
 
 // 原有的回答工具
 const turtleExpert = new DynamicTool({
@@ -28,7 +50,6 @@ const riddleGenerator = new DynamicTool({
   name: "RiddleGenerator",
   description: "生成海龜湯遊戲謎題",
   func: async (input) => {
-    // 這裡可以實現更複雜的邏輯來生成題目
     return `海龜湯謎題：${
       input || "一個人走進一家餐廳，點了烏龜湯，喝了一口後就自殺了。為什麼？"
     }`;
@@ -51,40 +72,69 @@ const aiPlayerGenerator = new DynamicTool({
   },
 });
 
-// 原有的回答 agent
-const modelAgent = await initializeAgentExecutorWithOptions(
-  [turtleExpert, soupMaster, funAgent],
-  model,
-  {
-    agentType: "chat-conversational-react-description",
-    verbose: true,
+// 初始化代理
+const initAgents = async () => {
+  // 原有的回答 agent
+  const modelAgent = await initializeAgentExecutorWithOptions(
+    [turtleExpert, soupMaster, funAgent],
+    model,
+    {
+      agentType: "chat-conversational-react-description",
+      verbose: true,
+      memory: modelMemory,
+    }
+  );
+
+  // 新增問題生成 agent
+  const questionAgent = await initializeAgentExecutorWithOptions(
+    [riddleGenerator],
+    model,
+    {
+      agentType: "chat-conversational-react-description",
+      verbose: true,
+      memory: questionMemory,
+    }
+  );
+
+  // 初始化謎題關主Agent
+  const hostAgent = await initializeAgentExecutorWithOptions(
+    [gameHost],
+    model,
+    {
+      agentType: "chat-conversational-react-description",
+      verbose: true,
+      memory: hostMemory,
+    }
+  );
+
+  // 初始化AI玩家Agent
+  const aiPlayerAgent = await initializeAgentExecutorWithOptions(
+    [aiPlayerGenerator],
+    model,
+    {
+      agentType: "chat-conversational-react-description",
+      verbose: true,
+      memory: aiPlayerMemory,
+    }
+  );
+
+  return { modelAgent, questionAgent, hostAgent, aiPlayerAgent };
+};
+
+let agents = null;
+
+// 外部 API 獲取初始化好的代理
+const getAgents = async () => {
+  if (!agents) {
+    agents = await initAgents();
   }
-);
+  return agents;
+};
 
-// 新增問題生成 agent
-const questionAgent = await initializeAgentExecutorWithOptions(
-  [riddleGenerator],
-  model,
-  {
-    agentType: "chat-conversational-react-description",
-    verbose: true,
-  }
-);
+module.exports = { getAgents };
 
-// 初始化謎題關主Agent
-const hostAgent = await initializeAgentExecutorWithOptions([gameHost], model, {
-  agentType: "chat-conversational-react-description",
-  verbose: true,
-});
-
-// 初始化AI玩家Agent
-const aiPlayerAgent = await initializeAgentExecutorWithOptions(
-  [aiPlayerGenerator],
-  model,
-  {
-    agentType: "chat-conversational-react-description",
-    verbose: true,
-  }
-);
-
-export { modelAgent, questionAgent, hostAgent, aiPlayerAgent };
+// 移除測試代碼或修改為
+// const setup = require("./agentSetup.js");
+// setup.getAgents().then(agents => {
+//   console.log("可用的 agents:", Object.keys(agents));
+// });

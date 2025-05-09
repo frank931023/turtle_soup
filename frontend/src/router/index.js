@@ -6,7 +6,7 @@ import Layout from '../views/layout/index.vue'
 import About from '../views/about/index.vue'
 import Game from '../views/game/index.vue'
 import Home from '../views/home/HomePage.vue'
-import Chatgame from '../views/chatgame/index.vue'
+import Chatgame from '../views/chatGame/index.vue'
 
 // import Chatgame from '../views/chatgame/index.vue'
 
