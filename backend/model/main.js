@@ -13,6 +13,7 @@ db.Sequelize = Sequelize;
 
 // ORM model的對方法回傳sequelize對象，接下來可以透過這個對象對表操作
 db.User = require("./user")(sequelize, Sequelize);
+db.QuestionBank = require("./questionbank")(sequelize, Sequelize);
 
 // 添加 Gemini 模型引用 (可選)
 // db.GeminiModel = require('./gemini')
