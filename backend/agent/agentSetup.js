@@ -1,4 +1,4 @@
-const model = require("./models/gemini.js"); // 引入 Gemini 模型
+const model = require("../models/gemini.js"); // 引入 Gemini 模型
 const { DynamicTool } = require("langchain/tools");
 const { initializeAgentExecutorWithOptions } = require("langchain/agents");
 const { BufferMemory } = require("langchain/memory");

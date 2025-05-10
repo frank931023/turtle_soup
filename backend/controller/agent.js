@@ -1,4 +1,4 @@
-const { getAgents } = require("../agentSetup.js");
+const { getAgents } = require("../agent/agentSetup.js");
 
 // 使用 Promise 儲存初始化後的 agents
 let agentsPromise = getAgents();

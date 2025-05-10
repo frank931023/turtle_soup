@@ -1,78 +1,16 @@
-<template>
-  <div class="chat-container">
-    <h1>海龜湯謎題遊戲</h1>
-
-    <div class="mode-selection">
-      <button @click="startGame" :disabled="gameStarted" class="mode-button">開始遊戲</button>
-      <button @click="resetGame" class="mode-button">重置遊戲</button>
-      <div v-if="!connectedToBackend" class="connection-error">
-        <span>⚠️ 無法連接到後端服務</span>
-      </div>
-    </div>
-
-    <!-- 遊戲說明 -->
-    <div class="game-info" v-if="!gameStarted">
-      <h3>遊戲說明</h3>
-      <p>「海龜湯」是一種謎題遊戲，主持人會提出一個奇怪的場景，玩家需要通過是非問題來找出真相。</p>
-      <p>遊戲規則：</p>
-      <ol>
-        <li>關主會提供一個不尋常的情境作為謎題</li>
-        <li>你可以提問來了解更多細節，但關主只會回答「是」、「否」或給予有限的提示</li>
-        <li>透過邏輯推理，找出事件的真相</li>
-      </ol>
-      <p>點擊「開始遊戲」來開始挑戰！</p>
-    </div>
-
-    <!-- 聊天訊息顯示區 -->
-    <div class="chat-messages" ref="chatContainer" v-show="gameStarted">
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        :class="['message', getMessageClass(msg.sender)]"
-      >
-        <div class="message-header">
-          <strong>{{ getSenderName(msg.sender) }}</strong>
-          <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
-        </div>
-        <div class="message-content" v-html="formatMessage(msg.text)"></div>
-      </div>
-      <div v-if="loading" class="loading-message">
-        <div class="typing-indicator">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 輸入區域 -->
-    <div class="input-area" v-show="gameStarted">
-      <input
-        v-model="userInput"
-        @keyup.enter="sendMessage"
-        placeholder="輸入你的問題..."
-        :disabled="loading || !canUserAsk"
-        class="input-field"
-      />
-      <button
-        @click="sendMessage"
-        :disabled="loading || !userInput.trim() || !canUserAsk"
-        class="send-button"
-      >
-        發送
-      </button>
-    </div>
-  </div>
-</template>
-
 <script>
 import axios from 'axios'
+
+// 導入api
+import { checkBackendConnectionAPI, startGameAPI, userAskAPI, aiAskAPI } from '@/apis/chatGame.js';
+import { ElMessage } from 'element-plus'
 
 // 明確設定 API 基本 URL 並顯示在控制台中
 const apiBaseUrl = 'http://localhost:3000';
 console.log('設置 API 基本 URL:', apiBaseUrl);
 axios.defaults.baseURL = apiBaseUrl;
 axios.defaults.timeout = 10000; // 增加超時時間
+
 
 export default {
   name: 'ChatGame',
@@ -154,37 +92,30 @@ export default {
 
     // 開始遊戲 - 關主提出謎題
     async startGame() {
-      if (this.gameStarted) return
+      if (this.gameStarted) return;
 
-      // 先檢查連接
-      const connected = await this.checkBackendConnection()
+      const connected = await this.checkBackendConnection();
       if (!connected) {
-        this.addMessage('system', '無法連接到後端伺服器，請確認伺服器是否運行中。')
-        return
+        this.addMessage('system', '無法連接到後端伺服器，請確認伺服器是否運行中。');
+        return;
       }
 
-      this.loading = true
-      this.gameStarted = true
-      this.messages = []
-      this.addMessage('system', '遊戲開始！謎題關主正在準備有趣的謎題...')
+      this.loading = true;
+      this.gameStarted = true;
+      this.messages = [];
+      this.addMessage('system', '遊戲開始！謎題關主正在準備有趣的謎題...');
 
       try {
-        // 關主提出謎題
-        const response = await axios.post('/api/agent/host', { isNewGame: true })
-
-        // 添加關主謎題到對話
-        this.addMessage('host', response.data.reply)
-
-        // 更新遊戲狀態，輪到用戶提問
-        this.updateGameContext()
-        this.currentTurn = 'user'
+        const response = await startGameAPI();
+        this.addMessage('host', response.reply);
+        this.updateGameContext();
+        this.currentTurn = 'user';
       } catch (error) {
-        console.error('生成謎題失敗', error)
-        this.addMessage('system', '無法從API獲取謎題。請確認後端伺服器狀態，可能需要重新啟動後端。')
-        this.gameStarted = false
-        this.connectedToBackend = false
+        this.addMessage('system', '無法從API獲取謎題。請確認後端伺服器狀態。');
+        this.gameStarted = false;
+        this.connectedToBackend = false;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
@@ -192,68 +123,38 @@ export default {
     async sendMessage() {
       if (!this.userInput.trim() || this.loading || !this.canUserAsk) return;
 
-      // 添加用戶訊息到對話
       const userQuestion = this.userInput.trim();
       this.addMessage('user', userQuestion);
       this.userInput = '';
-      
+
       this.loading = true;
-      this.currentTurn = 'host'; // 防止用戶連續提問
+      this.currentTurn = 'host';
 
       try {
-        // 關主回答用戶問題
-        console.log("發送用戶問題到關主...");
         this.updateGameContext();
-        const hostResponse = await axios.post('/api/agent/host', {
-          input: userQuestion,
-          isNewGame: false,
-        });
-        
-        console.log("關主回答收到:", hostResponse.data);
-        this.addMessage('host', hostResponse.data.reply);
-        
-        // 現在輪到AI玩家提問 - 這裡先不設置，等待 AI 玩家回合完成後再設置
+        const hostResponse = await userAskAPI(userQuestion);
+        this.addMessage('host', hostResponse.reply);
+
         this.currentTurn = 'ai-player';
-        
-        // 延遲 AI 玩家提問
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // AI玩家提問
-        console.log("正在讓 AI 玩家提問...");
+
         this.updateGameContext();
-        const aiPlayerResponse = await axios.post('/api/agent/ai-player', {
-          context: this.gameContext,
-        });
-        
-        console.log("AI玩家提問收到:", aiPlayerResponse.data);
-        // 確保有問題才添加，避免空字符串或 undefined
-        if (aiPlayerResponse.data.question) {
-          this.addMessage('ai-player', aiPlayerResponse.data.question);
-          
-          // 關主回答AI玩家問題
-          console.log("發送 AI 玩家問題到關主...");
+        const aiPlayerResponse = await aiAskAPI(this.gameContext);
+        if (aiPlayerResponse.question) {
+          this.addMessage('ai-player', aiPlayerResponse.question);
+
           this.updateGameContext();
-          const hostResponseToAI = await axios.post('/api/agent/host', {
-            input: aiPlayerResponse.data.question,
-            isNewGame: false,
-          });
-          
-          console.log("關主對 AI 玩家回答收到:", hostResponseToAI.data);
-          this.addMessage('host', hostResponseToAI.data.reply);
+          const hostResponseToAI = await userAskAPI(aiPlayerResponse.question);
+          this.addMessage('host', hostResponseToAI.reply);
         } else {
-          console.warn("AI 玩家未返回有效問題");
           this.addMessage('system', 'AI 玩家沒有問題要提出');
         }
-        
-        // 所有流程完成，輪到用戶
+
         this.currentTurn = 'user';
-        
       } catch (error) {
-        console.error('遊戲流程出錯', error);
-        this.addMessage('system', '與伺服器通訊時發生錯誤。請檢查網路連接，或重新開始遊戲。');
-        this.currentTurn = 'user'; // 恢復用戶回合
+        this.addMessage('system', '與伺服器通訊時發生錯誤。請檢查網路或重新開始遊戲。');
+        this.currentTurn = 'user';
       } finally {
-        // 無論如何都要結束加載狀態
         this.loading = false;
       }
     },
@@ -285,50 +186,28 @@ export default {
 
     // 檢查後端連接
     async checkBackendConnection() {
-      console.log('正在檢查後端連接...');
       try {
-        const response = await axios.get('/api/hello', { 
-          timeout: 5000,
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        console.log('後端連接成功:', response.data);
+        // checkBackendConnectionAPI如果沒get到會throw error
+        const res = await checkBackendConnectionAPI();
         this.connectedToBackend = true;
         return true;
       } catch (error) {
-        console.error('後端連接失敗:', error.message);
-        console.error('錯誤詳情:', {
-          message: error.message,
-          code: error.code,
-          status: error.response?.status,
-          data: error.response?.data,
-          config: error.config ? {
-            url: error.config.url,
-            method: error.config.method,
-            headers: error.config.headers
-          } : 'No config'
-        });
         if (this.retryCount < 2) {
           this.retryCount++;
-          console.log(`連接失敗，第 ${this.retryCount} 次重試...`);
-          
           await new Promise(resolve => setTimeout(resolve, 2000));
-          return this.checkBackendConnection(); // 遞迴嘗試
+          return this.checkBackendConnection();
         } else {
-          console.error('後端連接最終失敗');
           this.connectedToBackend = false;
+          ElMessage({ type: 'error', message: '無法連接後端，請稍後再試。' });
           return false;
         }
       }
-    }
+    },
   },
   async mounted() {
     // 檢查後端連接
     await this.checkBackendConnection()
-    
+
     // 監聽視窗大小變化，保持滾動到底部
     window.addEventListener('resize', this.scrollToBottom)
   },
@@ -337,6 +216,73 @@ export default {
   },
 }
 </script>
+
+<template>
+  <div class="chat-container">
+    <h1>海龜湯謎題遊戲</h1>
+
+    <div class="mode-selection">
+      <button @click="startGame" :disabled="gameStarted" class="mode-button">開始遊戲</button>
+      <button @click="resetGame" class="mode-button">重置遊戲</button>
+      <div v-if="!connectedToBackend" class="connection-error">
+        <span>⚠️ 無法連接到後端服務</span>
+      </div>
+    </div>
+
+    <!-- 遊戲說明 -->
+    <div class="game-info" v-if="!gameStarted">
+      <h3>遊戲說明</h3>
+      <p>「海龜湯」是一種謎題遊戲，主持人會提出一個奇怪的場景，玩家需要通過是非問題來找出真相。</p>
+      <p>遊戲規則：</p>
+      <ol>
+        <li>關主會提供一個不尋常的情境作為謎題</li>
+        <li>你可以提問來了解更多細節，但關主只會回答「是」、「否」或給予有限的提示</li>
+        <li>透過邏輯推理，找出事件的真相</li>
+      </ol>
+      <p>點擊「開始遊戲」來開始挑戰！</p>
+    </div>
+
+    <!-- 聊天訊息顯示區 -->
+    <div class="chat-messages" ref="chatContainer" v-show="gameStarted">
+      <div
+        v-for="(msg, index) in messages"
+        :key="index"
+        :class="['message', getMessageClass(msg.sender)]"
+      >
+        <div class="message-header">
+          <strong>{{ getSenderName(msg.sender) }}</strong>
+          <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+        </div>
+        <div class="message-content" v-html="formatMessage(msg.text)"></div>
+      </div>
+      <div v-if="loading" class="loading-message">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 輸入區域 -->
+    <div class="input-area" v-show="gameStarted">
+      <input
+        v-model="userInput"
+        @keyup.enter="sendMessage"
+        placeholder="輸入你的問題..."
+        :disabled="loading || !canUserAsk"
+        class="input-field"
+      />
+      <button
+        @click="sendMessage"
+        :disabled="loading || !userInput.trim() || !canUserAsk"
+        class="send-button"
+      >
+        發送
+      </button>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .chat-container {

@@ -1,32 +1,31 @@
 const express = require("express");
 const cors = require("cors");
-// 暫時註釋掉資料庫引入
-// const db = require("./model/main.js"); 
+
+const db = require("./model/main.js");
 const bodyParser = require("body-parser");
 
 const app = express();
 const PORT = 3000;
 
-app.use(bodyParser.json()); 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 前端path
 const frontPath = "http://localhost:5173";
 
-// 註釋掉資料庫同步代碼
-// db.sequelize
-//   .sync()
-//   .then(() => {
-//     console.log("Database synchronized!");
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
+db.sequelize
+  .sync()
+  .then(() => {
+    console.log("Database synchronized!");
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 
 // cors
 app.use(
   cors({
-    origin: frontPath, 
+    origin: frontPath,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
