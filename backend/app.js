@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 前端path
 const frontPath = "http://localhost:5173";
 
-db.sequelize.sync({ alter: true });
+// db.sequelize.sync({ alter: true });
 
 db.sequelize
   .sync()
