@@ -16,20 +16,23 @@
 
     <!-- Main content -->
     <main class="main-content">
+      <!-- Introduction to the puzzle -->
       <div class="puzzle-introduction">
         <img src="@/assets/turtle-soup.png" alt="Turtle Soup Illustration" class="turtle-img" />
-        
+
         <p class="intro-text">
           你知道海龜湯嗎？它又叫做水平思考。題目首先給你故事結局，也就是「<strong>湯麵</strong>」，你必須使用跳躍性、超凡的創造力提出猜想，讓這個故事自圓其說，找到「湯底」。
         </p>
-        
+
         <p class="rules-text">
           海龜湯沒有標準答案，你可以不斷提問來驗證你的猜想，但AI只會回答是/不是/不相關，你有8次提問機會，耗盡後會公布答案，助你好運！
         </p>
-        
+
         <div class="warning">
           <span class="warning-icon">⚠ </span>
-          <span class="warning-text"><strong>注意：部分故事包含恐怖/血腥元素，膽小慎入。</strong></span>
+          <span class="warning-text"
+            ><strong>注意：部分故事包含恐怖/血腥元素，膽小慎入。</strong></span
+          >
         </div>
       </div>
 
@@ -38,34 +41,56 @@
         <button class="puzzle-option" @click="navigateToPuzzle('海龜湯的故事')">
           海龜湯的故事
         </button>
-        
+
         <button class="puzzle-option" @click="navigateToPuzzle('死刑犯與惡魔')">
           死刑犯與惡魔
         </button>
-        
-        <button class="puzzle-option" @click="navigateToPuzzle('四歲的媽媽')">
-          四歲的媽媽
-        </button>
-        
-        <button class="puzzle-option" @click="navigateToPuzzle('交換照片')">
-          交換照片
-        </button>
+
+        <button class="puzzle-option" @click="navigateToPuzzle('四歲的媽媽')">四歲的媽媽</button>
+
+        <button class="puzzle-option" @click="navigateToPuzzle('交換照片')">交換照片</button>
       </div>
     </main>
+
+    <story-mode-selector
+      ref="storySelectorModal"
+      :storyId="selectedStoryId"
+      @start-game="handleStartGame"
+    />
+
+    <!-- Button to open the modal -->
+    <button @click="openSelectorModal">開始遊戲</button>
   </div>
 </template>
 
 <script>
+import StoryModeSelector from '../layout/components/StoryModeSelector.vue'
+
 export default {
+  components: {
+    StoryModeSelector,
+  },
+  data() {
+    return {
+      selectedStoryId: 'your-story-id-here',
+    }
+  },
   name: 'HomePage',
   methods: {
     navigateToPuzzle(puzzleName) {
       // Vue Router 3 & 4 都支援這種寫法
-      console.log(`選擇了謎題: ${puzzleName}`);
+      console.log(`選擇了謎題: ${puzzleName}`)
       // 真正使用 Vue Router 時可以這樣跳轉
       // this.$router.push({ name: 'puzzle', params: { id: puzzleName } });
-    }
-  }
+    },
+    openSelectorModal() {
+      this.$refs.storySelectorModal.openModal()
+    },
+    handleStartGame(gameParams) {
+      console.log('Game started with:', gameParams)
+      // Handle game start logic
+    },
+  },
 }
 </script>
 
@@ -146,7 +171,8 @@ export default {
   margin: 0 auto 20px;
 }
 
-.intro-text, .rules-text {
+.intro-text,
+.rules-text {
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 15px;
@@ -200,7 +226,7 @@ export default {
 }
 
 .puzzle-option::before {
-  content: "→";
+  content: '→';
   position: absolute;
   right: -20px;
   opacity: 0;
@@ -217,18 +243,18 @@ export default {
 }
 
 .puzzle-option:nth-child(1):hover {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #4caf50;
 }
 
 .puzzle-option:nth-child(2):hover {
-  border-left: 4px solid #FF5722;
+  border-left: 4px solid #ff5722;
 }
 
 .puzzle-option:nth-child(3):hover {
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid #2196f3;
 }
 
 .puzzle-option:nth-child(4):hover {
-  border-left: 4px solid #9C27B0;
+  border-left: 4px solid #9c27b0;
 }
 </style>
