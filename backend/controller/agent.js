@@ -15,7 +15,7 @@ exports.chat = async (req, res) => {
   }
 };
 
-// 謎題關主提供謎題或回答問題
+// 謎題關主提供謎題或回答問題 (questionid, input, historychat)
 exports.host = async (req, res) => {
   const { input, isNewGame } = req.body;
   try {
@@ -49,7 +49,7 @@ exports.generateQuestion = async (req, res) => {
   }
 };
 
-// AI玩家提出問題
+// AI玩家提出問題 (aiplayerid, questionid, historychat)
 exports.aiPlayer = async (req, res) => {
   const { context } = req.body;
   try {
