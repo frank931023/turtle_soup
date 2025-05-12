@@ -13,6 +13,7 @@ const createQuestion = async (req, res) => {
       soup,
       level,
       category,
+      thumbsUp,
     } = req.body;
 
     // 確保必要欄位都有填寫
@@ -31,6 +32,7 @@ const createQuestion = async (req, res) => {
       story,
       soup,
       level,
+      thumbsUp: thumbsUp || 0,
       category: category || [],
       isPending: true, // 預設為等待審核狀態
     });
@@ -161,9 +163,9 @@ const getAllQuestions = async (req, res) => {
 
     // 構建查詢條件
     const condition = {
-      isDeleted: deleted === "true" // 預設不顯示已刪除的故事
+      isDeleted: deleted === "true", // 預設不顯示已刪除的故事
     };
-    
+
     if (pending !== undefined) {
       condition.isPending = pending === "true";
     }
