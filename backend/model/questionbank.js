@@ -50,7 +50,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         set(value) {
           this.setDataValue("category", JSON.stringify(value));
-        },
+        }, // 死亡 誤會 失憶 巧合 身份 時間 報復 心理 語言 奇幻
       },
       isPending: {
         type: Sequelize.BOOLEAN,

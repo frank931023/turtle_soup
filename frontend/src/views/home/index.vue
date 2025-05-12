@@ -1,5 +1,19 @@
 <template>
   <div class="turtle-soup-app">
+    <!-- Header with logo and title -->
+    <header class="header">
+      <div class="logo-container">
+        <div class="soup-bowl">
+          <span class="steam"></span>
+          <img src="@/assets/soup.png" alt="Bowl" class="bowl-img" />
+        </div>
+        <h1 class="app-title">請喝湯 <span class="subtitle">一個人的AI海龜湯</span></h1>
+      </div>
+      <div class="sound-icon">
+        <img src="@/assets/sound.png" alt="Sound" />
+      </div>
+    </header>
+
     <!-- Main content -->
     <main class="main-content">
       <div class="puzzle-introduction">
@@ -55,7 +69,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 /* 完全不變，因為 Vue 3 仍支援 scoped styles */
 .turtle-soup-app {
   font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
@@ -64,7 +78,13 @@ export default {
   background-color: white;
 }
 
-
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
 
 .logo-container {
   display: flex;
