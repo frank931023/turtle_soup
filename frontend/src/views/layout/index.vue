@@ -2,11 +2,9 @@
 
 <script setup>
 // 導入組件
-import LayoutNav from '@/views/layout/components/LayoutNavigation.vue'
 import LayoutHeader from '@/views/layout/components/LayoutHeader.vue'
 import LayoutFooter from '@/views/layout/components/LayoutFooter.vue'
 import {onMounted} from "vue";
-import HomePage from '../home/HomePage.vue';
 
 //使用pinia
 // import {useCategoryStore} from "@/stores/category.js"
@@ -19,8 +17,6 @@ import HomePage from '../home/HomePage.vue';
 
 <template>
   <!--  普通組件-->
-  <LayoutNav />
-
   <LayoutHeader />
   <!--  二級路由出口組件-->
   <RouterView />

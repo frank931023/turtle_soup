@@ -1,15 +1,7 @@
 <script>
-import axios from 'axios'
-
 // 導入api
 import { checkBackendConnectionAPI, startGameAPI, userAskAPI, aiAskAPI } from '@/apis/chatGame.js';
 import { ElMessage } from 'element-plus'
-
-// 明確設定 API 基本 URL 並顯示在控制台中
-const apiBaseUrl = 'http://localhost:3000';
-console.log('設置 API 基本 URL:', apiBaseUrl);
-axios.defaults.baseURL = apiBaseUrl;
-axios.defaults.timeout = 10000; // 增加超時時間
 
 
 export default {

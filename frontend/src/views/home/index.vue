@@ -1,32 +1,18 @@
 <template>
   <div class="turtle-soup-app">
-    <!-- Header with logo and title -->
-    <header class="header">
-      <div class="logo-container">
-        <div class="soup-bowl">
-          <span class="steam"></span>
-          <img src="@/assets/soup.png" alt="Bowl" class="bowl-img" />
-        </div>
-        <h1 class="app-title">請喝湯 <span class="subtitle">一個人的AI海龜湯</span></h1>
-      </div>
-      <div class="sound-icon">
-        <img src="@/assets/sound.png" alt="Sound" />
-      </div>
-    </header>
-
     <!-- Main content -->
     <main class="main-content">
       <div class="puzzle-introduction">
         <img src="@/assets/turtle-soup.png" alt="Turtle Soup Illustration" class="turtle-img" />
-        
+
         <p class="intro-text">
           你知道海龜湯嗎？它又叫做水平思考。題目首先給你故事結局，也就是「<strong>湯麵</strong>」，你必須使用跳躍性、超凡的創造力提出猜想，讓這個故事自圓其說，找到「湯底」。
         </p>
-        
+
         <p class="rules-text">
           海龜湯沒有標準答案，你可以不斷提問來驗證你的猜想，但AI只會回答是/不是/不相關，你有8次提問機會，耗盡後會公布答案，助你好運！
         </p>
-        
+
         <div class="warning">
           <span class="warning-icon">⚠ </span>
           <span class="warning-text"><strong>注意：部分故事包含恐怖/血腥元素，膽小慎入。</strong></span>
@@ -38,15 +24,15 @@
         <button class="puzzle-option" @click="navigateToPuzzle('海龜湯的故事')">
           海龜湯的故事
         </button>
-        
+
         <button class="puzzle-option" @click="navigateToPuzzle('死刑犯與惡魔')">
           死刑犯與惡魔
         </button>
-        
+
         <button class="puzzle-option" @click="navigateToPuzzle('四歲的媽媽')">
           四歲的媽媽
         </button>
-        
+
         <button class="puzzle-option" @click="navigateToPuzzle('交換照片')">
           交換照片
         </button>
@@ -69,7 +55,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 /* 完全不變，因為 Vue 3 仍支援 scoped styles */
 .turtle-soup-app {
   font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
@@ -78,13 +64,7 @@ export default {
   background-color: white;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  border-bottom: 1px solid #e0e0e0;
-}
+
 
 .logo-container {
   display: flex;

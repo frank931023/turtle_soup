@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require('dotenv').config();
 
 const db = require("./model/main.js");
 const bodyParser = require("body-parser");
@@ -11,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 前端path
-const frontPath = "http://localhost:5173";
+const frontPath = "http://localhost:5174";
 
 // db.sequelize.sync({ alter: true });
 
@@ -43,6 +44,6 @@ require("./route/user")(app);
 require("./route/agent")(app);
 require("./route/questionbank")(app);
 
-app.listen(PORT, () => {
+app.listen(PORT,() => {
   console.log(`後端伺服器正在 http://localhost:${PORT} 上運行`);
 });

@@ -1,5 +1,5 @@
 <template>
-  
+
   <div class="game-container">
     <!-- 題目欄 -->
     <div class="puzzle-card">
@@ -21,12 +21,12 @@
         </div>
       </div>
     </div>
-    
+
     <div class="content-wrapper">
       <!-- 左側聊天區域 -->
       <div class="chat-container">
         <h2 class="title">AI 湯神</h2>
-    
+
         <div class="chat-box">
           <div
             v-for="(msg, index) in messages"
@@ -37,12 +37,12 @@
             <span class="text">{{ msg.text }}</span>
           </div>
         </div>
-    
+
         <div class="input-box">
-          <input 
-            v-model="input" 
-            @keyup.enter="sendMessage" 
-            placeholder="輸入你的問題..." 
+          <input
+            v-model="input"
+            @keyup.enter="sendMessage"
+            placeholder="輸入你的問題..."
             :disabled="usedQuestions >= 8"
           />
           <button @click="sendMessage" :disabled="usedQuestions >= 8">➤</button>
@@ -54,7 +54,7 @@
           已用完所有提問次數
         </div>
       </div>
-      
+
       <!-- 右側資訊欄位 -->
       <div class="info-panel">
         <h3 class="info-title">已獲得的線索</h3>
@@ -76,10 +76,10 @@
     </div>
   </div>
 </template>
-  
+
 <script setup>
 import { ref } from 'vue'
-  
+
 const input = ref('')
 const messages = ref([
   { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
@@ -90,16 +90,16 @@ const usedQuestions = ref(0)
 
 // 儲存有用的線索資訊
 const clues = ref([])
-  
+
 const sendMessage = () => {
   const question = input.value.trim()
   if (!question || usedQuestions.value >= 8) return
-  
+
   // 增加已使用的提問次數
   usedQuestions.value++
-  
+
   messages.value.push({ from: 'user', text: question })
-  
+
   // 模擬回答邏輯
   let answer = ''
   if (question.includes('喝過海龜湯')) {
@@ -111,17 +111,17 @@ const sendMessage = () => {
   } else {
     answer = ['是', '不是', '不相關'][Math.floor(Math.random() * 3)]
   }
-  
+
   // 儲存問答作為線索
   clues.value.push({
     question,
     answer
   })
-  
+
   setTimeout(() => {
     messages.value.push({ from: 'ai', text: answer })
   }, 600)
-  
+
   input.value = ''
 }
 
@@ -134,8 +134,8 @@ const resetGame = () => {
   ]
 }
 </script>
-  
-<style scoped>
+
+<style scoped lang="scss" >
 /* 容器布局 */
 .game-container {
   max-width: 1200px;
@@ -409,7 +409,7 @@ button:disabled {
   .content-wrapper {
     flex-direction: column;
   }
-  
+
   .info-panel {
     margin-top: 20px;
     height: 300px;

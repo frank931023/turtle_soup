@@ -1,14 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 匯入頁面元件
-import Login from '../views/login/index.vue'
-import Layout from '../views/layout/index.vue'
-import About from '../views/about/index.vue'
-import Game from '../views/game/index.vue'
-import Home from '../views/home/HomePage.vue'
-import Chatgame from '../views/chatGame/index.vue'
+import Login from '@/views/login/index.vue'
+import Layout from '@/views/layout/index.vue'
+import About from '@/views/about/index.vue'
+import Game from '@/views/game/index.vue'
+import Home from '@/views/home/index.vue'
+import Chatgame from '@/views/chatGame/index.vue'
+import Oauth from '@/views/login/oauth/index.vue'
+import Register from '@/views/register/index.vue'
 
-// import Chatgame from '../views/chatgame/index.vue'
 
 const routes = [
   {
@@ -36,13 +37,23 @@ const routes = [
   {
     path: '/game',
     name: 'Game',
-    component: Game 
+    component: Game
   },
 
   {
     path: '/chatgame',
     name: 'chatgame',
     component: Chatgame
+  },
+  {
+    path: '/oauth',
+    name: 'oauth',
+    component: Oauth
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register
   }
 ]
 

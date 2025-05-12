@@ -41,6 +41,7 @@ httpInstance.interceptors.response.use(
       type: 'warning',
       message: e.response?.data?.message || '連線錯誤，請稍後再試',
     });
+    // 如果響應是錯誤，axios回拋出錯誤
     return Promise.reject(e);
   }
 );
