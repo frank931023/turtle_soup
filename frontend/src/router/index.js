@@ -11,12 +11,8 @@ import Oauth from '@/views/login/oauth/index.vue'
 import Register from '@/views/register/index.vue'
 import AddNewStory from '@/views/AddNewStory.vue'
 
-import Login from '../views/login/index.vue'
-import Layout from '../views/layout/index.vue'
-import About from '../views/about/index.vue'
-import Game from '../views/game/index.vue'
-import Home from '../views/home/index.vue'
-import Chatgame from '../views/chatgame/index.vue'
+
+// import Chatgame from '../views/chatgame/index.vue'
 import Landing from '../views/landing/index.vue'
 
 
@@ -38,6 +34,11 @@ const routes = [
         path: 'add-story',
         name: 'AddNewStory',
         component: AddNewStory
+      },
+      {
+        path: '/game',
+        name: 'Game',
+        component: Game
       }
     ]
   },
@@ -51,11 +52,7 @@ const routes = [
     name: 'Login',
     component: Login
   },
-  {
-    path: '/game',
-    name: 'Game',
-    component: Game
-  },
+
 
   {
     path: '/chatgame',
