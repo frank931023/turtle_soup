@@ -5,8 +5,9 @@ import Login from '../views/login/index.vue'
 import Layout from '../views/layout/index.vue'
 import About from '../views/about/index.vue'
 import Game from '../views/game/index.vue'
-import Home from '../views/home/HomePage.vue'
+import Home from '../views/home/index.vue'
 import Chatgame from '../views/chatgame/index.vue'
+import Landing from '../views/landing/index.vue'
 
 // import Chatgame from '../views/chatgame/index.vue'
 
@@ -43,6 +44,12 @@ const routes = [
     path: '/chatgame',
     name: 'chatgame',
     component: Chatgame
+  },
+
+  {
+    path: '/landing',
+    name: 'landing',
+    component: Landing
   }
 ]
 
