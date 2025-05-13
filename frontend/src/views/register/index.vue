@@ -6,6 +6,7 @@ import { ElMessage } from 'element-plus'
 import bgUrl from '@/assets/login-background.png'
 import GoogleLoginButton from "@/views/login/components/LoginGoogle.vue"
 import LoginGithub from '@/views/login/components/LoginGithub.vue'
+import { checkUsernameExistsAPI } from "@/apis/register.js";
 
 const showEntry = ref(false);
 const router = useRouter()
@@ -14,53 +15,89 @@ const userStore = useUserStore()
 const form = ref({
   username: '',
   password: '',
+  confirmPassword: '',
   agree: false,
 })
 
 const rules = {
   username: [
-    {required: true, message: '用戶名不能為空', trigger: 'blur'},
+    { required: true, message: '用戶名不能為空', trigger: 'blur' },
+    {
+      validator: async (rule, value, callback) => {
+        if (!value) {
+          return callback(new Error('用戶名不能為空'))
+        }
+
+        try {
+          // 判斷是否被使用過了
+          const res = await checkUsernameExistsAPI(value)
+          // console.log(res)
+          if (res.result.exists) {
+            callback(new Error('此用戶名已被註冊'))
+          } else {
+            callback()
+          }
+        } catch (err) {
+          callback(new Error('驗證失敗，請稍後再試'))
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   password: [
-    {required: true, message: '密碼不能為空', trigger: 'blur'},
-    {min: 6, max: 14, message: '密碼長度需介於6-14之間', trigger: 'blur'},
+    { required: true, message: '密碼不能為空', trigger: 'blur' },
+    { min: 6, max: 14, message: '密碼長度需介於6-14之間', trigger: 'blur' },
+  ],
+  confirmPassword: [
+    {
+      validator: (rule, value, callback) => {
+        if (!value) {
+          callback(new Error('請再次輸入密碼'))
+        } else if (value !== form.value.password) {
+          callback(new Error('兩次輸入的密碼不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   agree: [
     {
       validator: (rule, value, callback) => {
-        // 校驗邏輯
-        if(value) {
+        if (value) {
           callback()
-        } else{
-          callback("請勾選服務條款")
+        } else {
+          callback('請勾選服務條款')
         }
       }
-
     }
   ]
 }
 // 指向form元素
 const formRef = ref(null)
-const doLogin = () => {
-  const {username, password} = form.value
-  // 呼叫form元素的校驗方法
-  formRef.value.validate( async (valid) => {
-    console.log(valid);
+const doRegister = () => {
+  const { username, password, confirmPassword } = form.value
 
-    // 如果true 才登入
-    if(valid) {
-      // 用pinia封装過的user store 獲取用戶資料 以及登入
-      await userStore.getUserInfo({username, password})
+  formRef.value.validate(async (valid) => {
+    console.log(valid)
 
-      ElMessage({type: 'success', message: '登入成功'})
-      router.replace({path: "/"})
+    if (valid) {
+        // 呼叫 pinia 中的註冊方法，需根據實際方法名修改
+        await userStore.getRegisterUser({ username, password })
+        ElMessage({ type: 'success',message: '註冊成功' })
+        router.replace({ path: '/' })
     }
   })
 }
 
-const goToRegister = () => {
-  router.push('/register')
+const goToLogin = () => {
+  router.push('/login')
 }
+
+
+
+
 
 onMounted(() => {
   setTimeout(() => {
@@ -95,49 +132,52 @@ onMounted(() => {
   }"
     >
       <div class="overlay">
-      <div class="wrapper">
-        <nav>
-          <a href="javascript:;">帳號登入</a>
-        </nav>
-        <div class="account-box">
-          <div class="form">
-            <el-form :model="form" :rules="rules" label-position="right" label-width="60px"
-                     status-icon ref="formRef" >
-              <el-form-item  label="帳號" prop="username">
-                <el-input v-model="form.username" />
-              </el-form-item>
-              <el-form-item label="密碼" prop="password" >
-                <el-input v-model="form.password" type="password" />
-              </el-form-item>
-              <el-form-item label-width="22px" prop="agree">
-                <el-checkbox  size="large" v-model="form.agree">
-                  我已經同意服務條款
-                </el-checkbox>
-              </el-form-item>
-              <el-row :gutter="12">
-                <el-col :span="12">
-                  <el-button size="large" class="subBtn" @click="doLogin" type="primary" plain block>登入</el-button>
-                </el-col>
-                <el-col :span="12">
-                  <el-button size="large" class="subBtn registerBtn" @click="goToRegister" type="success" plain block>註冊</el-button>
-                </el-col>
-              </el-row>
-            </el-form>
-          </div>
-          <div class="social-login">
-          <div class="divider">
-            <span>或使用以下方式登入</span>
-          </div>
-          <div class="social-buttons">
+        <div class="wrapper">
+          <nav>
+            <a href="javascript:;">帳號登入</a>
+          </nav>
+          <div class="account-box">
+            <div class="form">
+              <el-form :model="form" :rules="rules" label-position="right" label-width="60px"
+                       status-icon ref="formRef">
+                <el-form-item label="帳號" prop="username">
+                  <el-input v-model="form.username" />
+                </el-form-item>
+                <el-form-item label="密碼" prop="password">
+                  <el-input v-model="form.password" type="password" />
+                </el-form-item>
+                <el-form-item label="確認" prop="confirmPassword">
+                  <el-input v-model="form.confirmPassword" type="password" />
+                </el-form-item>
+                <el-form-item label-width="22px" prop="agree">
+                  <el-checkbox size="large" v-model="form.agree">
+                    我已經同意服務條款
+                  </el-checkbox>
+                </el-form-item>
+                <el-row :gutter="12">
+                  <el-col :span="12">
+                    <el-button size="large" class="subBtn" @click="doRegister" type="success" plain block>註冊</el-button>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-button size="large" class="subBtn registerBtn" @click="goToLogin" type="primary" plain block>返回登入</el-button>
+                  </el-col>
+                </el-row>
+              </el-form>
+            </div>
+            <div class="social-login">
+              <div class="divider">
+                <span>或使用以下方式登入</span>
+              </div>
+              <div class="social-buttons">
 
-            <GoogleLoginButton/>
-            <br>
-            <LoginGithub/>
+                <GoogleLoginButton/>
+                <br>
+                <LoginGithub/>
 
+              </div>
+            </div>
           </div>
         </div>
-        </div>
-      </div>
       </div>
 
     </section>

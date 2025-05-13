@@ -1,7 +1,9 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { logingAPI } from '@/apis/login.js'
+import { googleLoginAPI, logingAPI,  } from '@/apis/login.js'
+import { registerUserAPI } from '@/apis/register.js'
 
+// 前端獲得第三方驗證的token後，將token傳給後端的API
 
 // 使用user pinia
 export const useUserStore = defineStore('user', () => {
@@ -17,10 +19,31 @@ export const useUserStore = defineStore('user', () => {
   const cleanUserInfo = async () => {
     userInfo.value = {}
   }
+
+  // google登入函數
+  const getGoogleUserInfo = async ({ id_token }) => {
+    const res = await googleLoginAPI({ id_token })
+    userInfo.value = res.result
+  }
+
+  // github登入函數
+  const getGithubUserInfo =  ( result ) => {
+    userInfo.value = result
+  }
+
+  // 註冊函數
+  const getRegisterUser = async ({username, password}) => {
+    const res = await registerUserAPI({username, password})
+    userInfo.value = res.result
+  }
+
   return {
     getUserInfo,
     userInfo,
-    cleanUserInfo
+    cleanUserInfo,
+    getGoogleUserInfo,
+    getGithubUserInfo,
+    getRegisterUser
   }
 },
   {

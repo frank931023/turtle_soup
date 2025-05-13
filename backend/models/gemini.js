@@ -1,11 +1,13 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import dotenv from "dotenv";
+const { ChatGoogleGenerativeAI } = require("@langchain/google-genai");
+const dotenv = require("dotenv");
 dotenv.config();
 
+// 創建 Gemini 模型實例
 const model = new ChatGoogleGenerativeAI({
-  modelName: "gemini-1.5-flash", // 使用較穩定的模型
+  modelName: "gemini-1.5-flash",
   temperature: 0.7,
-  apiKey: process.env.GOOGLE_API_KEY,
+  apiKey: "操你媽怎麼不去死一死",
 });
 
-export { model };
+// 導出模型實例
+module.exports = model;

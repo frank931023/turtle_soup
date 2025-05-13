@@ -3,8 +3,8 @@ import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user.js'
 
 const httpInstance = axios.create({
-  //後端伺服器的基地址(預設後端port3030)
-  baseURL: "http://localhost:3030/",
+  //後端伺服器的基地址(預設後端port3000)
+  baseURL: "http://localhost:3000/",
   timeout: 5000
 })
 
@@ -41,6 +41,7 @@ httpInstance.interceptors.response.use(
       type: 'warning',
       message: e.response?.data?.message || '連線錯誤，請稍後再試',
     });
+    // 如果響應是錯誤，axios回拋出錯誤
     return Promise.reject(e);
   }
 );
