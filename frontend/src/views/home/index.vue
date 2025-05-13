@@ -41,19 +41,19 @@ export default {
       hoveredPuzzle: null,
       puzzles: [
         {
-          name: '海龜湯的故事',
+          name: '海龜湯的故事🐢',
           description: '這是一則關於海龜湯起源的謎題。在這個關卡中，你將探索這種特殊思考遊戲的來源和歷史。適合初學者作為第一個挑戰，幫助你理解水平思考的基本原則和解題思路。此謎題難度較低，讓你慢慢熟悉提問和推理的技巧。'
         },
         {
-          name: '死刑犯與惡魔',
+          name: '死刑犯與惡魔👿',
           description: '一名死刑犯在生命最後時刻遇到了惡魔提出的奇怪交易。這個謎題融合了心理懸疑和道德兩難，需要你運用邏輯和想像力解開表面荒謬現象背後的真相。謎題難度較高，包含黑暗元素和出人意料的轉折，需要大膽假設和縝密推理。適合有經驗的解謎者挑戰。'
         },
         {
-          name: '四歲的媽媽',
+          name: '四歲的媽媽👩‍🍼',
           description: '這個謎題呈現了一個看似不可能的情境：一個四歲的孩子如何成為母親？解開這個謎題需要你跳出常規思維方式，重新思考我們對於年齡、時間和家庭關係的理解。這個中等難度的謎題特別考驗你的創造性思維和對問題的另類解讀能力。準備好顛覆你的常識了嗎？'
         },
         {
-          name: '交換照片',
+          name: '交換照片📸',
           description: '兩個陌生人在一次偶然的照片交換後，發生了一系列令人毛骨悚然的事件。這個謎題融合了神秘元素和心理驚悚，解謎過程中你需要特別關注細節並思考人性的黑暗面。包含輕度恐怖元素，考驗你的觀察力和對人類行為的理解。謎題難度中高，需要敏銳的直覺和邏輯分析能力。'
         }
       ]
@@ -78,7 +78,7 @@ export default {
   font-family: 'Special Elite', 'Noto Sans TC', monospace;
   max-width: 70%;
   min-height: 100vh;
-  background-color: white;
+  background-color: #2a2a2a; 
   margin: 0 auto;
 }
 
@@ -181,7 +181,7 @@ export default {
   flex-direction: column;
   gap: 50px; /* 增加間距方便觀察動畫效果 */
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
 }
 
 /* 修改為包含按鈕和描述的容器 */
@@ -198,14 +198,14 @@ export default {
 
 /* 修改按鈕樣式：默認白色背景 */
 .puzzle-option {
-  background-color: white; /* 改為白色背景 */
+  background-color: white;
   border: none;
   border-radius: 10px 10px 0 0;
   padding: 16px 25px;
-  text-align: left;
+  text-align: center; /* 改為居中對齊 */
   font-size: 17px;
   font-weight: 600;
-  color: #333; /* 深色文字，更適合白色背景 */
+  color: #333;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -213,9 +213,10 @@ export default {
   overflow: hidden;
   display: flex;
   align-items: center;
+  justify-content: center; /* 添加水平居中 */
   width: 100%;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 輕微底部邊框 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .puzzle-option:hover {
