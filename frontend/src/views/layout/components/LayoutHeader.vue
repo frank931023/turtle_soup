@@ -25,6 +25,7 @@ const handleConfirm = () => {
       <li class="home">
         <RouterLink to="/">首頁</RouterLink>
         <RouterLink to="/">多人遊戲</RouterLink>
+        <RouterLink to="/add-story">新增故事</RouterLink>
       </li>
 
     </ul>
