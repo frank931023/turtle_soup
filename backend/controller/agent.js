@@ -4,19 +4,20 @@ const { getAgents } = require("../agent/agentSetup.js");
 let agentsPromise = getAgents();
 
 // Agent API - 一般問答
-exports.chat = async (req, res) => {
-  const { input } = req.body;
-  try {
-    const agents = await agentsPromise;
-    const result = await agents.modelAgent.call({ input });
-    res.json({ reply: result.output });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+// exports.chat = async (req, res) => {
+//   const { input } = req.body;
+//   try {
+//     const agents = await agentsPromise;
+//     const result = await agents.modelAgent.call({ input });
+//     res.json({ reply: result.output });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // 謎題關主提供謎題或回答問題 (questionid, input, historychat)
 exports.host = async (req, res) => {
+  // const { questionid, input, historychat } = req.body;
   const { input, isNewGame } = req.body;
   try {
     let prompt = input;
@@ -36,18 +37,18 @@ exports.host = async (req, res) => {
 };
 
 // 新增問題生成 API
-exports.generateQuestion = async (req, res) => {
-  const { topic } = req.body;
-  try {
-    const agents = await agentsPromise;
-    const result = await agents.questionAgent.call({
-      input: `請生成一個關於${topic || "烏龜湯"}的謎題`,
-    });
-    res.json({ question: result.output });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+// exports.generateQuestion = async (req, res) => {
+//   const { topic } = req.body;
+//   try {
+//     const agents = await agentsPromise;
+//     const result = await agents.questionAgent.call({
+//       input: `請生成一個關於${topic || "烏龜湯"}的謎題`,
+//     });
+//     res.json({ question: result.output });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // AI玩家提出問題 (aiplayerid, questionid, historychat)
 exports.aiPlayer = async (req, res) => {
@@ -62,7 +63,3 @@ exports.aiPlayer = async (req, res) => {
   }
 };
 
-// 測試 API
-exports.hello = (req, res) => {
-  res.json({ message: "你好，來自 Express 後端！" });
-};

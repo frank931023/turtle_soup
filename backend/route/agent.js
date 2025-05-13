@@ -11,13 +11,12 @@ const router = express.Router();
 
 module.exports = (app) => {
   // 基本API
-  app.get("/api/hello", hello);
 
   // Agent API 路由
-  // router.post("/chat", chat);
   router.post("/host", host);
-  // router.post("/generate-question", generateQuestion);
   router.post("/ai-player", aiPlayer);
+  // router.post("/chat", chat);
+  // router.post("/generate-question", generateQuestion);
 
   app.use("/api/agent", router);
 };
