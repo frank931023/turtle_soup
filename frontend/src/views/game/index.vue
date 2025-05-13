@@ -1,118 +1,119 @@
 <template>
-  
-  <div class="game-container">
-    <!-- 頂部導航 -->
-    <div class="game-header">
-      <router-link to="/" class="home-link">
-        <span class="home-icon">🏠</span>
-        <span>返回首頁</span>
-      </router-link>
-    </div>
-    
-    <!-- 固定的題目標題 -->
-    <div class="puzzle-title-bar">
-      <h2>一個男人進了一家餐廳，點了一碗海龜湯，喝完後自殺了，請問為什麼？</h2>
-    </div>
-    
-    <!-- 題目欄 -->
-    <div class="puzzle-card">
-      <div class="puzzle-image">
-        <img src="@/assets/question1.png" alt="海龜湯謎題圖片">
+  <div class="page-background">
+    <div class="game-container">
+      <!-- 頂部導航 -->
+      <div class="game-header">
+        <router-link to="/" class="home-link">
+          <span class="home-icon">🏠</span>
+          <span>返回首頁</span>
+        </router-link>
       </div>
-      <div class="puzzle-content">
-        <h2 class="puzzle-title">湯面</h2>
-        <p class="puzzle-description">
-          一個男人進了一家餐廳，點了一碗海龜湯，喝完之後他就舉槍自殺了，請問為什麼？
-        </p>
-        <div class="puzzle-stats">
-          <span class="like"><span class="thumb">👍</span> 200</span>
-          <span class="views"><span class="eye">👁️</span> 235</span>
-          <span class="solve-rate">49%</span>
-        </div>
-        <div class="puzzle-hint">
-          你擁有8次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有 是/不是/不相關。
-        </div>
+      
+      <!-- 固定的題目標題 -->
+      <div class="puzzle-title-bar">
+        <h2>一個男人進了一家餐廳，點了一碗海龜湯，喝完後自殺了，請問為什麼？</h2>
       </div>
-    </div>
-    
-    <div class="content-wrapper">
-      <!-- 左側聊天區域 -->
-      <div class="chat-container">
-        <h2 class="title">AI 湯神</h2>
-    
-        <div class="chat-box">
-          <div
-            v-for="(msg, index) in messages"
-            :key="index"
-            :class="['message', msg.from === 'user' ? 'user' : 'ai']"
-          >
-            <span class="icon">{{ msg.from === 'user' ? '🐢' : '🍲' }}</span>
-            <span class="text">{{ msg.text }}</span>
+      
+      <!-- 題目欄 -->
+      <div class="puzzle-card">
+        <div class="puzzle-image">
+          <img src="@/assets/question1.png" alt="海龜湯謎題圖片">
+        </div>
+        <div class="puzzle-content">
+          <h2 class="puzzle-title">湯面</h2>
+          <p class="puzzle-description">
+            一個男人進了一家餐廳，點了一碗海龜湯，喝完之後他就舉槍自殺了，請問為什麼？
+          </p>
+          <div class="puzzle-stats">
+            <span class="like"><span class="thumb">👍</span> 200</span>
+            <span class="views"><span class="eye">👁️</span> 235</span>
+            <span class="solve-rate">49%</span>
           </div>
-        </div>
-    
-        <div class="input-box">
-          <input 
-            v-model="input" 
-            @keyup.enter="sendMessage" 
-            placeholder="輸入你的問題..." 
-            :disabled="usedQuestions >= 8"
-          />
-          <button @click="sendMessage" :disabled="usedQuestions >= 8">➤</button>
-        </div>
-        <div class="question-count" v-if="usedQuestions < 8">
-          剩餘提問次數：{{ 8 - usedQuestions }}
-        </div>
-        <div class="question-count used-all" v-else>
-          已用完所有提問次數
+          <div class="puzzle-hint">
+            你擁有8次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有 是/不是/不相關。
+          </div>
         </div>
       </div>
       
-      <!-- 右側資訊欄位 -->
-      <div class="info-panel">
-        <h3 class="info-title">已獲得的線索</h3>
-        
-        <!-- 添加過濾器 -->
-        <div class="filter-tabs">
-          <button 
-            :class="['filter-tab', activeFilter === 'all' ? 'active' : '']" 
-            @click="activeFilter = 'all'"
-          >
-            全部
-          </button>
-          <button 
-            :class="['filter-tab', activeFilter === '是' ? 'active' : '']" 
-            @click="activeFilter = '是'"
-          >
-            是
-          </button>
-          <button 
-            :class="['filter-tab', activeFilter === '不是' ? 'active' : '']" 
-            @click="activeFilter = '不是'"
-          >
-            不是
-          </button>
-          <button 
-            :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']" 
-            @click="activeFilter = '不相關'"
-          >
-            不相關
-          </button>
-        </div>
-        
-        <div class="clues-container">
-          <div v-if="filteredClues.length === 0" class="no-clues">
-            {{ activeFilter === 'all' ? '尚未獲得任何線索，試著提出問題吧！' : `沒有回答為「${activeFilter}」的線索` }}
-          </div>
-          <div v-else class="clue-list">
-            <div v-for="(clue, index) in filteredClues" :key="index" class="clue-item">
-              <div class="clue-question">Q: {{ clue.question }}</div>
-              <div class="clue-answer" :class="clue.answer">A: {{ clue.answer }}</div>
+      <div class="content-wrapper">
+        <!-- 左側聊天區域 -->
+        <div class="chat-container">
+          <h2 class="title">AI 湯神</h2>
+      
+          <div class="chat-box">
+            <div
+              v-for="(msg, index) in messages"
+              :key="index"
+              :class="['message', msg.from === 'user' ? 'user' : 'ai']"
+            >
+              <span class="icon">{{ msg.from === 'user' ? '🐢' : '🍲' }}</span>
+              <span class="text">{{ msg.text }}</span>
             </div>
           </div>
+      
+          <div class="input-box">
+            <input 
+              v-model="input" 
+              @keyup.enter="sendMessage" 
+              placeholder="輸入你的問題..." 
+              :disabled="usedQuestions >= 8"
+            />
+            <button @click="sendMessage" :disabled="usedQuestions >= 8">➤</button>
+          </div>
+          <div class="question-count" v-if="usedQuestions < 8">
+            剩餘提問次數：{{ 8 - usedQuestions }}
+          </div>
+          <div class="question-count used-all" v-else>
+            已用完所有提問次數
+          </div>
         </div>
-        <div class="info-footer">
-          <button @click="resetGame" class="reset-btn">重新開始</button>
+        
+        <!-- 右側資訊欄位 -->
+        <div class="info-panel">
+          <h3 class="info-title">已獲得的線索</h3>
+          
+          <!-- 添加過濾器 -->
+          <div class="filter-tabs">
+            <button 
+              :class="['filter-tab', activeFilter === 'all' ? 'active' : '']" 
+              @click="activeFilter = 'all'"
+            >
+              全部
+            </button>
+            <button 
+              :class="['filter-tab', activeFilter === '是' ? 'active' : '']" 
+              @click="activeFilter = '是'"
+            >
+              是
+            </button>
+            <button 
+              :class="['filter-tab', activeFilter === '不是' ? 'active' : '']" 
+              @click="activeFilter = '不是'"
+            >
+              不是
+            </button>
+            <button 
+              :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']" 
+              @click="activeFilter = '不相關'"
+            >
+              不相關
+            </button>
+          </div>
+          
+          <div class="clues-container">
+            <div v-if="filteredClues.length === 0" class="no-clues">
+              {{ activeFilter === 'all' ? '尚未獲得任何線索，試著提出問題吧！' : `沒有回答為「${activeFilter}」的線索` }}
+            </div>
+            <div v-else class="clue-list">
+              <div v-for="(clue, index) in filteredClues" :key="index" class="clue-item">
+                <div class="clue-question">Q: {{ clue.question }}</div>
+                <div class="clue-answer" :class="clue.answer">A: {{ clue.answer }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="info-footer">
+            <button @click="resetGame" class="reset-btn">重新開始</button>
+          </div>
         </div>
       </div>
     </div>
@@ -214,18 +215,28 @@ onUnmounted(() => {
 </script>
   
 <style scoped>
+/* 添加全屏背景 */
+.page-background {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #C7DBE5;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 /* 容器布局 */
 .game-container {
   max-width: 1200px;
-  width: 70%; /* 修改為70%寬度 */
-  margin: 0 auto;
+  width: 70%;
   padding: 20px;
-  background-color: #C7DBE5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
   box-sizing: border-box;
+  background-color: transparent; /* 移除此處的背景色 */
 }
 
 .content-wrapper {
