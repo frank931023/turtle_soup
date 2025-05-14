@@ -34,11 +34,7 @@
                   placeholder="搜尋故事名稱或描述..."
                   class="search-input"
                   @focus="showSearchHistory = true"
-                  @blur="
-                    setTimeout(() => {
-                      showSearchHistory = false
-                    }, 200)
-                  "
+                  @blur="handleSearchBlur"
                   @keyup.enter="applySearch"
                 />
                 <button class="search-button" @click="applySearch">搜尋</button>
@@ -377,6 +373,33 @@ export default {
           questionCount: gameParams.questionCount, // 添加問題數量參數
         },
       })
+    },
+
+    handleSearchBlur() {
+      // Using setTimeout to allow click events to happen before hiding the dropdown
+      setTimeout(() => {
+        if (!this.preventHistoryClose) {
+          this.showSearchHistory = false
+        }
+        this.preventHistoryClose = false
+      }, 100)
+    },
+
+    handleOutsideClick(event) {
+      // Check if the click is outside the search container
+      if (this.$refs.searchContainer && !this.$refs.searchContainer.contains(event.target)) {
+        this.showSearchHistory = false
+      } else if (this.showSearchHistory) {
+        // If clicking inside while history is showing, prevent history close
+        this.preventHistoryClose = true
+      }
+    },
+
+    data() {
+      return {
+        // ...existing data...
+        preventHistoryClose: false,
+      }
     },
 
     // 從後端獲取故事數據
