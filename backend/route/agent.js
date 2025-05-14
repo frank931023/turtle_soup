@@ -14,9 +14,9 @@ module.exports = (app) => {
   app.get("/api/hello", hello);
 
   // Agent API 路由
-  router.post("/chat", chat);
+  // router.post("/chat", chat);
   router.post("/host", host);
-  router.post("/generate-question", generateQuestion);
+  // router.post("/generate-question", generateQuestion);
   router.post("/ai-player", aiPlayer);
 
   app.use("/api/agent", router);

@@ -6,7 +6,7 @@ dotenv.config();
 const model = new ChatGoogleGenerativeAI({
   modelName: "gemini-1.5-flash",
   temperature: 0.7,
-  apiKey: process.env.GOOGLE_API_KEY,
+  apiKey: "操你媽怎麼不去死一死",
 });
 
 // 導出模型實例
