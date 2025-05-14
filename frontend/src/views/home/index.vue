@@ -1,71 +1,592 @@
 <template>
   <div class="turtle-soup-app">
+    <!-- 引入故事模式選擇器組件 -->
+    <story-mode-selector
+      ref="storySelectorModal"
+      :storyId="selectedStoryId"
+      @start-game="handleStartGame"
+    />
+
     <main class="main-content">
-      <div class="puzzle-options">
-        <div 
-          class="puzzle-option-container" 
-          v-for="(puzzle, index) in puzzles" 
-          :key="index"
-          @mouseenter="hoveredPuzzle = puzzle.name"
-          @mouseleave="hoveredPuzzle = null"
-        >
-          <button 
-            class="puzzle-option" 
-            @click="navigateToPuzzle(puzzle.name)"
-            :class="{ 'active': hoveredPuzzle === puzzle.name }"
-          >
-            {{ puzzle.name }}
-          </button>
-          
-          <transition name="slide-fade">
-            <div 
-              class="puzzle-description" 
-              v-if="hoveredPuzzle === puzzle.name"
-            >
-              <div class="description-content">
-                {{ puzzle.description }}
+      <!-- 加載提示 -->
+      <div v-if="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">正在加載故事...</p>
+      </div>
+
+      <!-- 無數據提示 -->
+      <div v-else-if="puzzles.length === 0" class="no-data">
+        <p>目前沒有可用的故事</p>
+        <button @click="fetchStories" class="retry-button">重試</button>
+      </div>
+
+      <template v-else>
+        <!-- 過濾器區域 -->
+        <div class="filter-container">
+          <!-- 新增搜索欄 -->
+          <div class="filter-section search-section">
+            <h3>搜尋故事</h3>
+            <div class="search-container">
+              <div class="search-input-wrapper">
+                <input
+                  type="text"
+                  v-model="filters.searchText"
+                  placeholder="搜尋故事名稱或描述..."
+                  class="search-input"
+                  @focus="showSearchHistory = true"
+                  @blur="
+                    setTimeout(() => {
+                      showSearchHistory = false
+                    }, 200)
+                  "
+                  @keyup.enter="applySearch"
+                />
+                <button class="search-button" @click="applySearch">搜尋</button>
+                <button class="clear-search" @click="clearSearch" v-if="filters.searchText">
+                  ×
+                </button>
+              </div>
+              <!-- 搜尋歷史 -->
+              <div class="search-history" v-if="showSearchHistory && searchHistory.length > 0">
+                <div
+                  v-for="(item, index) in searchHistory"
+                  :key="index"
+                  class="history-item"
+                  @click="selectSearchHistory(item)"
+                >
+                  <span>{{ item }}</span>
+                  <button class="delete-history" @click.stop="removeSearchHistoryItem(index)">
+                    ×
+                  </button>
+                </div>
+                <div class="history-footer">
+                  <button class="clear-history" @click.stop="clearSearchHistory">
+                    清除所有歷史
+                  </button>
+                </div>
               </div>
             </div>
-          </transition>
+          </div>
+
+          <div class="filter-section">
+            <h3>難度選擇</h3>
+            <div class="difficulty-options">
+              <button
+                @click="setDifficultyFilter(1)"
+                :class="['difficulty-btn', filters.difficulty === 1 ? 'active' : '']"
+              >
+                簡單
+              </button>
+              <button
+                @click="setDifficultyFilter(2)"
+                :class="['difficulty-btn', filters.difficulty === 2 ? 'active' : '']"
+              >
+                普通
+              </button>
+              <button
+                @click="setDifficultyFilter(3)"
+                :class="['difficulty-btn', filters.difficulty === 3 ? 'active' : '']"
+              >
+                困難
+              </button>
+              <button
+                @click="setDifficultyFilter(null)"
+                :class="['difficulty-btn clear-btn', !filters.difficulty ? 'active' : '']"
+              >
+                全部
+              </button>
+            </div>
+          </div>
+          <div class="filter-section">
+            <h3>故事分類</h3>
+            <div class="category-options">
+              <label
+                v-for="category in categoryOptions"
+                :key="category.value"
+                :class="[
+                  'category-tag',
+                  filters.categories.includes(category.value) ? 'active' : '',
+                ]"
+              >
+                <input
+                  type="checkbox"
+                  :value="category.value"
+                  v-model="filters.categories"
+                  @change="applyFilters"
+                />
+                {{ category.label }}
+              </label>
+              <button class="clear-filters" @click="clearCategoryFilters">清除分類</button>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- 過濾後無數據提示 -->
+        <div v-if="filteredPuzzles.length === 0" class="no-data">
+          <p>沒有符合過濾條件的故事</p>
+          <button @click="clearAllFilters" class="retry-button">清除所有過濾</button>
+        </div>
+
+        <!-- 故事列表 -->
+        <div v-else class="puzzle-options">
+          <div
+            class="puzzle-option-container"
+            v-for="(puzzle, index) in paginatedPuzzles"
+            :key="puzzle.id || index"
+            :style="getStoryColorStyles(index)"
+            @mouseenter="hoveredPuzzle = puzzle.name"
+            @mouseleave="hoveredPuzzle = null"
+          >
+            <button
+              class="puzzle-option"
+              @click="navigateToPuzzle(puzzle.name)"
+              :class="{ active: hoveredPuzzle === puzzle.name }"
+            >
+              {{ puzzle.name }}
+            </button>
+
+            <transition name="slide-fade">
+              <div class="puzzle-description" v-if="hoveredPuzzle === puzzle.name">
+                <div class="description-content">
+                  {{ puzzle.description }}
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- 分頁導航 -->
+          <div v-if="filteredPuzzles.length > pagination.pageSize" class="pagination">
+            <div class="pagination-info">
+              <span
+                >第 {{ pagination.currentPage }}/{{ totalPages }} 頁，共
+                {{ filteredPuzzles.length }} 個故事</span
+              >
+            </div>
+            <div class="pagination-controls">
+              <button
+                class="pagination-btn"
+                @click="goToFirstPage"
+                :disabled="pagination.currentPage === 1"
+                title="第一頁"
+              >
+                «
+              </button>
+              <button
+                class="pagination-btn"
+                @click="goToPrevPage"
+                :disabled="pagination.currentPage === 1"
+                title="上一頁"
+              >
+                ‹
+              </button>
+
+              <button
+                v-for="page in pageNumbers"
+                :key="page"
+                @click="page !== '...' ? goToPage(page) : null"
+                :class="[
+                  'pagination-btn',
+                  'page-num',
+                  pagination.currentPage === page ? 'active' : '',
+                  page === '...' ? 'dots' : '',
+                ]"
+                :disabled="page === '...'"
+              >
+                {{ page }}
+              </button>
+
+              <button
+                class="pagination-btn"
+                @click="goToNextPage"
+                :disabled="pagination.currentPage === totalPages"
+                title="下一頁"
+              >
+                ›
+              </button>
+              <button
+                class="pagination-btn"
+                @click="goToLastPage"
+                :disabled="pagination.currentPage === totalPages"
+                title="最後一頁"
+              >
+                »
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
     </main>
   </div>
 </template>
 
 <script>
+import { getAllStoriesAPI } from '@/apis/story.js'
+import { ElMessage } from 'element-plus'
+import StoryModeSelector from '@/views/layout/components/StoryModeSelector.vue'
+
 export default {
   name: 'HomePage',
+  components: {
+    StoryModeSelector,
+  },
   data() {
     return {
+      selectedStoryId: null, // 當前選中的故事ID
       hoveredPuzzle: null,
-      puzzles: [
+      puzzles: [],
+      filteredPuzzles: [],
+      loading: false,
+      // 過濾器狀態
+      filters: {
+        categories: [],
+        difficulty: null,
+        searchText: '', // 搜尋文本
+      },
+      // 搜尋相關
+      showSearchHistory: false, // 控制是否顯示搜尋歷史
+      searchHistory: [], // 儲存搜尋歷史
+      // 分頁相關
+      pagination: {
+        currentPage: 1, // 當前頁碼
+        pageSize: 10, // 每頁顯示數量
+      },
+      // 可用的分類選項
+      categoryOptions: [
+        { label: '死亡', value: '死亡' },
+        { label: '誤會', value: '誤會' },
+        { label: '失憶', value: '失憶' },
+        { label: '巧合', value: '巧合' },
+        { label: '身份', value: '身份' },
+        { label: '時間', value: '時間' },
+        { label: '報復', value: '報復' },
+        { label: '心理', value: '心理' },
+        { label: '語言', value: '語言' },
+        { label: '奇幻', value: '奇幻' },
+      ],
+      // 顏色配置
+      colors: [
         {
-          name: '海龜湯的故事🐢',
-          description: '這是一則關於海龜湯起源的謎題。在這個關卡中，你將探索這種特殊思考遊戲的來源和歷史。適合初學者作為第一個挑戰，幫助你理解水平思考的基本原則和解題思路。此謎題難度較低，讓你慢慢熟悉提問和推理的技巧。'
+          bg: 'rgba(76, 175, 80, 0.1)',
+          border: '#4caf50',
+          text: '#4caf50',
         },
         {
-          name: '死刑犯與惡魔👿',
-          description: '一名死刑犯在生命最後時刻遇到了惡魔提出的奇怪交易。這個謎題融合了心理懸疑和道德兩難，需要你運用邏輯和想像力解開表面荒謬現象背後的真相。謎題難度較高，包含黑暗元素和出人意料的轉折，需要大膽假設和縝密推理。適合有經驗的解謎者挑戰。'
+          bg: 'rgba(255, 87, 34, 0.1)',
+          border: '#ff5722',
+          text: '#ff5722',
         },
         {
-          name: '四歲的媽媽👩‍🍼',
-          description: '這個謎題呈現了一個看似不可能的情境：一個四歲的孩子如何成為母親？解開這個謎題需要你跳出常規思維方式，重新思考我們對於年齡、時間和家庭關係的理解。這個中等難度的謎題特別考驗你的創造性思維和對問題的另類解讀能力。準備好顛覆你的常識了嗎？'
+          bg: 'rgba(33, 150, 243, 0.1)',
+          border: '#2196f3',
+          text: '#2196f3',
         },
         {
-          name: '交換照片📸',
-          description: '兩個陌生人在一次偶然的照片交換後，發生了一系列令人毛骨悚然的事件。這個謎題融合了神秘元素和心理驚悚，解謎過程中你需要特別關注細節並思考人性的黑暗面。包含輕度恐怖元素，考驗你的觀察力和對人類行為的理解。謎題難度中高，需要敏銳的直覺和邏輯分析能力。'
-        }
-      ]
+          bg: 'rgba(156, 39, 176, 0.1)',
+          border: '#9c27b0',
+          text: '#9c27b0',
+        },
+        {
+          bg: 'rgba(255, 193, 7, 0.1)',
+          border: '#ffc107',
+          text: '#ffc107',
+        },
+      ],
     }
+  },
+  computed: {
+    // 計算總頁數
+    totalPages() {
+      return Math.ceil(this.filteredPuzzles.length / this.pagination.pageSize)
+    },
+
+    // 計算當前頁的故事數據
+    paginatedPuzzles() {
+      const start = (this.pagination.currentPage - 1) * this.pagination.pageSize
+      const end = start + this.pagination.pageSize
+      return this.filteredPuzzles.slice(start, end)
+    },
+
+    // 計算頁碼導航
+    pageNumbers() {
+      const totalPages = this.totalPages
+      const currentPage = this.pagination.currentPage
+
+      // 簡單情況：總頁數少於等於7頁
+      if (totalPages <= 7) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1)
+      }
+
+      // 複雜情況：總頁數大於7頁，顯示當前頁周圍的頁碼和首尾頁碼
+      const pages = []
+
+      // 始終添加第一頁
+      pages.push(1)
+
+      // 當前頁靠前時
+      if (currentPage < 4) {
+        pages.push(2, 3, 4, 5, '...', totalPages)
+      }
+      // 當前頁靠後時
+      else if (currentPage > totalPages - 3) {
+        pages.push(
+          '...',
+          totalPages - 4,
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        )
+      }
+      // 當前頁在中間時
+      else {
+        pages.push('...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages)
+      }
+
+      return pages
+    },
   },
   methods: {
     navigateToPuzzle(puzzleName) {
-      console.log(`選擇了謎題: ${puzzleName}`);
-      // 真正使用 Vue Router 時可以這樣跳轉
-      // this.$router.push({ name: 'puzzle', params: { id: puzzleName } });
-    }
-  }
+      console.log(`選擇了謎題: ${puzzleName}`)
+
+      // 找到對應的故事對象
+      const selectedPuzzle = this.puzzles.find((puzzle) => puzzle.name === puzzleName)
+
+      if (selectedPuzzle && selectedPuzzle.id) {
+        // 設置當前選中的故事ID
+        this.selectedStoryId = selectedPuzzle.id
+
+        // 打開故事模式選擇器模態框
+        this.$refs.storySelectorModal.openModal()
+      } else {
+        ElMessage.warning('無法找到該故事的詳細信息')
+      }
+    },
+
+    // 處理故事模式選擇後的遊戲啟動
+    handleStartGame(gameParams) {
+      console.log('開始遊戲，參數為:', gameParams)
+
+      // 這裡可以執行跳轉到遊戲頁面的邏輯
+      this.$router.push({
+        name: 'Game', // 修正為大寫G，與路由配置匹配
+        params: { id: this.selectedStoryId },
+        query: {
+          npcCount: gameParams.npcCount,
+          playAlone: gameParams.playAlone,
+          questionCount: gameParams.questionCount, // 添加問題數量參數
+        },
+      })
+    },
+
+    // 從後端獲取故事數據
+    async fetchStories() {
+      this.loading = true
+      try {
+        const response = await getAllStoriesAPI()
+        if (response && response.success && response.data) {
+          // 將後端數據映射到前端需要的格式
+          this.puzzles = response.data.map((story) => {
+            return {
+              id: story.id,
+              name: story.questionName,
+              description: story.description,
+              level: story.level,
+              category: Array.isArray(story.category) ? story.category : [],
+            }
+          })
+          // 應用過濾器
+          this.applyFilters()
+        } else {
+          ElMessage.warning('獲取故事數據失敗')
+        }
+      } catch (error) {
+        console.error('獲取故事數據錯誤:', error)
+        ElMessage.error('無法連接到伺服器，請稍後再試')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // 應用過濾器
+    applyFilters() {
+      let result = [...this.puzzles]
+
+      // 應用難度過濾
+      if (this.filters.difficulty) {
+        result = result.filter((puzzle) => puzzle.level === this.filters.difficulty)
+      }
+
+      // 應用類別過濾
+      if (this.filters.categories.length > 0) {
+        result = result.filter((puzzle) => {
+          // 檢查故事的類別是否包含任何所選類別
+          return this.filters.categories.some(
+            (cat) => puzzle.category && puzzle.category.includes(cat),
+          )
+        })
+      }
+
+      // 應用搜尋過濾
+      if (this.filters.searchText.trim()) {
+        const searchTerm = this.filters.searchText.trim().toLowerCase()
+        result = result.filter(
+          (puzzle) =>
+            (puzzle.name && puzzle.name.toLowerCase().includes(searchTerm)) ||
+            (puzzle.description && puzzle.description.toLowerCase().includes(searchTerm)),
+        )
+      }
+
+      this.filteredPuzzles = result
+
+      // 重置頁碼到第一頁
+      this.pagination.currentPage = 1
+    },
+
+    // 設置難度過濾器
+    setDifficultyFilter(level) {
+      this.filters.difficulty = level
+      this.applyFilters()
+    },
+
+    // 清除分類過濾器
+    clearCategoryFilters() {
+      this.filters.categories = []
+      this.applyFilters()
+    },
+
+    // 清除所有過濾器
+    clearAllFilters() {
+      this.filters.difficulty = null
+      this.filters.categories = []
+      this.filters.searchText = ''
+      this.applyFilters()
+    },
+
+    // 搜尋相關方法
+    applySearch() {
+      if (this.filters.searchText.trim()) {
+        // 將新的搜索詞添加到歷史記錄的前面
+        const trimmedSearch = this.filters.searchText.trim()
+        // 從歷史中移除相同項目（如果存在）
+        this.searchHistory = this.searchHistory.filter((item) => item !== trimmedSearch)
+        // 添加到前面
+        this.searchHistory.unshift(trimmedSearch)
+        // 只保留最近5個
+        if (this.searchHistory.length > 5) {
+          this.searchHistory = this.searchHistory.slice(0, 5)
+        }
+        // 保存到本地存儲
+        this.saveSearchHistory()
+        // 應用過濾器
+        this.applyFilters()
+      }
+    },
+
+    // 清除當前搜索
+    clearSearch() {
+      this.filters.searchText = ''
+      this.applyFilters()
+    },
+
+    // 從歷史記錄中選擇搜索詞
+    selectSearchHistory(item) {
+      this.filters.searchText = item
+      this.applySearch()
+    },
+
+    // 移除單個搜索歷史項
+    removeSearchHistoryItem(index) {
+      this.searchHistory.splice(index, 1)
+      this.saveSearchHistory()
+    },
+
+    // 清除所有搜索歷史
+    clearSearchHistory() {
+      this.searchHistory = []
+      this.saveSearchHistory()
+    },
+
+    // 保存搜索歷史到本地存儲
+    saveSearchHistory() {
+      localStorage.setItem('turtleSoupSearchHistory', JSON.stringify(this.searchHistory))
+    },
+
+    // 從本地存儲加載搜索歷史
+    loadSearchHistory() {
+      const savedHistory = localStorage.getItem('turtleSoupSearchHistory')
+      if (savedHistory) {
+        try {
+          this.searchHistory = JSON.parse(savedHistory)
+        } catch (e) {
+          console.error('加載搜索歷史出錯:', e)
+          this.searchHistory = []
+        }
+      }
+    },
+
+    // 分頁相關方法
+    goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.pagination.currentPage = page
+        // 回到頂部，提供更好的用戶體驗
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    },
+
+    goToFirstPage() {
+      this.goToPage(1)
+    },
+
+    goToLastPage() {
+      this.goToPage(this.totalPages)
+    },
+
+    goToPrevPage() {
+      this.goToPage(this.pagination.currentPage - 1)
+    },
+
+    goToNextPage() {
+      this.goToPage(this.pagination.currentPage + 1)
+    },
+
+    // 獲取故事顏色樣式
+    getStoryColorStyles(index) {
+      // 使用循環方式分配顏色，確保每個故事都有顏色
+      const colorIndex = index % this.colors.length
+      const color = this.colors[colorIndex]
+
+      return {
+        '--story-bg-color': color.bg,
+        '--story-border-color': color.border,
+        '--story-text-color': color.text,
+      }
+    },
+  },
+  // 在組件掛載時獲取數據
+  mounted() {
+    this.fetchStories()
+    this.loadSearchHistory()
+  },
+
+  // 監聽過濾器變化
+  watch: {
+    'filters.categories': {
+      handler() {
+        this.applyFilters()
+      },
+      deep: true,
+    },
+    'filters.searchText': {
+      handler(val) {
+        // 當輸入框內容變化時，實時過濾
+        if (val === '' || val.length >= 2) {
+          // 為了性能，至少輸入2個字符才開始過濾
+          this.applyFilters()
+        }
+      },
+    },
+  },
 }
 </script>
 
@@ -76,9 +597,9 @@ export default {
 
 .turtle-soup-app {
   font-family: 'Special Elite', 'Noto Sans TC', monospace;
-  max-width: 70%;
+  max-width: 80%;
   min-height: 100vh;
-  background-color: #2a2a2a; 
+  background-color: #2a2a2a;
   margin: 0 auto;
 }
 
@@ -131,12 +652,12 @@ export default {
 }
 
 .main-content {
-  padding: 20px;
-  background-color: #f2f2f2;
+  padding: 30px;
+  background-color: #212121;
   min-height: calc(100vh - 60px);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
 }
 
 .puzzle-introduction {
@@ -153,7 +674,8 @@ export default {
   margin: 0 auto 20px;
 }
 
-.intro-text, .rules-text {
+.intro-text,
+.rules-text {
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 15px;
@@ -179,9 +701,10 @@ export default {
 .puzzle-options {
   display: flex;
   flex-direction: column;
-  gap: 50px; /* 增加間距方便觀察動畫效果 */
+  gap: 20px;
   width: 100%;
   max-width: 500px;
+  align-self: center;
 }
 
 /* 修改為包含按鈕和描述的容器 */
@@ -241,32 +764,12 @@ export default {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
-.puzzle-option-container:nth-child(1) .puzzle-option:hover,
-.puzzle-option-container:nth-child(1) .puzzle-option.active {
-  background-color: rgba(76, 175, 80, 0.1); /* 淺綠色背景 */
-  border-left: 4px solid #4CAF50;
-  color: #4CAF50; /* 文字顏色也變成對應顏色 */
-}
-
-.puzzle-option-container:nth-child(2) .puzzle-option:hover,
-.puzzle-option-container:nth-child(2) .puzzle-option.active {
-  background-color: rgba(255, 87, 34, 0.1); /* 淺橙色背景 */
-  border-left: 4px solid #FF5722;
-  color: #FF5722;
-}
-
-.puzzle-option-container:nth-child(3) .puzzle-option:hover,
-.puzzle-option-container:nth-child(3) .puzzle-option.active {
-  background-color: rgba(33, 150, 243, 0.1); /* 淺藍色背景 */
-  border-left: 4px solid #2196F3;
-  color: #2196F3;
-}
-
-.puzzle-option-container:nth-child(4) .puzzle-option:hover,
-.puzzle-option-container:nth-child(4) .puzzle-option.active {
-  background-color: rgba(156, 39, 176, 0.1); /* 淺紫色背景 */
-  border-left: 4px solid #9C27B0;
-  color: #9C27B0;
+/* 使用CSS變數動態設置顏色 */
+.puzzle-option-container .puzzle-option:hover,
+.puzzle-option-container .puzzle-option.active {
+  background-color: var(--story-bg-color, rgba(76, 175, 80, 0.1));
+  border-left: 4px solid var(--story-border-color, #4caf50);
+  color: var(--story-text-color, #4caf50);
 }
 
 /* 按鈕展開效果 */
@@ -289,32 +792,12 @@ export default {
   border-top: none;
 }
 
-.puzzle-option-container:nth-child(1) .puzzle-description {
-  background-color: rgba(76, 175, 80, 0.1);
-  border-left: 4px solid #4CAF50;
-  border-right: 1px solid rgba(76, 175, 80, 0.2);
-  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
-}
-
-.puzzle-option-container:nth-child(2) .puzzle-description {
-  background-color: rgba(255, 87, 34, 0.1);
-  border-left: 4px solid #FF5722;
-  border-right: 1px solid rgba(255, 87, 34, 0.2);
-  border-bottom: 1px solid rgba(255, 87, 34, 0.2);
-}
-
-.puzzle-option-container:nth-child(3) .puzzle-description {
-  background-color: rgba(33, 150, 243, 0.1);
-  border-left: 4px solid #2196F3;
-  border-right: 1px solid rgba(33, 150, 243, 0.2);
-  border-bottom: 1px solid rgba(33, 150, 243, 0.2);
-}
-
-.puzzle-option-container:nth-child(4) .puzzle-description {
-  background-color: rgba(156, 39, 176, 0.1);
-  border-left: 4px solid #9C27B0;
-  border-right: 1px solid rgba(156, 39, 176, 0.2);
-  border-bottom: 1px solid rgba(156, 39, 176, 0.2);
+/* 使用CSS變數動態設置描述框顏色 */
+.puzzle-option-container .puzzle-description {
+  background-color: var(--story-bg-color, rgba(76, 175, 80, 0.1));
+  border-left: 4px solid var(--story-border-color, #4caf50);
+  border-right: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
+  border-bottom: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
 }
 
 .description-content {
@@ -324,20 +807,9 @@ export default {
   position: relative;
 }
 
-.puzzle-option-container:nth-child(1) .description-content {
-  color: #4CAF50;
-}
-
-.puzzle-option-container:nth-child(2) .description-content {
-  color: #FF5722;
-}
-
-.puzzle-option-container:nth-child(3) .description-content {
-  color: #2196F3;
-}
-
-.puzzle-option-container:nth-child(4) .description-content {
-  color: #9C27B0;
+/* 使用CSS變數動態設置描述文字顏色 */
+.puzzle-option-container .description-content {
+  color: var(--story-text-color, #4caf50);
 }
 
 .slide-fade-enter-active {
@@ -359,5 +831,373 @@ export default {
     transform: scaleY(1);
     max-height: 300px;
   }
+}
+
+/* 過濾器樣式 */
+.filter-container {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 30px;
+  padding: 20px 5px;
+  background-color: transparent;
+  border-radius: 0;
+  align-self: center;
+}
+
+.filter-section {
+  margin-bottom: 15px;
+}
+
+.filter-section h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #f5f5f5;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.difficulty-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.difficulty-btn {
+  padding: 10px 18px;
+  border-radius: 25px;
+  border: 1px solid #555;
+  background-color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  color: #ddd;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.difficulty-btn:hover {
+  background-color: #444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.difficulty-btn.active {
+  background-color: #4caf50;
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.category-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-tag {
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+  background-color: #333;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s;
+  color: #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.category-tag input {
+  position: absolute;
+  opacity: 0;
+}
+
+.category-tag.active {
+  background-color: #2196f3;
+  color: white;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+.clear-filters {
+  padding: 8px 15px;
+  background-color: rgba(255, 87, 34, 0.8);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.clear-filters:hover {
+  background-color: #ff5722;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* 搜索欄樣式 */
+.search-section {
+  margin-bottom: 25px;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1px solid #555;
+  border-radius: 30px;
+  font-size: 14px;
+  background-color: #333;
+  color: #eee;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.2),
+    0 0 0 2px rgba(76, 175, 80, 0.3);
+  border-color: #4caf50;
+}
+
+.search-button {
+  padding: 12px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.search-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.clear-search {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 87, 34, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.clear-search:hover {
+  background-color: #ff5722;
+  transform: rotate(90deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.search-history {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 10px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.history-item:hover {
+  background-color: #f0f0f0;
+}
+
+.delete-history {
+  padding: 5px;
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-history:hover {
+  background-color: #e64a19;
+}
+
+.history-footer {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.clear-history {
+  padding: 5px 10px;
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.clear-history:hover {
+  background-color: #e64a19;
+}
+
+/* 加載動畫 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #4caf50;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #555;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 無數據提示 */
+.no-data {
+  text-align: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.retry-button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-button:hover {
+  background-color: #3e8e41;
+}
+
+/* 分頁導航樣式 */
+.pagination {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 14px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-btn {
+  min-width: 35px;
+  height: 35px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.pagination-btn.active {
+  background-color: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn.dots {
+  cursor: default;
+}
+
+.pagination-btn.page-num {
+  font-weight: 600;
 }
 </style>
