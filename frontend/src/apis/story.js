@@ -30,15 +30,7 @@ export function updateStoryAPI(id, storyData) {
 // 獲取所有故事
 export function getAllStoriesAPI() {
   return request({
-    url: '/api/questionbank',
+    url: '/api/questionbank?limit=1000',
     method: 'GET',
   })
 }
-
-// 獲取所有 pending stories
-// export function getAllPendingStoriesAPI() {
-//   return request({
-//     url: '/api/questionbank?isPending=true',
-//     method: 'GET',
-//   })
-// }
