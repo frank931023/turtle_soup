@@ -11,7 +11,6 @@ import Oauth from '@/views/login/oauth/index.vue'
 import Register from '@/views/register/index.vue'
 import AddNewStory from '@/views/AddNewStory.vue'
 
-
 // import Chatgame from '../views/chatgame/index.vue'
 import Landing from '../views/landing/index.vue'
 
@@ -26,54 +25,52 @@ const routes = [
       {
         path: '',
         name: 'Home',
-        component: Home
+        component: Home,
       },
       {
         path: 'add-story',
         name: 'AddNewStory',
-        component: AddNewStory
+        component: AddNewStory,
       },
       {
-        path: '/game',
+        path: '/game/:id',
         name: 'Game',
-        component: Game
-      }
-    ]
+        component: Game,
+      },
+    ],
   },
   {
     path: '/about',
     name: 'About',
-    component: About
+    component: About,
   },
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
   },
-
 
   {
     path: '/chatgame',
     name: 'chatgame',
-    component: Chatgame
+    component: Chatgame,
   },
 
   {
     path: '/landing',
     name: 'landing',
-    component: Landing
+    component: Landing,
   },
   {
     path: '/oauth',
     name: 'oauth',
-    component: Oauth
+    component: Oauth,
   },
   {
     path: '/register',
     name: 'register',
-    component: Register
+    component: Register,
   },
-
 ]
 
 const router = createRouter({

@@ -369,11 +369,12 @@ export default {
 
       // 這裡可以執行跳轉到遊戲頁面的邏輯
       this.$router.push({
-        name: 'game',
+        name: 'Game', // 修正為大寫G，與路由配置匹配
         params: { id: this.selectedStoryId },
         query: {
           npcCount: gameParams.npcCount,
           playAlone: gameParams.playAlone,
+          questionCount: gameParams.questionCount, // 添加問題數量參數
         },
       })
     },
