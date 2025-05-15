@@ -11,6 +11,7 @@ import Oauth from '../views/login/oauth/index.vue'
 import Register from '../views/register/index.vue'
 import AddNewStory from '../views/AddNewStory.vue'
 import StoryManage from '../views/StoryManage.vue'
+import StoryEditor from '../views/StoryEditor.vue'
 import Landing from '../views/landing/index.vue'
 
 const routes = [
@@ -38,6 +39,11 @@ const routes = [
         path: 'story-manage',
         name: 'StoryManage',
         component: StoryManage,
+      },
+      {
+        path: 'story-edit/:id',
+        name: 'StoryEditor',
+        component: StoryEditor,
       },
     ],
   },

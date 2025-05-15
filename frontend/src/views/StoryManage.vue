@@ -42,7 +42,11 @@
               :key="story.id"
               :class="{ deleted: story.isDeleted, pending: story.isPending }"
             >
-              <td>{{ story.questionName }}</td>
+              <td>
+                <router-link :to="`/story-edit/${story.id}`" class="story-link">
+                  {{ story.questionName }}
+                </router-link>
+              </td>
               <td>
                 <span
                   class="status"
@@ -556,5 +560,19 @@ button {
 .dots {
   background: transparent;
   border-color: transparent;
+}
+
+.story-link {
+  color: #4c6eb1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: block;
+  padding: 5px 0;
+}
+
+.story-link:hover {
+  color: #3b5998;
+  text-decoration: underline;
 }
 </style>
