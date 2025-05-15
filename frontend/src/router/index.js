@@ -22,7 +22,6 @@ const routes = [
         path: '',
         name: 'Home',
         component: Home,
-        component: Home,
       },
       {
         path: 'add-story',
@@ -34,7 +33,6 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    component: About,
     component: About,
   },
   {
@@ -52,25 +50,21 @@ const routes = [
     path: '/chatgame',
     name: 'chatgame',
     component: Chatgame,
-    component: Chatgame,
   },
 
   {
     path: '/landing',
     name: 'landing',
     component: Landing,
-    component: Landing,
   },
   {
     path: '/oauth',
     name: 'oauth',
     component: Oauth,
-    component: Oauth,
   },
   {
     path: '/register',
     name: 'register',
-    component: Register,
     component: Register,
   },
 ]
