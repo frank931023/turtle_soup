@@ -119,7 +119,7 @@ const handleConfirm = () => {
         transition: all 0.4s ease;
 
         &:hover {
-          transform: scale(1.12) translateY(-2px) rotate(-1deg);
+          transform: scale(1.02) translateY(-2px) rotate(-1deg);
           background: linear-gradient(135deg, #f0f0f0, #ddd);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           color: #111;

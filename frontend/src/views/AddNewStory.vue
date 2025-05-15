@@ -1,4 +1,5 @@
 <template>
+  <div class="fullscreen-background"></div>
   <div class="add-story-container">
     <div class="page-header">
       <h1>新增故事</h1>
@@ -179,37 +180,119 @@ const resetForm = () => {
 </script>
 
 <style scoped lang="scss">
+/* 全螢幕背景設置 */
+:deep(body), :deep(html) {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 創建一個全屏背景層 */
+.fullscreen-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('@/assets/form-background.jpg'); /* 替換為您的圖片路徑 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -10;
+}
+
 .add-story-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px 20px;
+  min-height: calc(100vh - 60px);
+  position: relative;
+  z-index: 1;
+  
+  /* 移除之前的背景設置 */
+  &::before {
+    display: none; /* 禁用之前的背景 */
+  }
 
   .page-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: white; /* 改為白色下劃線 */
+      border-radius: 3px;
+    }
 
     h1 {
-      font-size: 32px;
-      color: #333;
-      margin-bottom: 8px;
+      font-size: 36px;
+      color: white; /* 改為白色標題 */
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 增強陰影使白色文字更可讀 */
     }
 
     .subtitle {
-      font-size: 16px;
-      color: #666;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.9); /* 稍微半透明的白色副標題 */
+      font-weight: 300;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.15); /* 輕微陰影增加可讀性 */
     }
   }
 
   .form-container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95); /* 增加不透明度以提高可讀性 */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    padding: 35px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px); /* 背景模糊效果，增強現代感 */
+
+    &:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+      transform: translateY(-5px);
+    }
 
     .story-form {
+      :deep(.el-form-item__label) {
+        font-weight: 600;
+        color: #334155;
+        padding-bottom: 8px;
+        font-size: 16px;
+      }
+
+      :deep(.el-input__wrapper) {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s;
+
+        &:hover, &:focus-within {
+          box-shadow: 0 3px 8px rgba(76, 110, 177, 0.15);
+        }
+      }
+
+      :deep(.el-textarea__inner) {
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      :deep(.el-select) {
+        width: 100%;
+      }
+
       .form-row {
         display: flex;
-        gap: 20px;
+        gap: 24px;
+        margin-bottom: 5px;
 
         .form-column {
           flex: 1;
@@ -219,14 +302,62 @@ const resetForm = () => {
       .tag-container {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
+        padding-top: 10px;
+        
+        :deep(.el-checkbox) {
+          margin-right: 0;
+        }
+
+        :deep(.el-checkbox.is-bordered) {
+          border-radius: 8px;
+          padding: 10px 15px;
+          transition: all 0.2s;
+          
+          &:hover {
+            border-color: #4C6EB1;
+            background: rgba(76, 110, 177, 0.05);
+          }
+        }
+
+        :deep(.el-checkbox.is-checked) {
+          border-color: #4C6EB1;
+          background: rgba(76, 110, 177, 0.1);
+        }
       }
 
       .form-actions {
         display: flex;
         justify-content: flex-end;
-        margin-top: 30px;
-        gap: 15px;
+        margin-top: 40px;
+        gap: 18px;
+
+        button {
+          padding: 12px 28px;
+          font-size: 16px;
+          border-radius: 8px;
+          transition: all 0.3s;
+        }
+
+        :deep(.el-button--default) {
+          border: 1px solid #ddd;
+          
+          &:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+          }
+        }
+
+        :deep(.el-button--primary) {
+          background: linear-gradient(135deg, #4C6EB1, #5fb0ff);
+          border: none;
+          box-shadow: 0 4px 10px rgba(76, 110, 177, 0.3);
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76, 110, 177, 0.4);
+          }
+        }
       }
     }
   }
@@ -234,9 +365,32 @@ const resetForm = () => {
 
 // 响應式布局
 @media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 0 !important;
+  .add-story-container {
+    padding: 20px 15px;
+    
+    .form-container {
+      padding: 25px 20px;
+      border-radius: 10px;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 0 !important;
+    }
+    
+    .page-header {
+      margin-bottom: 30px;
+      
+      h1 {
+        font-size: 28px;
+      }
+    }
+    
+    .form-actions {
+      button {
+        padding: 10px 20px !important;
+      }
+    }
   }
 }
 </style>

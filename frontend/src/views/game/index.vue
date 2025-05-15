@@ -1,14 +1,14 @@
 <template>
   <div class="page-background">
+    <!-- 添加點讚動畫元素 -->
+    <div class="thumbs-up-animation" ref="thumbsUpElement">
+      <img src="@/assets/thumbs-up.png" alt="點讚">
+      <span class="animation-text">找到關鍵線索！</span>
+    </div>
+    
     <div class="game-container">
       <!-- 頂部導航 -->
-      <div class="game-header">
-        <router-link to="/" class="home-link">
-          <span class="home-icon">🏠</span>
-          <span>返回首頁</span>
-        </router-link>
-      </div>
-      
+
       <!-- 固定的題目標題 -->
       <div class="puzzle-title-bar">
         <h2>一個男人進了一家餐廳，點了一碗海龜湯，喝完後自殺了，請問為什麼？</h2>
@@ -127,6 +127,7 @@ const input = ref('')
 const messages = ref([
   { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
 ])
+const thumbsUpElement = ref(null)
 
 // 用於追蹤已使用的提問次數
 const usedQuestions = ref(0)
@@ -145,6 +146,27 @@ const filteredClues = computed(() => {
     return clues.value.filter(clue => clue.answer === activeFilter.value)
   }
 })
+
+const showThumbsUpAnimation = () => {
+  if (thumbsUpElement.value) {
+    // 先移除任何現有的類
+    thumbsUpElement.value.classList.remove('exit');
+    
+    // 添加顯示類
+    thumbsUpElement.value.classList.add('show');
+    
+    // 2秒後開始退出動畫
+    setTimeout(() => {
+      thumbsUpElement.value.classList.remove('show');
+      thumbsUpElement.value.classList.add('exit');
+      
+      // 確保動畫完成後重置
+      setTimeout(() => {
+        thumbsUpElement.value.classList.remove('exit');
+      }, 1000);
+    }, 2000);
+  }
+}
   
 const sendMessage = () => {
   const question = input.value.trim()
@@ -173,8 +195,14 @@ const sendMessage = () => {
     answer
   })
 
+  // 延遲顯示答案
   setTimeout(() => {
     messages.value.push({ from: 'ai', text: answer })
+    
+    // 如果答案是"是"，顯示點讚動畫
+    if (answer === '是') {
+      showThumbsUpAnimation()
+    }
   }, 600)
 
   input.value = ''
@@ -211,20 +239,97 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  
+  // 清除可能的動畫計時器
+  const thumbsUp = thumbsUpElement.value
+  if (thumbsUp && thumbsUp.classList.contains('show')) {
+    thumbsUp.classList.remove('show')
+  }
 })
 </script>
   
 <style scoped>
-/* 添加全屏背景 */
+/* 背景使用圖片 */
 .page-background {
   width: 100%;
   min-height: 100vh;
-  background-color: #C7DBE5;
+  background-image: url("@/assets/game-background.jpg"); /* 修正路徑 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   justify-content: center;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+/* 為了確保內容可讀性，可以添加一層半透明覆蓋 */
+.page-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(199, 219, 229, 0.8); /* 半透明的藍色，保持與原樣式一致 */
+  z-index: -1;
+}
+
+/* 修改點讚動畫樣式 */
+.thumbs-up-animation {
+  position: fixed;
+  top: 40%; /* 稍微上移到頂部 */
+  left: -300px; /* 初始位置在左側螢幕外 */
+  transform: translateY(-50%); /* 垂直置中 */
+  background: linear-gradient(90deg, #4C6EB1, #5fb0ff);
+  color: white;
+  padding: 15px 25px; /* 調整內邊距 */
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 16px; /* 增加間距 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* 增強陰影 */
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* 更順暢的動畫 */
+}
+
+.thumbs-up-animation img {
+  width: 80px; /* 放大圖片 */
+  height: 80px; /* 放大圖片 */
+  animation: pulse 1s infinite alternate;
+  background: transparent; /* 確保背景透明 */
+  object-fit: contain; /* 確保圖片保持原比例 */
+}
+
+.animation-text {
+  font-size: 24px; /* 增大文字 */
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* 更新顯示類 */
+.thumbs-up-animation.show {
+  left: 50%; /* 移至螢幕中央 */
+  transform: translate(-50%, -50%); /* 水平和垂直居中 */
+  opacity: 1;
+}
+
+/* 更新離開類 */
+.thumbs-up-animation.exit {
+  left: 120%; /* 向右側離開 */
+  opacity: 0;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2); /* 稍微增大脈動效果 */
+  }
 }
 
 /* 容器布局 */
@@ -502,6 +607,7 @@ button:disabled {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
+  height: 640px; /* 設置固定高度 */
 }
 
 .info-title {
@@ -516,6 +622,12 @@ button:disabled {
 .clues-container {
   flex: 1;
   overflow-y: auto;
+  margin-bottom: 16px;
+  max-height: 400px; /* 限制最大高度 */
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .no-clues {
