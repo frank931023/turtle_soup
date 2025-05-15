@@ -31,7 +31,7 @@ const routes = [
         component: AddNewStory,
       },
       {
-        path: '/game/:id',
+        path: '/game',
         name: 'Game',
         component: Game,
       },

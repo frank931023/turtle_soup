@@ -133,7 +133,8 @@ import { useRoute } from 'vue-router'
 import { getStoryByIdAPI } from '@/apis/story.js'
 
 const route = useRoute()
-const storyId = ref(route.params.id)
+// 全部改為使用query參數獲取
+const storyId = ref(route.query.id)
 // 以下參數保留，後續可能會用到
 // NPC數量可用於故事選項模擬
 // playAlone可能用於單人/多人模式切換
