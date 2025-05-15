@@ -1,24 +1,12 @@
 const model = require("../models/gemini.js"); // 引入 Gemini 模型
 
-// 嘗試以下導入方式
 const { DynamicTool } = require("langchain/tools");
-
 const { initializeAgentExecutorWithOptions } = require("langchain/agents");
 const { BufferMemory } = require("langchain/memory");
 const dotenv = require("dotenv");
 dotenv.config();
 
-// 創建各個 agent 的記憶實例
-const modelMemory = new BufferMemory({
-  returnMessages: true,
-  memoryKey: "chat_history",
-});
-
-const questionMemory = new BufferMemory({
-  returnMessages: true,
-  memoryKey: "chat_history",
-});
-
+// 只保留必要的記憶實例
 const hostMemory = new BufferMemory({
   returnMessages: true,
   memoryKey: "chat_history",
@@ -29,36 +17,7 @@ const aiPlayerMemory = new BufferMemory({
   memoryKey: "chat_history",
 });
 
-// 原有的回答工具
-const turtleExpert = new DynamicTool({
-  name: "TurtleExpert",
-  description: "提供關於烏龜的建議",
-  func: async (input) => `烏龜專家回答你的問題：${input}`,
-});
-
-const soupMaster = new DynamicTool({
-  name: "SoupMaster",
-  description: "提供湯品建議",
-  func: async (input) => `湯品大師建議：${input}`,
-});
-
-const funAgent = new DynamicTool({
-  name: "FunAgent",
-  description: "增加幽默感",
-  func: async (input) => `搞笑小子回覆：${input}`,
-});
-
-// 新增問題生成工具
-const riddleGenerator = new DynamicTool({
-  name: "RiddleGenerator",
-  description: "生成海龜湯遊戲謎題",
-  func: async (input) => {
-    return `海龜湯謎題：${
-      input || "一個人走進一家餐廳，點了烏龜湯，喝了一口後就自殺了。為什麼？"
-    }`;
-  },
-});
-
+// 只保留必要的工具
 // 謎題關主 - 提供謎題並回答問題
 const gameHost = new DynamicTool({
   name: "GameHost",
@@ -75,30 +34,8 @@ const aiPlayerGenerator = new DynamicTool({
   },
 });
 
-// 初始化代理
+// 簡化初始化代理函數
 const initAgents = async () => {
-  // 原有的回答 agent
-  const modelAgent = await initializeAgentExecutorWithOptions(
-    [turtleExpert, soupMaster, funAgent],
-    model,
-    {
-      agentType: "chat-conversational-react-description",
-      verbose: true,
-      memory: modelMemory,
-    }
-  );
-
-  // 新增問題生成 agent
-  const questionAgent = await initializeAgentExecutorWithOptions(
-    [riddleGenerator],
-    model,
-    {
-      agentType: "chat-conversational-react-description",
-      verbose: true,
-      memory: questionMemory,
-    }
-  );
-
   // 初始化謎題關主Agent
   const hostAgent = await initializeAgentExecutorWithOptions(
     [gameHost],
@@ -121,7 +58,7 @@ const initAgents = async () => {
     }
   );
 
-  return { modelAgent, questionAgent, hostAgent, aiPlayerAgent };
+  return { hostAgent, aiPlayerAgent };
 };
 
 let agents = null;
@@ -134,10 +71,65 @@ const getAgents = async () => {
   return agents;
 };
 
-module.exports = { getAgents };
+// 生成 NPC 提問的函數
+async function askByNpc(npcIndex, storyInfo, clueHistory) {
+  try {
+    // 設定不同 NPC 的人格特性
+    const npcPersonas = [
+      "你是一個邏輯嚴謹的推理者，喜歡從基本事實和細節著手",
+      "你是一個直覺型玩家，常常關注故事中不尋常的元素和違和感",
+      "你是一個仔細的觀察者，擅長找出故事中被忽略的細節",
+      "你是一個系統性思考者，喜歡建立事件的時間線和關聯性",
+    ];
 
-// 移除測試代碼或修改為
-// const setup = require("./agentSetup.js");
-// setup.getAgents().then(agents => {
-//   console.log("可用的 agents:", Object.keys(agents));
-// });
+    // 獲取當前 NPC 的人格 (如果超出範圍則使用默認)
+    const npcPersona =
+      npcPersonas[npcIndex % npcPersonas.length] || "你是一個好奇的玩家";
+
+    const prompt = `
+${npcPersona}。你正在玩海龜湯謎題遊戲。
+
+故事信息：${storyInfo}
+
+你已經看到以下線索：
+${clueHistory.map((c) => `問: ${c.question} -> 答: ${c.answer}`).join("\n")}
+
+規則：
+1. 提出一個有助於理解故事的問題
+2. 不要重複已經問過的問題
+3. 問題必須可以用"是"、"不是"或"不相關"回答
+4. 絕對不要提出可能直接猜到謎底的問題
+5. 避免在問題中包含任何可能是謎底的推測
+
+請直接給出你的問題，不要加入任何前綴或解釋。
+`;
+
+    const model = await getModel();
+    const result = await model.generateContent(prompt);
+
+    // 確保問題不包含多餘的引號或格式
+    const question = result.response
+      .text()
+      .trim()
+      .replace(/^["']|["']$/g, "");
+
+    return question;
+  } catch (error) {
+    console.error("NPC 提問生成錯誤:", error);
+
+    // 提供一些預設問題，以防 API 調用失敗
+    const fallbackQuestions = [
+      "這個事件發生在什麼時間？",
+      "有多少人參與了這個事件？",
+      "事件發生的地點是室內還是室外？",
+      "故事中提到的物品有特殊意義嗎？",
+      "這是一個意外事件還是有人蓄意為之？",
+    ];
+
+    return fallbackQuestions[
+      Math.floor(Math.random() * fallbackQuestions.length)
+    ];
+  }
+}
+
+module.exports = { getAgents, askByNpc };

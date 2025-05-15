@@ -47,12 +47,6 @@ const routes = [
   },
 
   {
-    path: '/chatgame',
-    name: 'chatgame',
-    component: Chatgame,
-  },
-
-  {
     path: '/landing',
     name: 'landing',
     component: Landing,
