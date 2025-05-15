@@ -133,7 +133,7 @@ import { useRoute } from 'vue-router'
 import { getStoryByIdAPI } from '@/apis/story.js'
 
 const route = useRoute()
-const storyId = ref(route.params.id)
+const storyId = ref(route.query.storyId)
 // 以下參數保留，後續可能會用到
 // NPC數量可用於故事選項模擬
 // playAlone可能用於單人/多人模式切換
@@ -166,6 +166,7 @@ const activeFilter = ref('all')
 // 獲取故事詳情
 const fetchStoryDetails = async () => {
   try {
+    console.log('獲取故事詳情，ID:', storyId.value)
     if (storyId.value) {
       const response = await getStoryByIdAPI(storyId.value)
       if (response && response.success && response.data) {

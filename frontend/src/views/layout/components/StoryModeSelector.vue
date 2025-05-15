@@ -214,8 +214,9 @@ export default {
       // Navigate to game page
       this.$router.push({
         name: 'Game', // 修正路由名稱
-        params: { id: this.storyId },
+        // params: { id: this.storyId },
         query: {
+          storyId: this.storyId,
           npcCount: this.npcCount,
           playAlone: this.playAlone,
           questionCount: this.questionCount,
