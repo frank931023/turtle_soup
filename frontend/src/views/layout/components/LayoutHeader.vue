@@ -1,17 +1,37 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { motion } from 'motion-v'
 import router from '@/router'
 import { useUserStore } from '@/stores/user.js'
+import soundOnIcon from '@/assets/sound.png'
+import soundOffIcon from '@/assets/sound-off.png' // 确保您有这个图片
+import { useAudioStore } from '@/stores/audio'
 
+
+const audioStore = useAudioStore()
 const userStore = useUserStore()
 const openSection = ref(null)
 const dropdownVisible = ref(false)
+const isSoundOn = computed(() => audioStore.isPlaying)
 
 function toggle(section) {
   if (openSection.value !== section) {
     openSection.value = section
   }
+}
+
+
+const soundIcon = computed(() => {
+  return isSoundOn.value ? soundOnIcon : soundOffIcon
+})
+
+const toggleSound = () => {
+  if (isSoundOn.value) {
+    audioStore.pause()
+  } else {
+    audioStore.play()
+  }
+  localStorage.setItem('soundEnabled', !isSoundOn.value)
 }
 
 
@@ -33,7 +53,13 @@ function handleClickOutside(event) {
   }
 }
 onMounted(() => {
+  audioStore.play()
   document.addEventListener('click', handleClickOutside)
+  // 獲取聲音
+  const savedSoundState = localStorage.getItem('soundEnabled')
+  if (savedSoundState !== null) {
+    isSoundOn.value = savedSoundState === 'true'
+  }
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
@@ -132,8 +158,20 @@ onBeforeUnmount(() => {
       </ul>
 
       <!-- 喇叭 icon 加入動畫效果 -->
-      <img src="@/assets/sound.png" alt="sound" class="sound-icon" />
-
+      <div
+        class="sound-toggle"
+        @click="toggleSound"
+        :title="isSoundOn ? '關閉音效' : '開啟音效'"
+      >
+        <Transition name="fade" mode="out-in">
+          <img
+            :key="isSoundOn"
+            :src="soundIcon"
+            :alt="isSoundOn ? 'Sound on' : 'Sound off'"
+            class="sound-icon"
+          />
+        </Transition>
+      </div>
     </div>
   </header>
 </template>
@@ -404,5 +442,40 @@ onBeforeUnmount(() => {
   }
 }
 
+.sound-toggle {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.sound-icon {
+  width: 28px;
+  height: 28px;
+  transition: all 0.3s ease;
+  background: white !important;
+}
+
+// 添加过渡动画
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
 </style>

@@ -337,7 +337,7 @@ exports.getProfile = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: "找不到使用者" });
     }
-
+    console.log(user.email);
     res.status(200).send({
       message: "取得個人資料成功",
       user: {
@@ -349,6 +349,7 @@ exports.getProfile = async (req, res) => {
         score: user.score,
         role: user.role,
         avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
