@@ -72,16 +72,18 @@ onMounted(() => {
 
 <template>
   <div>
-    <header class="login-header">
+    <header class="main-header">
       <div class="container m-top-20">
         <h1 class="logo">
           <RouterLink to="/">請喝湯</RouterLink>
         </h1>
-        <RouterLink class="entry" :class="{ show: showEntry }" to="/">
-          進入大廳
-          <i class="iconfont icon-angle-right"></i>
-          <i class="iconfont icon-angle-right"></i>
-        </RouterLink>
+        <div class="entry-group">
+
+          <button class="enter-button" @click="router.push('/')">
+            進入大廳
+          </button>
+
+        </div>
       </div>
     </header>
     <section
@@ -174,7 +176,7 @@ body {
 }
 
 /* 頂部 header */
-.login-header {
+.main-header {
   background: #e8e8e8;
   border-bottom: 1px solid #f3f3f3;
 
@@ -195,6 +197,13 @@ body {
         color: var(--text-color);
         text-decoration: none;
       }
+    }
+
+    .entry-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-left: auto;
     }
 
     .entry {
@@ -386,4 +395,49 @@ body {
 }
 
 
+.enter-button {
+  position: relative;
+  font: inherit;
+  background-color: #f0f0f0;
+  border: 0;
+  color: #242424;
+  border-radius: 999px;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  padding: 0.25em 0.75em;
+  font-weight: 600;
+  text-shadow: 0 0.0625em 0 #fff;
+  box-shadow: inset 0 0.0625em 0 0 #f4f4f4, 0 0.0625em 0 0 #efefef,
+    0 0.125em 0 0 #ececec, 0 0.25em 0 0 #e0e0e0, 0 0.3125em 0 0 #dedede,
+    0 0.375em 0 0 #dcdcdc, 0 0.425em 0 0 #cacaca, 0 0.425em 0.5em 0 #cecece;
+  transition: 0.25s ease;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  &:active,
+  &:hover {
+    transform: translateY(0.225em);
+    box-shadow: inset 0 0.03em 0 0 #f4f4f4, 0 0.03em 0 0 #efefef,
+      0 0.0625em 0 0 #ececec, 0 0.125em 0 0 #e0e0e0, 0 0.125em 0 0 #dedede,
+      0 0.2em 0 0 #dcdcdc, 0 0.225em 0 0 #cacaca,
+      0 0.225em 0.375em 0 #cecece;
+
+    &:after {
+      height: calc(100% + 0.225em);
+    }
+  }
+
+  &:after {
+    position: absolute;
+    content: "";
+    display: block;
+    width: 100%;
+    height: calc(100% + 0.375em);
+    top: 0;
+    left: 0;
+    background-color: transparent;
+    transition: height 0.25s ease;
+  }
+}
 </style>

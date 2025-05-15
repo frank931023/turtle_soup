@@ -10,10 +10,15 @@ import Chatgame from '@/views/chatGame/index.vue'
 import Oauth from '@/views/login/oauth/index.vue'
 import Register from '@/views/register/index.vue'
 import AddNewStory from '@/views/AddNewStory.vue'
+import Account from '@/views/account/index.vue'
+import AdminUser from '@/views/admin/users/index.vue'
 
 
 // import Chatgame from '../views/chatgame/index.vue'
 import Landing from '../views/landing/index.vue'
+import AccountPorfile from '@/views/account/components/AccountPorfile.vue'
+import AccountPasswordReset from '@/views/account/components/AccountPasswordReset.vue'
+import { useUserStore } from '@/stores/user.js'
 
 // import Chatgame from '../views/chatgame/index.vue'
 
@@ -48,7 +53,11 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login
+    component: Login,
+    meta: {
+      requiresAuth: false,      // 不需要登录
+      requiresAdmin: false      // 不需要管理员权限
+    }
   },
 
 
@@ -61,24 +70,104 @@ const routes = [
   {
     path: '/landing',
     name: 'landing',
-    component: Landing
+    component: Landing,
+    meta: {
+      requiresAuth: false,
+      requiresAdmin: false
+    }
   },
   {
     path: '/oauth',
     name: 'oauth',
-    component: Oauth
+    component: Oauth,
+    meta: {
+      requiresAuth: false,
+      requiresAdmin: false
+    }
   },
   {
     path: '/register',
     name: 'register',
-    component: Register
+    component: Register,
+    meta: {
+      requiresAuth: false,      // 需要登录
+      requiresAdmin: false      // 不需要管理员权限
+    }
   },
+  {
+    path: '/admin/users',
+    component: AdminUser,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true
+    }
+  },
+  {
+    path: '/account',
+    component: Account,
+    children: [
+      {
+        path: 'profile-settings', component: () => import('@/views/account/components/AccountProfileSetting.vue')
+      },
+      {
+        path: '',
+        component: AccountPorfile,
+      },
+      {
+        path: 'change-password',
+        component: AccountPasswordReset
+      }
+    ],
+    meta: {
+      requiresAuth: true,      // 需要登录
+      requiresAdmin: false      // 不需要管理员权限
+    }
+  },
+
+
+
 
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+
+
+// 全局导航守卫
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  // 如果页面需要认证
+  if (to.meta.requiresAuth) {
+    // 检查是否已登录
+    if (!userStore.userInfo?.token) {
+      // 未登录，重定向到登录页
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath } // 保存原目标路径
+      })
+      return
+    }
+
+    // 如果页面需要管理员权限
+    if (to.meta.requiresAdmin && userStore.userInfo.user.role !== 'admin') {
+      // 不是管理员，重定向到首页
+      next('/')
+      return
+    }
+  }
+
+  // 如果已登录且要访问登录页，重定向到首页
+  if (to.path === '/login' && userStore.userInfo?.token) {
+    next('/')
+    return
+  }
+
+  // 其他情况正常通过
+  next()
 })
 
 export default router

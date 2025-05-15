@@ -19,6 +19,28 @@ module.exports = (sequelize, Sequelize) => {
       role: {
         type: Sequelize.STRING,
       },
+      score: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      sex: {
+        type: Sequelize.STRING,
+      },
+      name: {
+        type: Sequelize.STRING,
+      },
+      email: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      avatarUrl: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     },
     {
       timestamps: true, // 自動加 createdAt 和 updatedAt

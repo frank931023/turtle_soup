@@ -11,6 +11,10 @@ import ElementPlus from 'unplugin-element-plus/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 5174,           // 改成你想要的 port
+    open: true            // 啟動後自動打開瀏覽器
+  },
   plugins: [
     vue(),
     vueDevTools(),

@@ -1,4 +1,5 @@
 const User = require("../model/main.js").User; //取得post表ORM
+const { Op } = require('sequelize');
 
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "your_secret_key_here"; // 這個是用來簽 token 的密鑰，正式上線要放環境變數！
@@ -54,8 +55,10 @@ exports.loginValidator = async (req, res) => {
         user: {
           id: user.id,
           username: user.username,
-          email: user.email,
+          name: user.name,
           role: user.role,
+          score: user.score,
+          avatarUrl: user.avatarUrl,
         },
       },
     });
@@ -69,29 +72,7 @@ exports.loginValidator = async (req, res) => {
 };
 
 //  add user (for testing)
-exports.addUser = async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).send({
-        message: "Username or password",
-      });
-    }
-    await User.create({
-      username: username,
-      password: password,
-      role: "testRole",
-    });
-    res.status(200).send({
-      message: "Successfully created.",
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({
-      message: error.message,
-    });
-  }
-};
+
 
 exports.googleLogin = async (req, res) => {
   const { id_token } = req.body;
@@ -110,9 +91,13 @@ exports.googleLogin = async (req, res) => {
     if (!user) {
       user = await User.create({
         username: email,
-        password: "google", // 或其他標記，實際上不會用到
-        role: "google_user",
-      });
+        password: 'google',
+        role: "user",
+        name: null,
+        sex: null,
+        email: null,
+        avatarUrl: null,
+      })
     }
 
     const token = jwt.sign(
@@ -128,8 +113,10 @@ exports.googleLogin = async (req, res) => {
         user: {
           id: user.id,
           username: user.username,
-          email: user.username,
+          name: user.name,
           role: user.role,
+          score: user.score,
+          avatarUrl: user.avatarUrl,
         },
       },
     });
@@ -186,12 +173,17 @@ exports.githubCallback = async (req, res) => {
       user = await User.create({
         username,
         password: 'github',
-        role: 'github_user'
+        role: "user",
+        name: null,
+        sex: null,
+        email: null,
+        avatarUrl: null,
       })
     }
 
+    console.log(user.name)
     const token = jwt.sign(
-        { id: user.id, username: user.username, role: user.role },
+        { id: user.id, username: user.username, role: user.role, score: user.score, name: user.name, avatarUrl: user.avatarUrl  },
         SECRET_KEY,
         { expiresIn: '2h' }
     )
@@ -239,8 +231,16 @@ exports.registerUser = async (req, res) => {
       return res.status(409).json({ message: '用戶名已被註冊' })
     }
 
-    // 建立新用戶（未加密版本）
-    const newUser = await User.create({ username, password })
+    // 建立新用戶（未加密版本，含預設值）
+    const newUser = await User.create({
+      username,
+      password,
+      role: "user",
+      name: null,
+      sex: null,
+      email: null,
+      avatarUrl: null,
+    })
 
     // 簽發 JWT
     const token = jwt.sign(
@@ -261,8 +261,10 @@ exports.registerUser = async (req, res) => {
         user: {
           id: newUser.id,
           username: newUser.username,
-          email: newUser.email,   // 若有欄位
-          role: newUser.role      // 若有欄位
+          score: newUser.score,
+          role: newUser.role,      // 若有欄位
+          avatarUrl: newUser.avatarUrl,
+          name: newUser.name,
         }
       }
     })
@@ -272,5 +274,341 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message })
   }
 }
-// where is your register function?
-// fuck you
+
+// 設定個人資料 API
+exports.setProfile = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "缺少授權標頭" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.id;
+
+    const { sex, name, email, avatarUrl } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send({ message: "找不到使用者" });
+    }
+
+    // 僅更新有提供的欄位
+    if (sex !== undefined) user.sex = sex;
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+
+    await user.save();
+
+    res.status(200).send({
+      message: "個人資料更新成功",
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        sex: user.sex,
+        avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error("設定個人資料錯誤:", error);
+    res.status(500).send({ message: "內部伺服器錯誤", error: error.message });
+  }
+};
+
+
+
+// 取得個人公開資料 API
+exports.getProfile = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "缺少授權標頭" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send({ message: "找不到使用者" });
+    }
+
+    res.status(200).send({
+      message: "取得個人資料成功",
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        sex: user.sex,
+        score: user.score,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (error) {
+    console.error("取得個人資料錯誤:", error);
+    res.status(500).send({ message: "內部伺服器錯誤", error: error.message });
+  }
+};
+
+
+
+
+// 密碼重設 API（明文比對版本）
+exports.resetPassword = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "缺少授權標頭" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.id;
+
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).send({ message: "請提供舊密碼與新密碼" });
+    }
+
+    const user = await User.findByPk(userId);
+    console.log(user.password)
+    if (!user) {
+      return res.status(404).send({ message: "找不到使用者" });
+    }
+
+    if (user.password !== oldPassword) {
+      return res.status(400).send({ message: "舊密碼不正確" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).send({ message: "密碼更新成功" });
+  } catch (error) {
+    console.error("密碼重設錯誤:", error);
+    res.status(500).send({ message: "內部伺服器錯誤", error: error.message });
+  }
+};
+
+
+
+
+// controllers/userController.js
+
+
+// 获取用户列表
+exports.listUsers = async (req, res) => {
+  try {
+    const { role, search, page = 1, pageSize = 10 } = req.query;
+
+    // 构建查询条件
+    const where = {};
+    if (role) where.role = role;
+    if (search) {
+      where[Op.or] = [
+        { username: { [Op.like]: `%${search}%` } },
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    // 分页查询
+    const { rows: users, count } = await User.findAndCountAll({
+      where,
+      attributes: ['id', 'username', 'name', 'email', 'role', 'score', 'avatarUrl', 'createdAt'],
+      offset: (page - 1) * pageSize,
+      limit: parseInt(pageSize)
+    });
+
+    res.status(200).json({
+      message: "获取用户列表成功",
+      result: {
+        users,
+        pagination: {
+          total: count,
+          currentPage: parseInt(page),
+          pageSize: parseInt(pageSize)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取用户列表错误:', error);
+    res.status(500).json({
+      message: "服务器错误",
+      error: error.message
+    });
+  }
+};
+
+// 创建新用户
+exports.createUser = async (req, res) => {
+  try {
+    const { username, password, role, name, email, avatarUrl } = req.body;
+
+    // 验证请求数据
+    if (!username || !password) {
+      return res.status(400).json({ message: "用户名和密码为必填项" });
+    }
+
+    // 检查用户是否已存在
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(409).json({ message: "用户名已存在" });
+    }
+
+    // 创建新用户
+    const newUser = await User.create({
+      username,
+      password,
+      role: role || 'user',
+      name,
+      email,
+      score: 0,
+      avatarUrl
+    });
+
+    res.status(201).json({
+      message: "创建用户成功",
+      result: {
+        id: newUser.id,
+        username: newUser.username,
+        role: newUser.role,
+        name: newUser.name,
+        email: newUser.email
+      }
+    });
+  } catch (error) {
+    console.error('创建用户错误:', error);
+    res.status(500).json({
+      message: "服务器错误",
+      error: error.message
+    });
+  }
+};
+
+// 更新用户信息
+exports.updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, name, email, score, avatarUrl } = req.body;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" });
+    }
+
+    // 更新用户信息
+    await user.update({
+      role: role || user.role,
+      name: name || user.name,
+      email: email || user.email,
+      score: score || user.score,
+      avatarUrl: avatarUrl
+    });
+
+    res.status(200).json({
+      message: "更新用户成功",
+      result: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+        score: user.score,
+        avatarUrl: user.avatarUrl
+      }
+    });
+  } catch (error) {
+    console.error('更新用户错误:', error);
+    res.status(500).json({
+      message: "服务器错误",
+      error: error.message
+    });
+  }
+};
+
+// 删除用户
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: "用户不存在" });
+    }
+
+    await user.destroy();
+
+    res.status(200).json({
+      message: "删除用户成功"
+    });
+  } catch (error) {
+    console.error('删除用户错误:', error);
+    res.status(500).json({
+      message: "服务器错误",
+      error: error.message
+    });
+  }
+};
+
+
+exports.getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 找到用户
+    const user = await User.findByPk(id, {
+      attributes: [
+        'id',
+        'username',
+        'name',
+        'email',
+        'role',
+        'score',
+        'avatarUrl',
+        'sex',
+        'createdAt'
+      ]
+    });
+
+    // 检查用户是否存在
+    if (!user) {
+      return res.status(404).json({
+        message: "找不到该用户"
+      });
+    }
+
+    // 返回用户信息
+    res.status(200).json({
+      message: "获取用户信息成功",
+      result: {
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          score: user.score,
+          sex: user.sex,
+          avatarUrl: user.avatarUrl,
+          createdAt: user.createdAt
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('获取用户信息错误:', error);
+    res.status(500).json({
+      message: "服务器错误",
+      error: error.message
+    });
+  }
+};
