@@ -216,7 +216,7 @@
 </template>
 
 <script>
-import { getAllStoriesAPI } from '@/apis/story.js'
+import { getAllStoriesAPI, getAllPassedStoriesAPI } from '@/apis/story.js'
 import { ElMessage } from 'element-plus'
 import StoryModeSelector from '@/views/layout/components/StoryModeSelector.vue'
 
@@ -406,7 +406,8 @@ export default {
     async fetchStories() {
       this.loading = true
       try {
-        const response = await getAllStoriesAPI()
+        // const response = await getAllStoriesAPI()
+        const response = await getAllPassedStoriesAPI()
         if (response && response.success && response.data) {
           // 將後端數據映射到前端需要的格式
           this.puzzles = response.data.map((story) => {

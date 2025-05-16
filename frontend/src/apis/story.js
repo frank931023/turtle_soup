@@ -34,3 +34,43 @@ export function getAllStoriesAPI() {
     method: 'GET',
   })
 }
+
+// get all deleted stories
+export function getAllDeletedStoriesAPI() {
+  return request({
+    url: 'api/questionbank?deleted=true&limit=1000',
+    method: 'GET',
+  })
+}
+
+// get all passed stories (not pending)
+export function getAllPassedStoriesAPI() {
+  return request({
+    url: 'api/questionbank?pending=false&limit=1000',
+    method: 'GET',
+  })
+}
+
+// approve story
+export function approveStoryAPI(id) {
+  return request({
+    url: `/api/questionbank/${id}/approve`,
+    method: 'POST',
+  })
+}
+
+// delete story
+export function deleteStoryAPI(id) {
+  return request({
+    url: `/api/questionbank/${id}`,
+    method: 'DELETE',
+  })
+}
+
+// restore story
+export function restoreStoryAPI(id) {
+  return request({
+    url: `/api/questionbank/${id}/restore`,
+    method: 'POST',
+  })
+}

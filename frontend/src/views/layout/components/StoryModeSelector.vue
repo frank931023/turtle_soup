@@ -103,7 +103,7 @@
 
 <script>
 import { getStoryByIdAPI } from '@/apis/story.js'
-import { ElMessage } from 'element-plus'
+// import { ElMessage } from 'element-plus'
 
 export default {
   name: 'StoryModeSelector',
@@ -214,8 +214,8 @@ export default {
       // Navigate to game page
       this.$router.push({
         name: 'Game', // 修正路由名稱
-        params: { id: this.storyId },
         query: {
+          id: this.storyId,
           npcCount: this.npcCount,
           playAlone: this.playAlone,
           questionCount: this.questionCount,
