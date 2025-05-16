@@ -211,10 +211,7 @@ const resetForm = () => {
   position: relative;
   z-index: 1;
   
-  /* 移除之前的背景設置 */
-  &::before {
-    display: none; /* 禁用之前的背景 */
-  }
+
 
   .page-header {
     text-align: center;
