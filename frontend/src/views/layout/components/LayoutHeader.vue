@@ -53,13 +53,12 @@ function handleClickOutside(event) {
   }
 }
 onMounted(() => {
-  audioStore.play()
   document.addEventListener('click', handleClickOutside)
-  // 獲取聲音
   const savedSoundState = localStorage.getItem('soundEnabled')
   if (savedSoundState !== null) {
     isSoundOn.value = savedSoundState === 'true'
   }
+
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
