@@ -8,38 +8,49 @@
     
     <div class="game-container">
       <!-- 頂部導航 -->
-
+      <div class="game-header">
+        <router-link to="/" class="home-link">
+          <span class="home-icon">🏠</span>
+          <span>返回首頁</span>
+        </router-link>
+      </div>
       <!-- 固定的題目標題 -->
       <div class="puzzle-title-bar">
-        <h2>一個男人進了一家餐廳，點了一碗海龜湯，喝完後自殺了，請問為什麼？</h2>
+        <h2>{{ storyData.questionName }}</h2>
       </div>
-      
+
       <!-- 題目欄 -->
       <div class="puzzle-card">
         <div class="puzzle-image">
-          <img src="@/assets/question1.png" alt="海龜湯謎題圖片">
+          <img :src="storyData.imageUrl" alt="海龜湯謎題圖片" />
         </div>
         <div class="puzzle-content">
-          <h2 class="puzzle-title">湯面</h2>
+          <h2 class="puzzle-title">{{ storyData.questionName }}</h2>
           <p class="puzzle-description">
-            一個男人進了一家餐廳，點了一碗海龜湯，喝完之後他就舉槍自殺了，請問為什麼？
+            {{ storyData.questionContent }}
           </p>
           <div class="puzzle-stats">
-            <span class="like"><span class="thumb">👍</span> 200</span>
-            <span class="views"><span class="eye">👁️</span> 235</span>
-            <span class="solve-rate">49%</span>
+            <span class="like"><span class="thumb">👍</span> {{ storyData.thumbsUp }}</span>
+            <span class="views"><span class="eye">👁️</span> {{ storyData.views }}</span>
+            <span class="solve-rate">{{ storyData.solveRate }}</span>
           </div>
           <div class="puzzle-hint">
-            你擁有8次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有 是/不是/不相關。
+            你擁有{{ questionCount }}次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有
+            是/不是/不相關。
           </div>
         </div>
       </div>
-      
+
       <div class="content-wrapper">
         <!-- 左側聊天區域 -->
         <div class="chat-container">
-          <h2 class="title">AI 湯神</h2>
-      
+          <h2 class="title">
+            AI 湯神
+            <small v-if="!playAlone" class="mode-tag">{{
+              npcCount > 0 ? `(${npcCount} 位NPC)` : ''
+            }}</small>
+          </h2>
+
           <div class="chat-box">
             <div
               v-for="(msg, index) in messages"
@@ -50,59 +61,61 @@
               <span class="text">{{ msg.text }}</span>
             </div>
           </div>
-      
+
           <div class="input-box">
-            <input 
-              v-model="input" 
-              @keyup.enter="sendMessage" 
-              placeholder="輸入你的問題..." 
-              :disabled="usedQuestions >= 8"
+            <input
+              v-model="input"
+              @keyup.enter="sendMessage"
+              placeholder="輸入你的問題..."
+              :disabled="usedQuestions >= questionCount"
             />
-            <button @click="sendMessage" :disabled="usedQuestions >= 8">➤</button>
+            <button @click="sendMessage" :disabled="usedQuestions >= questionCount">➤</button>
           </div>
-          <div class="question-count" v-if="usedQuestions < 8">
-            剩餘提問次數：{{ 8 - usedQuestions }}
+          <div class="question-count" v-if="usedQuestions < questionCount">
+            剩餘提問次數：{{ questionCount - usedQuestions }}
           </div>
-          <div class="question-count used-all" v-else>
-            已用完所有提問次數
-          </div>
+          <div class="question-count used-all" v-else>已用完所有提問次數</div>
         </div>
-        
+
         <!-- 右側資訊欄位 -->
         <div class="info-panel">
           <h3 class="info-title">已獲得的線索</h3>
-          
+
           <!-- 添加過濾器 -->
           <div class="filter-tabs">
-            <button 
-              :class="['filter-tab', activeFilter === 'all' ? 'active' : '']" 
+            <button
+              :class="['filter-tab', activeFilter === 'all' ? 'active' : '']"
               @click="activeFilter = 'all'"
             >
               全部
             </button>
-            <button 
-              :class="['filter-tab', activeFilter === '是' ? 'active' : '']" 
+            <button
+              :class="['filter-tab', activeFilter === '是' ? 'active' : '']"
               @click="activeFilter = '是'"
             >
               是
             </button>
-            <button 
-              :class="['filter-tab', activeFilter === '不是' ? 'active' : '']" 
+            <button
+              :class="['filter-tab', activeFilter === '不是' ? 'active' : '']"
               @click="activeFilter = '不是'"
             >
               不是
             </button>
-            <button 
-              :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']" 
+            <button
+              :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']"
               @click="activeFilter = '不相關'"
             >
               不相關
             </button>
           </div>
-          
+
           <div class="clues-container">
             <div v-if="filteredClues.length === 0" class="no-clues">
-              {{ activeFilter === 'all' ? '尚未獲得任何線索，試著提出問題吧！' : `沒有回答為「${activeFilter}」的線索` }}
+              {{
+                activeFilter === 'all'
+                  ? '尚未獲得任何線索，試著提出問題吧！'
+                  : `沒有回答為「${activeFilter}」的線索`
+              }}
             </div>
             <div v-else class="clue-list">
               <div v-for="(clue, index) in filteredClues" :key="index" class="clue-item">
@@ -121,13 +134,32 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-  
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { getStoryByIdAPI } from '@/apis/story.js'
+
+const route = useRoute()
+// 全部改為使用query參數獲取
+const storyId = ref(route.query.id)
+// 以下參數保留，後續可能會用到
+// NPC數量可用於故事選項模擬
+// playAlone可能用於單人/多人模式切換
+const npcCount = ref(parseInt(route.query.npcCount) || 0)
+const playAlone = ref(route.query.playAlone === 'true' || true)
+const questionCount = ref(parseInt(route.query.questionCount) || 8)
+
+// 故事資料
+const storyData = ref({
+  questionName: '載入中...',
+  questionContent: '載入中...',
+  thumbsUp: 0,
+  views: 0,
+  solveRate: '0%',
+  imageUrl: '',
+})
+
 const input = ref('')
-const messages = ref([
-  { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
-])
-const thumbsUpElement = ref(null)
+const messages = ref([{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }])
 
 // 用於追蹤已使用的提問次數
 const usedQuestions = ref(0)
@@ -138,50 +170,44 @@ const clues = ref([])
 // 添加過濾器狀態
 const activeFilter = ref('all')
 
+// 獲取故事詳情
+const fetchStoryDetails = async () => {
+  try {
+    if (storyId.value) {
+      const response = await getStoryByIdAPI(storyId.value)
+      if (response && response.success && response.data) {
+        storyData.value = {
+          questionName: response.data.questionName || '未知故事',
+          questionContent: response.data.story || '無故事內容',
+          thumbsUp: response.data.thumbsUp || 0,
+          // views: response.data.views || 0,
+          // solveRate: response.data.solveRate || '0%',
+          views: response.data.views || Math.floor(Math.random() * 2000 + 500),
+          solveRate: response.data.solveRate || `${Math.floor(Math.random() * 50 + 30)}%`,
+          imageUrl: response.data.imageURL || '@/assets/question1.png',
+        }
+        console.log('成功獲取故事資料:', storyData.value)
+      } else {
+        console.error('獲取故事詳情失敗:', response)
+      }
+    }
+  } catch (error) {
+    console.error('獲取故事詳情錯誤:', error)
+  }
+}
+
 // 計算過濾後的線索
 const filteredClues = computed(() => {
   if (activeFilter.value === 'all') {
     return clues.value
   } else {
-    return clues.value.filter(clue => clue.answer === activeFilter.value)
+    return clues.value.filter((clue) => clue.answer === activeFilter.value)
   }
 })
 
-const showThumbsUpAnimation = () => {
-  if (thumbsUpElement.value) {
-    // 先移除任何現有的類
-    thumbsUpElement.value.classList.remove('exit');
-    
-    // 添加顯示類
-    thumbsUpElement.value.classList.add('show');
-    
-    // 2秒後開始退出動畫
-    setTimeout(() => {
-      thumbsUpElement.value.classList.remove('show');
-      thumbsUpElement.value.classList.add('exit');
-      
-      // 確保動畫完成後重置
-      setTimeout(() => {
-        thumbsUpElement.value.classList.remove('exit');
-      }, 1000);
-    }, 2000);
-  }
-}
-
-// 添加此函數來處理自動捲動
-const scrollToBottom = () => {
-  // 使用 nextTick 確保 DOM 已經更新
-  nextTick(() => {
-    const chatBox = document.querySelector('.chat-box');
-    if (chatBox) {
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  });
-};
-
 const sendMessage = () => {
   const question = input.value.trim()
-  if (!question || usedQuestions.value >= 8) return
+  if (!question || usedQuestions.value >= questionCount.value) return
 
   // 增加已使用的提問次數
   usedQuestions.value++
@@ -206,7 +232,7 @@ const sendMessage = () => {
   // 儲存問答作為線索
   clues.value.push({
     question,
-    answer
+    answer,
   })
 
   // 延遲顯示答案
@@ -229,20 +255,22 @@ const sendMessage = () => {
 const resetGame = () => {
   usedQuestions.value = 0
   clues.value = []
-  messages.value = [
-    { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
-  ]
+  messages.value = [{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }]
   activeFilter.value = 'all'
+
+  // 如果需要重新獲取故事資料
+  fetchStoryDetails()
 }
 
 // 監聽滾動事件，控制題目標題欄的顯示
 const handleScroll = () => {
   const puzzleCard = document.querySelector('.puzzle-card')
   const gameContainer = document.querySelector('.game-container')
-  
+
   if (puzzleCard) {
     const rect = puzzleCard.getBoundingClientRect()
-    if (rect.bottom < 50) { // 當題目欄底部位置超出可視區域頂部50px時
+    if (rect.bottom < 50) {
+      // 當題目欄底部位置超出可視區域頂部50px時
       gameContainer.classList.add('scrolled')
     } else {
       gameContainer.classList.remove('scrolled')
@@ -252,6 +280,8 @@ const handleScroll = () => {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  // 獲取故事詳情
+  fetchStoryDetails()
 })
 
 onUnmounted(() => {
@@ -264,17 +294,13 @@ onUnmounted(() => {
   }
 })
 </script>
-  
+
 <style scoped>
 /* 背景使用圖片 */
 .page-background {
   width: 100%;
   min-height: 100vh;
-  background-image: url("@/assets/game-background.jpg"); /* 修正路徑 */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-color: #c7dbe5;
   display: flex;
   justify-content: center;
   padding: 0;
@@ -385,7 +411,7 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   text-decoration: none;
-  color: #4C6EB1;
+  color: #4c6eb1;
   font-weight: bold;
   transition: background 0.2s;
 }
@@ -405,7 +431,7 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
@@ -417,14 +443,12 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center; /* 垂直置中 */
   background: #e0e0e0;
-  padding: 15px;
-  overflow: hidden; /* 防止圖片溢出 */
+  padding: 25px;
 }
 
 .puzzle-image img {
-  width: 220px; /* 固定寬度 */
-  height: 220px; /* 固定高度 */
-  object-fit: contain; /* 保持比例，確保圖片完整顯示 */
+  width: 100%;
+  max-height: 500px;
 }
 .puzzle-content {
   padding: 16px;
@@ -455,13 +479,15 @@ onUnmounted(() => {
   color: #555;
 }
 
-.like, .views {
+.like,
+.views {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.thumb, .eye {
+.thumb,
+.eye {
   font-size: 16px;
 }
 
@@ -475,13 +501,13 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   width: 100%;
-  background: linear-gradient(to right, #4C6EB1, #5278c8);
+  background: linear-gradient(to right, #4c6eb1, #5278c8);
   color: white;
   padding: 8px 16px;
   border-radius: 0 0 10px 10px;
   margin-bottom: 15px;
   z-index: 100;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
   transform: translateY(-100%);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-align: center;
@@ -527,13 +553,18 @@ onUnmounted(() => {
   font-family: sans-serif;
   background: #f9f9f9;
   border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .title {
   text-align: center;
   margin-bottom: 16px;
+}
+
+.mode-tag {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: normal;
 }
 
 .chat-box {
@@ -592,7 +623,7 @@ input {
 button {
   padding: 0 14px;
   border: none;
-  background: #4C6EB1;
+  background: #4c6eb1;
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -624,7 +655,7 @@ button:disabled {
   background: #f0f4f8;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   height: 640px; /* 設置固定高度 */
@@ -667,7 +698,7 @@ button:disabled {
   background: white;
   padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .clue-question {
@@ -727,7 +758,7 @@ button:disabled {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 10px;
   padding: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .filter-tab {
@@ -749,12 +780,12 @@ button:disabled {
 
 .filter-tab:hover {
   background: rgba(255, 255, 255, 0.7);
-  color: #4C6EB1;
+  color: #4c6eb1;
 }
 
 .filter-tab.active {
   background: #fff;
-  color: #4C6EB1;
+  color: #4c6eb1;
   box-shadow: 0 2px 6px rgba(76, 110, 177, 0.15);
   transform: translateY(-1px);
 }
@@ -766,7 +797,7 @@ button:disabled {
   left: 25%;
   width: 50%;
   height: 3px;
-  background: #4C6EB1;
+  background: #4c6eb1;
   border-radius: 3px;
 }
 
@@ -775,7 +806,7 @@ button:disabled {
   .game-container {
     width: 95%; /* 手機版使用更大寬度 */
   }
-  
+
   .content-wrapper {
     flex-direction: column;
   }
