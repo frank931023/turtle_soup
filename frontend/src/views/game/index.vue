@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
   
 const input = ref('')
 const messages = ref([
@@ -167,7 +167,18 @@ const showThumbsUpAnimation = () => {
     }, 2000);
   }
 }
-  
+
+// 添加此函數來處理自動捲動
+const scrollToBottom = () => {
+  // 使用 nextTick 確保 DOM 已經更新
+  nextTick(() => {
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+};
+
 const sendMessage = () => {
   const question = input.value.trim()
   if (!question || usedQuestions.value >= 8) return
@@ -176,6 +187,9 @@ const sendMessage = () => {
   usedQuestions.value++
 
   messages.value.push({ from: 'user', text: question })
+  
+  // 在用戶訊息添加後捲動到底部
+  scrollToBottom();
 
   // 模擬回答邏輯
   let answer = ''
@@ -198,6 +212,9 @@ const sendMessage = () => {
   // 延遲顯示答案
   setTimeout(() => {
     messages.value.push({ from: 'ai', text: answer })
+    
+    // AI 訊息添加後也捲動到底部
+    scrollToBottom();
     
     // 如果答案是"是"，顯示點讚動畫
     if (answer === '是') {
@@ -395,17 +412,20 @@ onUnmounted(() => {
 
 .puzzle-image {
   width: 100%;
+  height: 240px; /* 固定高度 */
   display: flex;
   justify-content: center;
+  align-items: center; /* 垂直置中 */
   background: #e0e0e0;
   padding: 15px;
+  overflow: hidden; /* 防止圖片溢出 */
 }
 
 .puzzle-image img {
-  max-width: 200px;
-  max-height: 200px;
+  width: 220px; /* 固定寬度 */
+  height: 220px; /* 固定高度 */
+  object-fit: contain; /* 保持比例，確保圖片完整顯示 */
 }
-
 .puzzle-content {
   padding: 16px;
 }
