@@ -283,7 +283,7 @@ onUnmounted(() => {
   top: 40%; /* 稍微上移到頂部 */
   left: -300px; /* 初始位置在左側螢幕外 */
   transform: translateY(-50%); /* 垂直置中 */
-  background: linear-gradient(90deg, #4C6EB1, #5fb0ff);
+  background: linear-gradient(90deg, #415274, #527496);
   color: white;
   padding: 15px 25px; /* 調整內邊距 */
   border-radius: 50px;
