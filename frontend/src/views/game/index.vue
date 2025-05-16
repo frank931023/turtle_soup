@@ -133,7 +133,8 @@ import { useRoute } from 'vue-router'
 import { getStoryByIdAPI } from '@/apis/story.js'
 
 const route = useRoute()
-const storyId = ref(route.params.id)
+// 全部改為使用query參數獲取
+const storyId = ref(route.query.id)
 // 以下參數保留，後續可能會用到
 // NPC數量可用於故事選項模擬
 // playAlone可能用於單人/多人模式切換
@@ -173,8 +174,10 @@ const fetchStoryDetails = async () => {
           questionName: response.data.questionName || '未知故事',
           questionContent: response.data.story || '無故事內容',
           thumbsUp: response.data.thumbsUp || 0,
-          views: response.data.views || 0,
-          solveRate: response.data.solveRate || '0%',
+          // views: response.data.views || 0,
+          // solveRate: response.data.solveRate || '0%',
+          views: response.data.views || Math.floor(Math.random() * 2000 + 500),
+          solveRate: response.data.solveRate || `${Math.floor(Math.random() * 50 + 30)}%`,
           imageUrl: response.data.imageURL || '@/assets/question1.png',
         }
         console.log('成功獲取故事資料:', storyData.value)
