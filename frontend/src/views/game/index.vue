@@ -190,6 +190,9 @@ const sendMessage = () => {
   
   // 在用戶訊息添加後捲動到底部
   scrollToBottom();
+  
+  // 在用戶訊息添加後捲動到底部
+  scrollToBottom();
 
   // 模擬回答邏輯
   let answer = ''
@@ -212,6 +215,9 @@ const sendMessage = () => {
   // 延遲顯示答案
   setTimeout(() => {
     messages.value.push({ from: 'ai', text: answer })
+    
+    // AI 訊息添加後也捲動到底部
+    scrollToBottom();
     
     // AI 訊息添加後也捲動到底部
     scrollToBottom();

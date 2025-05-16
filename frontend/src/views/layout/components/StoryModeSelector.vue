@@ -5,9 +5,38 @@
 
     <!-- Modal box -->
     <div v-if="showModal" class="modal-box">
+      <!-- Step 0: Select difficulty level and question count -->
+      <div v-if="currentStep === 0" class="modal-content">
+        <h2 class="modal-title">你選擇了「{{ storyName }}」故事</h2>
+        <p class="modal-question">請選擇難度和問題數量</p>
+
+        <div class="selector-group">
+          <div class="selector-label">問題數量</div>
+          <div class="question-slider-container">
+            <input
+              type="range"
+              min="5"
+              max="50"
+              step="1"
+              v-model="questionCount"
+              class="question-slider"
+            />
+            <div class="question-count">{{ questionCount }} 題</div>
+            <div class="question-description">
+              {{ getQuestionCountDescription() }}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="confirm-button" @click="goToNextStep">確認遊戲設置</button>
+          <button class="return-button" @click="closeModal">我後悔了，還是回去投胎好了</button>
+        </div>
+      </div>
+
       <!-- Step 1: Play alone or with others -->
       <div v-if="currentStep === 1" class="modal-content">
-        <h2 class="modal-title">你選擇了「你媽死了」故事</h2>
+        <h2 class="modal-title">你選擇了「{{ storyName }}」故事</h2>
         <p class="modal-question">你想要和別人一起玩嗎？</p>
 
         <div class="option-buttons">
@@ -17,7 +46,8 @@
         </div>
 
         <div class="modal-footer">
-          <button class="return-button" @click="closeModal">我後悔了，還是回去投胎好了</button>
+          <button class="return-button" @click="backToPreviousStep">返回上一步</button>
+          <!-- <button class="return-button" @click="closeModal">我後悔了，還是回去投胎好了</button> -->
         </div>
       </div>
 
@@ -72,6 +102,9 @@
 </template>
 
 <script>
+import { getStoryByIdAPI } from '@/apis/story.js'
+// import { ElMessage } from 'element-plus'
+
 export default {
   name: 'StoryModeSelector',
   props: {
@@ -83,10 +116,11 @@ export default {
   data() {
     return {
       showModal: false,
-      currentStep: 1,
+      currentStep: 0,
       playAlone: true,
       withRealPlayers: false,
       npcCount: 2,
+      storyName: '載入中...',
       npcDescriptions: {
         0: '我連NPC都社恐',
         1: '一個就夠我頭痛了',
@@ -94,16 +128,54 @@ export default {
         3: 'NPC組團來害我',
         4: '這不是我玩NPC，是他們玩我',
       },
+      questionCount: 8,
     }
   },
   methods: {
-    openModal() {
+    // 獲取故事詳情
+    async fetchStoryDetails() {
+      try {
+        if (this.storyId) {
+          const response = await getStoryByIdAPI(this.storyId)
+          if (response && response.success && response.data) {
+            this.storyName = response.data.questionName || '未知故事'
+          } else {
+            this.storyName = '未能載入故事名稱'
+            console.error('獲取故事詳情失敗:', response)
+          }
+        }
+      } catch (error) {
+        this.storyName = '未能載入故事名稱'
+        console.error('獲取故事詳情錯誤:', error)
+      }
+    },
+
+    // 打開模態框
+    async openModal() {
       this.showModal = true
-      this.currentStep = 1
+      this.currentStep = 0
+
+      // 獲取故事詳情
+      await this.fetchStoryDetails()
     },
     closeModal() {
       this.showModal = false
+      this.currentStep = 0
+    },
+    getQuestionCountDescription() {
+      if (this.questionCount <= 15) {
+        return '快速遊戲'
+      } else if (this.questionCount <= 30) {
+        return '標準遊戲長度'
+      } else {
+        return '長時間遊戲，更多問題'
+      }
+    },
+    goToNextStep() {
       this.currentStep = 1
+    },
+    backToPreviousStep() {
+      this.currentStep = 0
     },
     selectPlayAlone() {
       this.playAlone = true
@@ -128,6 +200,7 @@ export default {
         playAlone: this.playAlone,
         withRealPlayers: this.withRealPlayers,
         npcCount: parseInt(this.npcCount),
+        questionCount: parseInt(this.questionCount),
       }
 
       console.log('Starting game with parameters:', gameParams)
@@ -138,13 +211,14 @@ export default {
       // Close modal
       this.closeModal()
 
-      // Navigate to game page (you might need to replace this with your actual routing)
+      // Navigate to game page
       this.$router.push({
-        name: 'game',
-        params: { id: this.storyId },
+        name: 'Game', // 修正路由名稱
         query: {
+          id: this.storyId,
           npcCount: this.npcCount,
           playAlone: this.playAlone,
+          questionCount: this.questionCount,
         },
       })
     },
@@ -272,5 +346,90 @@ export default {
   font-style: italic;
   color: #7f8c8d;
   margin-bottom: 20px;
+}
+
+.selector-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.selector-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.difficulty-selector {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.difficulty-button {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #ddd;
+  background-color: white;
+  color: #555;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.difficulty-button:hover {
+  background-color: #f5f5f5;
+}
+
+.difficulty-button.active {
+  border-color: #3498db;
+  background-color: #3498db;
+  color: white;
+}
+
+.difficulty-description {
+  font-style: italic;
+  color: #7f8c8d;
+  margin-top: 6px;
+  min-height: 20px;
+}
+
+.question-slider-container {
+  margin: 15px 0;
+}
+
+.question-slider {
+  width: 100%;
+  margin-bottom: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.question-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #3498db;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.question-count {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.question-description {
+  font-style: italic;
+  color: #7f8c8d;
+  margin-bottom: 15px;
 }
 </style>
