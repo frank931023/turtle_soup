@@ -1,5 +1,8 @@
 <template>
-  <div class="turtle-soup-app">
+  <div
+  class="turtle-soup-app"
+  @click="handleOutsideClick"
+  :style="{ backgroundImage: `url(${backgroundImageUrl})` }">
     <!-- 引入故事模式選擇器組件 -->
     <story-mode-selector
       ref="storySelectorModal"
@@ -26,7 +29,7 @@
           <!-- 新增搜索欄 -->
           <div class="filter-section search-section">
             <h3>搜尋故事</h3>
-            <div class="search-container">
+            <div class="search-container" ref="searchContainer">
               <div class="search-input-wrapper">
                 <input
                   type="text"
@@ -34,6 +37,7 @@
                   placeholder="搜尋故事名稱或描述..."
                   class="search-input"
                   @focus="showSearchHistory = true"
+                  @input="handleSearchInput"
                   @blur="handleSearchBlur"
                   @keyup.enter="applySearch"
                 />
@@ -43,12 +47,13 @@
                 </button>
               </div>
               <!-- 搜尋歷史 -->
-              <div class="search-history" v-if="showSearchHistory && searchHistory.length > 0">
+              <div class="search-history" v-if="showSearchHistory && searchHistory.length > 0 && filters.searchText.trim() === ''">
                 <div
                   v-for="(item, index) in searchHistory"
                   :key="index"
                   class="history-item"
                   @click="selectSearchHistory(item)"
+                  @mousedown="preventBlur"
                 >
                   <span>{{ item }}</span>
                   <button class="delete-history" @click.stop="removeSearchHistoryItem(index)">
@@ -56,7 +61,7 @@
                   </button>
                 </div>
                 <div class="history-footer">
-                  <button class="clear-history" @click.stop="clearSearchHistory">
+                  <button class="clear-history" @click.stop="clearSearchHistory" @mousedown="preventBlur">
                     清除所有歷史
                   </button>
                 </div>
@@ -110,7 +115,7 @@
                   v-model="filters.categories"
                   @change="applyFilters"
                 />
-                {{ category.label }}
+                <span>{{ category.label }}</span> <!-- 添加 span 包裹文字 -->
               </label>
               <button class="clear-filters" @click="clearCategoryFilters">清除分類</button>
             </div>
@@ -219,6 +224,7 @@
 import { getAllStoriesAPI, getAllPassedStoriesAPI } from '@/apis/story.js'
 import { ElMessage } from 'element-plus'
 import StoryModeSelector from '@/views/layout/components/StoryModeSelector.vue'
+import backgroundImage from '@/assets/home.jpg'; // 引入圖片
 
 export default {
   name: 'HomePage',
@@ -227,6 +233,7 @@ export default {
   },
   data() {
     return {
+      backgroundImageUrl: backgroundImage, 
       selectedStoryId: null, // 當前選中的故事ID
       hoveredPuzzle: null,
       puzzles: [],
@@ -287,6 +294,7 @@ export default {
           text: '#ffc107',
         },
       ],
+      preventHistoryClose: false,
     }
   },
   computed: {
@@ -379,10 +387,10 @@ export default {
       // Using setTimeout to allow click events to happen before hiding the dropdown
       setTimeout(() => {
         if (!this.preventHistoryClose) {
-          this.showSearchHistory = false
+          this.showSearchHistory = false;
         }
-        this.preventHistoryClose = false
-      }, 100)
+        this.preventHistoryClose = false;
+      }, 100);
     },
 
     handleOutsideClick(event) {
@@ -395,11 +403,37 @@ export default {
       }
     },
 
-    data() {
-      return {
-        // ...existing data...
-        preventHistoryClose: false,
+    // 新增防止失去焦點事件處理器
+    preventBlur(event) {
+      event.preventDefault();
+    },
+    
+    // 處理搜尋輸入
+    handleSearchInput() {
+      // 當有輸入文字時，不顯示搜尋歷史
+      if (this.filters.searchText.trim() !== '') {
+        this.showSearchHistory = false;
+      } else {
+        // 沒有輸入文字時顯示搜尋歷史
+        this.showSearchHistory = true;
       }
+    },
+
+    // 清除當前搜索
+    clearSearch() {
+      this.filters.searchText = '';
+      // Keep the search history visible when clearing
+      this.preventHistoryClose = true;
+      this.showSearchHistory = true;
+      this.applyFilters();
+    },
+    
+    // 從歷史記錄中選擇搜索詞
+    selectSearchHistory(item) {
+      this.filters.searchText = item;
+      // Hide search history after selecting an item
+      this.showSearchHistory = false;
+      this.applySearch();
     },
 
     // 從後端獲取故事數據
@@ -507,16 +541,22 @@ export default {
       }
     },
 
-    // 清除當前搜索
-    clearSearch() {
-      this.filters.searchText = ''
-      this.applyFilters()
+    // 從本地存儲加載搜索歷史
+    loadSearchHistory() {
+      const savedHistory = localStorage.getItem('turtleSoupSearchHistory')
+      if (savedHistory) {
+        try {
+          this.searchHistory = JSON.parse(savedHistory)
+        } catch (e) {
+          console.error('加載搜索歷史出錯:', e)
+          this.searchHistory = []
+        }
+      }
     },
 
-    // 從歷史記錄中選擇搜索詞
-    selectSearchHistory(item) {
-      this.filters.searchText = item
-      this.applySearch()
+    // 保存搜索歷史到本地存儲
+    saveSearchHistory() {
+      localStorage.setItem('turtleSoupSearchHistory', JSON.stringify(this.searchHistory))
     },
 
     // 移除單個搜索歷史項
@@ -529,24 +569,6 @@ export default {
     clearSearchHistory() {
       this.searchHistory = []
       this.saveSearchHistory()
-    },
-
-    // 保存搜索歷史到本地存儲
-    saveSearchHistory() {
-      localStorage.setItem('turtleSoupSearchHistory', JSON.stringify(this.searchHistory))
-    },
-
-    // 從本地存儲加載搜索歷史
-    loadSearchHistory() {
-      const savedHistory = localStorage.getItem('turtleSoupSearchHistory')
-      if (savedHistory) {
-        try {
-          this.searchHistory = JSON.parse(savedHistory)
-        } catch (e) {
-          console.error('加載搜索歷史出錯:', e)
-          this.searchHistory = []
-        }
-      }
     },
 
     // 分頁相關方法
@@ -621,19 +643,41 @@ export default {
 
 .turtle-soup-app {
   font-family: 'Special Elite', 'Noto Sans TC', monospace;
-  max-width: 80%;
+  /*max-width: 80%;
+  margin: 0 auto;*/
   min-height: 100vh;
-  background-color: #2a2a2a;
-  margin: 0 auto;
+  position: relative;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background: transparent;
+  width: 100%;
+}
+
+.turtle-soup-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
 }
 
 .header {
+  /* 保持原有樣式 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 15px;
   border-bottom: 1px solid #e0e0e0;
+  position: relative; /* 添加相對定位 */
+  z-index: 10; /* 確保在背景圖片和其他內容上方 */
+  background-color: white; /* 添加白色背景 */
 }
+
 
 .logo-container {
   display: flex;
@@ -676,12 +720,16 @@ export default {
 }
 
 .main-content {
-  padding: 30px;
-  background-color: #212121;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgb(31, 31, 31); /* 維持半透明黑色背景 */
   min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .puzzle-introduction {
@@ -740,19 +788,19 @@ export default {
 }
 
 .puzzle-option-container:hover {
-  transform: scale(1.02);
+  transform: scale(1); /* 移除縮放效果，改為不縮放 */
 }
 
 /* 修改按鈕樣式：默認白色背景 */
 .puzzle-option {
-  background-color: white;
+  background-color: white; /* 改為白底 */
   border: none;
-  border-radius: 10px 10px 0 0;
+  border-radius: 10px; /* 四個角都是圓角 */
   padding: 16px 25px;
-  text-align: center; /* 改為居中對齊 */
+  text-align: center;
   font-size: 17px;
   font-weight: 600;
-  color: #333;
+  color: var(--story-text-color, #4caf50); /* 保留彩色文字 */
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -760,17 +808,11 @@ export default {
   overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: center; /* 添加水平居中 */
+  justify-content: center;
   width: 100%;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.puzzle-option:hover {
-  background-color: #1a1a1a;
-  transform: none;
-  padding-right: 25px; /* 與左側保持一致 */
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0;
+  border-left: 4px solid var(--story-border-color, #4caf50); /* 保留彩色邊框 */
 }
 
 .puzzle-option.expanded {
@@ -782,43 +824,86 @@ export default {
   opacity: 1;
 }
 
-.puzzle-option:active {
-  background-color: #1a1a1a;
-  color: #ffffff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+.puzzle-option.active {
+  border-radius: 10px 10px 0 0; /* 只保留上方圓角 */
+  border-bottom: none;
 }
 
-/* 使用CSS變數動態設置顏色 */
-.puzzle-option-container .puzzle-option:hover,
-.puzzle-option-container .puzzle-option.active {
-  background-color: var(--story-bg-color, rgba(76, 175, 80, 0.1));
+/* 重新設計描述框，確保無縫連接 */
+.puzzle-description {
+  position: relative;
+  width: 100%;
+  background-color: white; /* 白色背景 */
+  border-radius: 0 0 10px 10px; /* 只保留下方圓角 */
+  padding: 15px 25px 18px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 4;
+  transform-origin: top center;
+  margin-top: 0;
+  border-top: none;
   border-left: 4px solid var(--story-border-color, #4caf50);
-  color: var(--story-text-color, #4caf50);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+
+/* 修改展開動畫以避免視覺上的突變 */
+@keyframes smoothExpand {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+    max-height: 0;
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+    max-height: 300px;
+  }
+}
+
+/* 確保描述內容的視覺連續性 */
+.description-content {
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 8px;
+  position: relative;
+  color: var(--story-text-color, #4caf50); /* 使用變數設置文字顏色 */
+}
+
+.puzzle-option-container {
+  position: relative;
+  margin-bottom: 25px;
+  width: 100%;
+  transition: transform 0.2s ease; /* 減少過渡時間 */
 }
 
 /* 按鈕展開效果 */
+.puzzle-option.active,
 .puzzle-option.expanded {
-  border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 10px 10px 0 0; /* 只保留上方圓角 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 當展開時添加底部邊框 */
 }
 
 /* 添加新的描述框樣式 */
 .puzzle-description {
   position: relative;
   width: 100%;
-  background-color: white; /* 默認白色背景，會被上面的規則覆蓋 */
-  border-radius: 0 0 10px 10px; /* 與按鈕圓角匹配 */
-  padding: 5px 25px 18px; /* 頂部減少，兩側與按鈕一致 */
+  background-color: white;
+  border-radius: 0 0 10px 10px; /* 只保留下方圓角 */
+  padding: 15px 25px 18px; /* 增加頂部間距 */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 5;
-  margin-top: 0; /* 消除間隙 */
+  z-index: 4; /* 確保在按鈕下方 */
   transform-origin: top center;
-  border-top: none;
+  border-top: none; /* 移除頂部邊框 */
+  margin-top: 0; /* 消除頂部間距 */
+  border-left: 4px solid var(--story-border-color, #4caf50); /* 保持左側邊框與按鈕一致 */
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* 使用CSS變數動態設置描述框顏色 */
 .puzzle-option-container .puzzle-description {
-  background-color: var(--story-bg-color, rgba(76, 175, 80, 0.1));
+  background-color: white; /* 覆蓋變數，強制使用白色背景 */
   border-left: 4px solid var(--story-border-color, #4caf50);
   border-right: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
   border-bottom: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
@@ -869,21 +954,82 @@ export default {
 }
 
 .filter-section {
-  margin-bottom: 15px;
+  margin-bottom: 35px;
 }
 
 .filter-section h3 {
-  font-size: 18px;
-  margin-bottom: 12px;
+  font-size: 22px; 
+  margin-bottom: 15px;
   color: #f5f5f5;
   font-weight: 600;
   letter-spacing: 1px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); 
+  padding-bottom: 8px; 
+  position: relative; 
+}
+
+.filter-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px; /* 不要橫跨整個區域，只顯示部分底線 */
+  height: 3px; /* 底線厚度 */
+  background: linear-gradient(to right, #4caf50, transparent); 
+  border-radius: 2px; 
+}
+
+.search-section h3::after {
+  background: linear-gradient(to right, #4caf50, transparent); /* 搜尋故事: 綠色 */
+}
+
+/* 難度選擇部分的底線 */
+.filter-section:nth-of-type(2) h3::after {
+  background: linear-gradient(to right, #d68433, transparent); /* 難度選擇: 橙色 */
+}
+
+/* 故事分類部分的底線 */
+.filter-section:nth-of-type(3) h3::after {
+  background: linear-gradient(to right, #2196f3, transparent); /* 故事分類: 藍色 */
 }
 
 .difficulty-options {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.difficulty-options button:nth-child(1):hover {
+  background-color: #ff9800; /* 橘色背景 */
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+}
+
+/* 普通按鈕懸停效果 - 藍色 */
+.difficulty-options button:nth-child(2):hover {
+  background-color: #2196f3; /* 藍色背景 */
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+}
+.difficulty-options button:nth-child(3):hover {
+  background-color: #f44336; /* 紅色背景 */
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+}
+
+/* 全部按鈕懸停效果保持原樣 */
+.difficulty-options button:nth-child(4):hover {
+  background-color: #4caf50; /* 改為綠色背景 */
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4); /* 綠色陰影 */
 }
 
 .difficulty-btn {
@@ -904,11 +1050,40 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.difficulty-btn.active {
-  background-color: #4caf50;
+.difficulty-options button:nth-child(1).active {
+  background-color: #ff9800; /* 橘色背景 */
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+}
+
+/* 普通按鈕選中效果 - 藍色 */
+.difficulty-options button:nth-child(2).active {
+  background-color: #2196f3; /* 藍色背景 */
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* 困難按鈕選中效果 - 紅色 */
+.difficulty-options button:nth-child(3).active {
+  background-color: #f44336; /* 紅色背景 */
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+}
+
+.difficulty-options button:nth-child(4).active {
+  background-color: #4caf50; /* 保持綠色 */
   color: white;
   border-color: transparent;
   box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+/* 覆蓋原有的統一選中樣式 */
+.difficulty-btn.active {
+  color: white;
+  border-color: transparent;
 }
 
 .category-options {
@@ -919,7 +1094,8 @@ export default {
 
 .category-tag {
   display: flex;
-  align-items: center;
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
   padding: 8px 15px;
   background-color: #333;
   border-radius: 20px;
@@ -929,11 +1105,38 @@ export default {
   transition: all 0.3s;
   color: #ddd;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  text-align: center; /* 確保文字本身居中 */
+  min-width: 60px; /* 設置最小寬度使每個標籤大小更一致 */
+  min-height: 36px; /* 設置固定高度確保垂直居中效果一致 */
+  line-height: 36px; /* 設置行高等於高度，確保單行文字垂直居中 */
+  padding: 0 15px; /* 調整左右內邊距，移除上下內邊距 */
+}
+
+.category-tag span {
+  display: inline-block; 
+  line-height: normal; /* 重置行高，避免內部文字受行高影響 */
+  vertical-align: middle; /* 垂直居中文字 */
+  width: 100%; /* 讓span元素占滿父元素寬度 */
+}
+
+.category-tag:hover {
+  background-color: #2196f3; /* 改為藍色背景 */
+  color: white; /* 文字改為白色，提高對比度 */
+  transform: translateY(-2px); /* 保留向上移動效果 */
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4); /* 變更為藍色陰影 */
+}
+
+/* 活動狀態的分類標籤懸停效果 - 保持藍色但加深 */
+.category-tag.active:hover {
+  background-color: #1976d2; /* 使用更深的藍色 */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.6);
 }
 
 .category-tag input {
   position: absolute;
   opacity: 0;
+  pointer-events: none;
 }
 
 .category-tag.active {
@@ -967,12 +1170,14 @@ export default {
 
 .search-container {
   position: relative;
+  width: 100%;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .search-input {
@@ -1044,13 +1249,14 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 100%;
+  width: calc(100% - 80px); /* 調整寬度以匹配輸入框寬度，扣除按鈕寬度和間距 */
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px; /* 使用與輸入框相似的圓角 */
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   z-index: 10;
   padding: 10px;
+  margin-top: 5px; /* 添加一點頂部間距 */
 }
 
 .history-item {
