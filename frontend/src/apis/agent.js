@@ -6,6 +6,8 @@ export function hostAnswerAPI(data) {
     url: '/api/agent/host',
     method: 'POST',
     data,
+    timeout: 10000
+    , // 設定超時時間為30秒
   })
 }
 
@@ -15,6 +17,8 @@ export function aiPlayerQuestionAPI(data) {
     url: '/api/agent/ai-player',
     method: 'POST',
     data,
+    timeout: 10000
+    , // 設定超時時間為30秒
   })
 }
 
@@ -24,6 +28,7 @@ export function npcQuestionAPI(data) {
     url: '/api/agent/npc-question',
     method: 'POST',
     data,
-    timeout: 30000, // 設定超時時間為10秒
+    timeout: 10000
+    , // 設定超時時間為30秒
   })
 }
