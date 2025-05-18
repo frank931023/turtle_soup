@@ -1,36 +1,36 @@
 <template>
   <div class="page-background">
+    <!-- 添加點讚動畫元素 -->
+    <div class="thumbs-up-animation" ref="thumbsUpElement">
+      <img src="@/assets/thumbs-up.png" alt="點讚">
+      <span class="animation-text">找到關鍵線索！</span>
+    </div>
+    
     <div class="game-container">
       <!-- 頂部導航 -->
-      <div class="game-header">
-        <router-link to="/" class="home-link">
-          <span class="home-icon">🏠</span>
-          <span>返回首頁</span>
-        </router-link>
-      </div>
+
       <!-- 固定的題目標題 -->
       <div class="puzzle-title-bar">
-        <h2>{{ storyData.questionName }}</h2>
+        <h2>一個男人進了一家餐廳，點了一碗海龜湯，喝完後自殺了，請問為什麼？</h2>
       </div>
-
+      
       <!-- 題目欄 -->
       <div class="puzzle-card">
         <div class="puzzle-image">
-          <img :src="storyData.imageUrl" alt="海龜湯謎題圖片" />
+          <img src="@/assets/question1.png" alt="海龜湯謎題圖片">
         </div>
         <div class="puzzle-content">
-          <h2 class="puzzle-title">{{ storyData.questionName }}</h2>
+          <h2 class="puzzle-title">湯面</h2>
           <p class="puzzle-description">
-            {{ storyData.questionContent }}
+            一個男人進了一家餐廳，點了一碗海龜湯，喝完之後他就舉槍自殺了，請問為什麼？
           </p>
           <div class="puzzle-stats">
-            <span class="like"><span class="thumb">👍</span> {{ storyData.thumbsUp }}</span>
-            <span class="views"><span class="eye">👁️</span> {{ storyData.views }}</span>
-            <span class="solve-rate">{{ storyData.solveRate }}</span>
+            <span class="like"><span class="thumb">👍</span> 200</span>
+            <span class="views"><span class="eye">👁️</span> 235</span>
+            <span class="solve-rate">49%</span>
           </div>
           <div class="puzzle-hint">
-            你擁有{{ questionCount }}次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有
-            是/不是/不相關。
+            你擁有8次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有 是/不是/不相關。
           </div>
         </div>
       </div>
@@ -55,13 +55,8 @@
       <div class="content-wrapper">
         <!-- 左側聊天區域 -->
         <div class="chat-container">
-          <h2 class="title">
-            AI 湯神
-            <small v-if="!playAlone" class="mode-tag">{{
-              npcCount > 0 ? `(${npcCount} 位NPC)` : ''
-            }}</small>
-          </h2>
-
+          <h2 class="title">AI 湯神</h2>
+      
           <div class="chat-box">
             <div
               v-for="(msg, index) in messages"
@@ -72,7 +67,7 @@
               <span class="text">{{ msg.text }}</span>
             </div>
           </div>
-
+      
           <div class="input-box">
             <input
               v-model="input"
@@ -90,46 +85,42 @@
           <div class="question-count used-all" v-else-if="!isSolved">已用完所有提問次數</div>
           <div class="question-count solved" v-else>🎉 已成功解謎 🎉</div>
         </div>
-
+        
         <!-- 右側資訊欄位 -->
         <div class="info-panel">
           <h3 class="info-title">已獲得的線索</h3>
-
+          
           <!-- 添加過濾器 -->
           <div class="filter-tabs">
-            <button
-              :class="['filter-tab', activeFilter === 'all' ? 'active' : '']"
+            <button 
+              :class="['filter-tab', activeFilter === 'all' ? 'active' : '']" 
               @click="activeFilter = 'all'"
             >
               全部
             </button>
-            <button
-              :class="['filter-tab', activeFilter === '是' ? 'active' : '']"
+            <button 
+              :class="['filter-tab', activeFilter === '是' ? 'active' : '']" 
               @click="activeFilter = '是'"
             >
               是
             </button>
-            <button
-              :class="['filter-tab', activeFilter === '不是' ? 'active' : '']"
+            <button 
+              :class="['filter-tab', activeFilter === '不是' ? 'active' : '']" 
               @click="activeFilter = '不是'"
             >
               不是
             </button>
-            <button
-              :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']"
+            <button 
+              :class="['filter-tab', activeFilter === '不相關' ? 'active' : '']" 
               @click="activeFilter = '不相關'"
             >
               不相關
             </button>
           </div>
-
+          
           <div class="clues-container">
             <div v-if="filteredClues.length === 0" class="no-clues">
-              {{
-                activeFilter === 'all'
-                  ? '尚未獲得任何線索，試著提出問題吧！'
-                  : `沒有回答為「${activeFilter}」的線索`
-              }}
+              {{ activeFilter === 'all' ? '尚未獲得任何線索，試著提出問題吧！' : `沒有回答為「${activeFilter}」的線索` }}
             </div>
             <div v-else class="clue-list">
               <div v-for="(clue, index) in filteredClues" :key="index" class="clue-item">
@@ -175,7 +166,10 @@ const storyData = ref({
 })
 
 const input = ref('')
-const messages = ref([{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }])
+const messages = ref([
+  { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
+])
+const thumbsUpElement = ref(null)
 
 // 用於追蹤已使用的提問次數
 const usedQuestions = ref(0)
@@ -224,9 +218,41 @@ const filteredClues = computed(() => {
   if (activeFilter.value === 'all') {
     return clues.value
   } else {
-    return clues.value.filter((clue) => clue.answer === activeFilter.value)
+    return clues.value.filter(clue => clue.answer === activeFilter.value)
   }
 })
+
+const showThumbsUpAnimation = () => {
+  if (thumbsUpElement.value) {
+    // 先移除任何現有的類
+    thumbsUpElement.value.classList.remove('exit');
+    
+    // 添加顯示類
+    thumbsUpElement.value.classList.add('show');
+    
+    // 2秒後開始退出動畫
+    setTimeout(() => {
+      thumbsUpElement.value.classList.remove('show');
+      thumbsUpElement.value.classList.add('exit');
+      
+      // 確保動畫完成後重置
+      setTimeout(() => {
+        thumbsUpElement.value.classList.remove('exit');
+      }, 1000);
+    }, 2000);
+  }
+}
+
+// 添加此函數來處理自動捲動
+const scrollToBottom = () => {
+  // 使用 nextTick 確保 DOM 已經更新
+  nextTick(() => {
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+};
 
 // 修改 sendMessage 函數
 const sendMessage = async () => {
@@ -237,6 +263,12 @@ const sendMessage = async () => {
   usedQuestions.value++
 
   messages.value.push({ from: 'user', text: question })
+  
+  // 在用戶訊息添加後捲動到底部
+  scrollToBottom();
+  
+  // 在用戶訊息添加後捲動到底部
+  scrollToBottom();
 
   try {
     console.log('發送問題到後端:', question)
@@ -250,10 +282,11 @@ const sendMessage = async () => {
     // 儲存問答作為線索
     clues.value.push({
       question,
-      answer: response.reply,
+      answer: response.reply
     })
 
-    setTimeout(() => {
+    // 延遲顯示答案
+  setTimeout(() => {
       messages.value.push({ from: 'ai', text: response.reply })
 
       // 檢查是否猜中謎底 (通過 isSolved 標記判斷)
@@ -286,7 +319,18 @@ const sendMessage = async () => {
           askNpcQuestion()
         }, 1500)
       }
-    }, 600)
+      
+    // AI 訊息添加後也捲動到底部
+    scrollToBottom();
+    
+    // AI 訊息添加後也捲動到底部
+    scrollToBottom();
+    
+    // 如果答案是"是"，顯示點讚動畫
+    if (answer === '是') {
+      showThumbsUpAnimation()
+    }
+  }, 600)
   } catch (error) {
     console.error('獲取答案失敗:', error)
     messages.value.push({
@@ -387,7 +431,9 @@ const askNpcQuestion = async () => {
 const resetGame = () => {
   usedQuestions.value = 0
   clues.value = []
-  messages.value = [{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }]
+  messages.value = [
+    { from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }
+  ]
   activeFilter.value = 'all'
   isSolved.value = false // 重置解謎狀態
   currentNpcIndex.value = 0 // 重置 NPC 索引
@@ -400,11 +446,10 @@ const resetGame = () => {
 const handleScroll = () => {
   const puzzleCard = document.querySelector('.puzzle-card')
   const gameContainer = document.querySelector('.game-container')
-
+  
   if (puzzleCard) {
     const rect = puzzleCard.getBoundingClientRect()
-    if (rect.bottom < 50) {
-      // 當題目欄底部位置超出可視區域頂部50px時
+    if (rect.bottom < 50) { // 當題目欄底部位置超出可視區域頂部50px時
       gameContainer.classList.add('scrolled')
     } else {
       gameContainer.classList.remove('scrolled')
@@ -414,26 +459,101 @@ const handleScroll = () => {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
-  // 獲取故事詳情
-  fetchStoryDetails()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  
+  // 清除可能的動畫計時器
+  const thumbsUp = thumbsUpElement.value
+  if (thumbsUp && thumbsUp.classList.contains('show')) {
+    thumbsUp.classList.remove('show')
+  }
 })
 </script>
-
+  
 <style scoped>
-/* 添加全屏背景 */
+/* 背景使用圖片 */
 .page-background {
   width: 100%;
   min-height: 100vh;
-  background-color: #c7dbe5;
+  background-image: url("@/assets/game-background.jpg"); /* 修正路徑 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   justify-content: center;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+}
+
+/* 為了確保內容可讀性，可以添加一層半透明覆蓋 */
+.page-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(199, 219, 229, 0.8); /* 半透明的藍色，保持與原樣式一致 */
+  z-index: -1;
+}
+
+/* 修改點讚動畫樣式 */
+.thumbs-up-animation {
+  position: fixed;
+  top: 40%; /* 稍微上移到頂部 */
+  left: -300px; /* 初始位置在左側螢幕外 */
+  transform: translateY(-50%); /* 垂直置中 */
+  background: linear-gradient(90deg, #415274, #527496);
+  color: white;
+  padding: 15px 25px; /* 調整內邊距 */
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 16px; /* 增加間距 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* 增強陰影 */
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* 更順暢的動畫 */
+}
+
+.thumbs-up-animation img {
+  width: 80px; /* 放大圖片 */
+  height: 80px; /* 放大圖片 */
+  animation: pulse 1s infinite alternate;
+  background: transparent; /* 確保背景透明 */
+  object-fit: contain; /* 確保圖片保持原比例 */
+}
+
+.animation-text {
+  font-size: 24px; /* 增大文字 */
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* 更新顯示類 */
+.thumbs-up-animation.show {
+  left: 50%; /* 移至螢幕中央 */
+  transform: translate(-50%, -50%); /* 水平和垂直居中 */
+  opacity: 1;
+}
+
+/* 更新離開類 */
+.thumbs-up-animation.exit {
+  left: 120%; /* 向右側離開 */
+  opacity: 0;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2); /* 稍微增大脈動效果 */
+  }
 }
 
 /* 容器布局 */
@@ -472,7 +592,7 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   text-decoration: none;
-  color: #4c6eb1;
+  color: #4C6EB1;
   font-weight: bold;
   transition: background 0.2s;
 }
@@ -492,22 +612,26 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
 }
 
 .puzzle-image {
   width: 100%;
+  height: 240px; /* 固定高度 */
   display: flex;
   justify-content: center;
+  align-items: center; /* 垂直置中 */
   background: #e0e0e0;
-  padding: 25px;
+  padding: 15px;
+  overflow: hidden; /* 防止圖片溢出 */
 }
 
 .puzzle-image img {
-  width: 100%;
-  max-height: 500px;
+  width: 220px; /* 固定寬度 */
+  height: 220px; /* 固定高度 */
+  object-fit: contain; /* 保持比例，確保圖片完整顯示 */
 }
 
 .puzzle-content {
@@ -539,15 +663,13 @@ onUnmounted(() => {
   color: #555;
 }
 
-.like,
-.views {
+.like, .views {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.thumb,
-.eye {
+.thumb, .eye {
   font-size: 16px;
 }
 
@@ -561,13 +683,13 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   width: 100%;
-  background: linear-gradient(to right, #4c6eb1, #5278c8);
+  background: linear-gradient(to right, #4C6EB1, #5278c8);
   color: white;
   padding: 8px 16px;
   border-radius: 0 0 10px 10px;
   margin-bottom: 15px;
   z-index: 100;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
   transform: translateY(-100%);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-align: center;
@@ -613,18 +735,13 @@ onUnmounted(() => {
   font-family: sans-serif;
   background: #f9f9f9;
   border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  
 }
 
 .title {
   text-align: center;
   margin-bottom: 16px;
-}
-
-.mode-tag {
-  font-size: 0.8rem;
-  color: #666;
-  font-weight: normal;
 }
 
 .chat-box {
@@ -683,7 +800,7 @@ input {
 button {
   padding: 0 14px;
   border: none;
-  background: #4c6eb1;
+  background: #4C6EB1;
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -720,9 +837,10 @@ button:disabled {
   background: #f0f4f8;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
+  height: 640px; /* 設置固定高度 */
 }
 
 .info-title {
@@ -737,6 +855,12 @@ button:disabled {
 .clues-container {
   flex: 1;
   overflow-y: auto;
+  margin-bottom: 16px;
+  max-height: 400px; /* 限制最大高度 */
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .no-clues {
@@ -756,7 +880,7 @@ button:disabled {
   background: white;
   padding: 12px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .clue-question {
@@ -816,7 +940,7 @@ button:disabled {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 10px;
   padding: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .filter-tab {
@@ -838,12 +962,12 @@ button:disabled {
 
 .filter-tab:hover {
   background: rgba(255, 255, 255, 0.7);
-  color: #4c6eb1;
+  color: #4C6EB1;
 }
 
 .filter-tab.active {
   background: #fff;
-  color: #4c6eb1;
+  color: #4C6EB1;
   box-shadow: 0 2px 6px rgba(76, 110, 177, 0.15);
   transform: translateY(-1px);
 }
@@ -855,7 +979,7 @@ button:disabled {
   left: 25%;
   width: 50%;
   height: 3px;
-  background: #4c6eb1;
+  background: #4C6EB1;
   border-radius: 3px;
 }
 
@@ -974,7 +1098,7 @@ button:disabled {
   .game-container {
     width: 95%; /* 手機版使用更大寬度 */
   }
-
+  
   .content-wrapper {
     flex-direction: column;
   }

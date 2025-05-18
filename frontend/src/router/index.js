@@ -27,6 +27,21 @@ const routes = [
         name: 'AddNewStory',
         component: AddNewStory,
       },
+      {
+        path: '/game',
+        name: 'Game',
+        component: Game,
+      },
+      {
+        path: 'story-manage',
+        name: 'StoryManage',
+        component: StoryManage,
+      },
+      {
+        path: 'story-edit/:id',
+        name: 'StoryEditor',
+        component: StoryEditor,
+      },
     ],
   },
   {
