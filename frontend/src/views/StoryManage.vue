@@ -1,4 +1,16 @@
 <template>
+  <header class="main-header">
+    <div class="container">
+      <h1 class="logo">
+        <RouterLink to="/">請喝湯</RouterLink>
+      </h1>
+      <RouterLink class="enter-button" to="/">
+        進入大廳
+        <i class="iconfont icon-angle-right"></i>
+        <i class="iconfont icon-angle-right"></i>
+      </RouterLink>
+    </div>
+  </header>
   <div class="story-manage-container">
     <h1>故事管理</h1>
 
@@ -43,7 +55,7 @@
               :class="{ deleted: story.isDeleted, pending: story.isPending }"
             >
               <td>
-                <router-link :to="`/story-edit/${story.id}`" class="story-link">
+                <router-link :to="`/admin/story-edit/${story.id}`" class="story-link">
                   {{ story.questionName }}
                 </router-link>
               </td>
@@ -351,7 +363,11 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+:root{
+  --header-height: 64px;
+}
+
 .story-manage-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -574,5 +590,32 @@ button {
 .story-link:hover {
   color: #3b5998;
   text-decoration: underline;
+}
+
+.main-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #f3f3f3;
+  height: var(--header-height);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--content-padding);
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    padding-top: 20px;
+
+    a {
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+  }
 }
 </style>

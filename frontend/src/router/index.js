@@ -6,7 +6,6 @@ import Layout from '@/views/layout/index.vue'
 import About from '@/views/about/index.vue'
 import Game from '@/views/game/index.vue'
 import Home from '@/views/home/index.vue'
-import Chatgame from '@/views/chatGame/index.vue'
 import Oauth from '@/views/login/oauth/index.vue'
 import Register from '@/views/register/index.vue'
 import AddNewStory from '@/views/AddNewStory.vue'
@@ -14,13 +13,11 @@ import Account from '@/views/account/index.vue'
 import AdminUser from '@/views/admin/users/index.vue'
 
 
-// import Chatgame from '../views/chatgame/index.vue'
 import Landing from '../views/landing/index.vue'
 import AccountPorfile from '@/views/account/components/AccountPorfile.vue'
 import AccountPasswordReset from '@/views/account/components/AccountPasswordReset.vue'
 import { useUserStore } from '@/stores/user.js'
 
-// import Chatgame from '../views/chatgame/index.vue'
 import StoryManage from '../views/StoryManage.vue'
 import StoryEditor from '../views/StoryEditor.vue'
 
@@ -45,18 +42,21 @@ const routes = [
         name: 'Game',
         component: Game,
       },
-      {
-        path: 'story-manage',
-        name: 'StoryManage',
-        component: StoryManage,
-      },
-      {
-        path: 'story-edit/:id',
-        name: 'StoryEditor',
-        component: StoryEditor,
-      },
     ],
   },
+
+
+  {
+    path: '/admin/questions',
+    name: 'StoryManage',
+    component: StoryManage,
+  },
+  {
+    path: '/admin/story-edit/:id',
+    name: 'StoryEditor',
+    component: StoryEditor,
+  },
+
   {
     path: '/about',
     name: 'About',
@@ -70,13 +70,6 @@ const routes = [
       requiresAuth: false,      // 不需要登录
       requiresAdmin: false      // 不需要管理员权限
     }
-  },
-
-
-  {
-    path: '/chatgame',
-    name: 'chatgame',
-    component: Chatgame
   },
 
   {
