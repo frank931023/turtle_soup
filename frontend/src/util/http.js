@@ -2,12 +2,11 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user.js'
 
+// 創建 axios 實例
 const httpInstance = axios.create({
-  //後端伺服器的基地址(預設後端port3000)
-  baseURL: "http://localhost:3000/",
-  timeout: 10000
-})
-
+  baseURL: 'http://localhost:3000',  // 確保這裡的端口與後端一致
+  timeout: 30000
+});
 
 // 請求攔截
 httpInstance.interceptors.request.use(configs => {

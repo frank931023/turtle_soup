@@ -1,8 +1,9 @@
 <template>
   <div
-  class="turtle-soup-app"
-  @click="handleOutsideClick"
-  :style="{ backgroundImage: `url(${backgroundImageUrl})` }">
+    class="turtle-soup-app"
+    @click="handleOutsideClick"
+    :style="{ backgroundImage: `url(${backgroundImageUrl})` }"
+  >
     <!-- 引入故事模式選擇器組件 -->
     <story-mode-selector
       ref="storySelectorModal"
@@ -47,7 +48,12 @@
                 </button>
               </div>
               <!-- 搜尋歷史 -->
-              <div class="search-history" v-if="showSearchHistory && searchHistory.length > 0 && filters.searchText.trim() === ''">
+              <div
+                class="search-history"
+                v-if="
+                  showSearchHistory && searchHistory.length > 0 && filters.searchText.trim() === ''
+                "
+              >
                 <div
                   v-for="(item, index) in searchHistory"
                   :key="index"
@@ -61,7 +67,11 @@
                   </button>
                 </div>
                 <div class="history-footer">
-                  <button class="clear-history" @click.stop="clearSearchHistory" @mousedown="preventBlur">
+                  <button
+                    class="clear-history"
+                    @click.stop="clearSearchHistory"
+                    @mousedown="preventBlur"
+                  >
                     清除所有歷史
                   </button>
                 </div>
@@ -115,7 +125,8 @@
                   v-model="filters.categories"
                   @change="applyFilters"
                 />
-                <span>{{ category.label }}</span> <!-- 添加 span 包裹文字 -->
+                <span>{{ category.label }}</span>
+                <!-- 添加 span 包裹文字 -->
               </label>
               <button class="clear-filters" @click="clearCategoryFilters">清除分類</button>
             </div>
@@ -225,11 +236,20 @@ import { getAllStoriesAPI, getAllPassedStoriesAPI } from '@/apis/story.js'
 import { ElMessage } from 'element-plus'
 import StoryModeSelector from '@/views/layout/components/StoryModeSelector.vue'
 import backgroundImage from '@/assets/home.jpg'; // 引入圖片
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'HomePage',
   components: {
     StoryModeSelector,
+  },
+  setup() {
+    const route = useRoute();
+    const storyId = ref(route.params.id);
+    return {
+      storyId,
+    };
   },
   data() {
     return {
@@ -373,12 +393,12 @@ export default {
 
       // 這裡可以執行跳轉到遊戲頁面的邏輯
       this.$router.push({
-        name: 'Game', // 修正為大寫G，與路由配置匹配
-        params: { id: this.selectedStoryId },
+        name: 'Game',
         query: {
+          storyId: this.selectedStoryId,
           npcCount: gameParams.npcCount,
           playAlone: gameParams.playAlone,
-          questionCount: gameParams.questionCount, // 添加問題數量參數
+          questionCount: gameParams.questionCount,
         },
       })
     },
@@ -678,7 +698,6 @@ export default {
   background-color: white; /* 添加白色背景 */
 }
 
-
 .logo-container {
   display: flex;
   align-items: center;
@@ -846,7 +865,6 @@ export default {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-
 /* 修改展開動畫以避免視覺上的突變 */
 @keyframes smoothExpand {
   0% {
@@ -958,14 +976,14 @@ export default {
 }
 
 .filter-section h3 {
-  font-size: 22px; 
+  font-size: 22px;
   margin-bottom: 15px;
   color: #f5f5f5;
   font-weight: 600;
   letter-spacing: 1px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); 
-  padding-bottom: 8px; 
-  position: relative; 
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  padding-bottom: 8px;
+  position: relative;
 }
 
 .filter-section h3::after {
@@ -975,8 +993,8 @@ export default {
   left: 0;
   width: 80px; /* 不要橫跨整個區域，只顯示部分底線 */
   height: 3px; /* 底線厚度 */
-  background: linear-gradient(to right, #4caf50, transparent); 
-  border-radius: 2px; 
+  background: linear-gradient(to right, #4caf50, transparent);
+  border-radius: 2px;
 }
 
 .search-section h3::after {
@@ -1113,7 +1131,7 @@ export default {
 }
 
 .category-tag span {
-  display: inline-block; 
+  display: inline-block;
   line-height: normal; /* 重置行高，避免內部文字受行高影響 */
   vertical-align: middle; /* 垂直居中文字 */
   width: 100%; /* 讓span元素占滿父元素寬度 */
@@ -1198,9 +1216,7 @@ export default {
 
 .search-input:focus {
   outline: none;
-  box-shadow:
-    inset 0 2px 5px rgba(0, 0, 0, 0.2),
-    0 0 0 2px rgba(76, 175, 80, 0.3);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(76, 175, 80, 0.3);
   border-color: #4caf50;
 }
 
@@ -1354,15 +1370,6 @@ export default {
   margin-top: 15px;
   padding: 8px 16px;
   background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.retry-button:hover {
-  background-color: #3e8e41;
 }
 
 /* 分頁導航樣式 */

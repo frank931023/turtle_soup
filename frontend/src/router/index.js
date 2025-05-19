@@ -1,15 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 匯入頁面元件
-import Login from '@/views/login/index.vue'
-import Layout from '@/views/layout/index.vue'
-import About from '@/views/about/index.vue'
-import Game from '@/views/game/index.vue'
-import Home from '@/views/home/index.vue'
-import Oauth from '@/views/login/oauth/index.vue'
-import Register from '@/views/register/index.vue'
-import AddNewStory from '@/views/AddNewStory.vue'
+import Login from '../views/login/index.vue'
+import Layout from '../views/layout/index.vue'
+import About from '../views/about/index.vue'
+import Game from '../views/game/index.vue'
+import Home from '../views/home/index.vue'
+import Oauth from '../views/login/oauth/index.vue'
+import Register from '../views/register/index.vue'
+import AddNewStory from '../views/AddNewStory.vue'
 import Landing from '../views/landing/index.vue'
+import StoryManage from '../views/StoryManage.vue'
+import StoryEditor from '../views/StoryEditor.vue' 
 
 const routes = [
   {
@@ -54,11 +56,7 @@ const routes = [
     name: 'Login',
     component: Login,
   },
-  {
-    path: '/game',
-    name: 'Game',
-    component: Game,
-  },
+
 
   {
     path: '/landing',

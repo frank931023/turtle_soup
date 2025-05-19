@@ -1,8 +1,8 @@
 const model = require("../models/gemini.js"); // 引入 Gemini 模型
 
-const { DynamicTool } = require("langchain/tools");
-const { initializeAgentExecutorWithOptions } = require("langchain/agents");
+const { DynamicTool } = require("@langchain/core/tools");
 const { BufferMemory } = require("langchain/memory");
+const { initializeAgentExecutorWithOptions } = require("langchain/agents");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -104,8 +104,7 @@ ${clueHistory.map((c) => `問: ${c.question} -> 答: ${c.answer}`).join("\n")}
 請直接給出你的問題，不要加入任何前綴或解釋。
 `;
 
-    const model = await getModel();
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(prompt); // 使用已引入的 model 變數
 
     // 確保問題不包含多餘的引號或格式
     const question = result.response
