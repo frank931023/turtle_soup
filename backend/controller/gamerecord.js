@@ -1,11 +1,12 @@
 // db ORM
-const db = require("../models");
-const GameRecord = db.gamerecord;
+const db = require("../model/main");
+const GameRecord = db.GameRecord;
 
 // 創建遊戲記錄
 exports.createGameRecord = async (req, res) => {
     const { questionId, score, userAnswer, isCompleted, timeSpent } = req.body;
     const userId = req.user.id; // 假設使用者 ID 從 auth middleware 獲取
+    console.log(userId, questionId);
 
     try {
         const gameRecord = await GameRecord.create({

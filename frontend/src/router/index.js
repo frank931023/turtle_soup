@@ -11,8 +11,11 @@ import Register from '@/views/register/index.vue'
 import AddNewStory from '@/views/AddNewStory.vue'
 import Account from '@/views/account/index.vue'
 import AdminUser from '@/views/admin/users/index.vue'
-
-
+import AccountProfileSetting from '@/views/account/components/AccountProfileSetting.vue'
+import GameRecordsView from '@/views/history/GameRecordsView.vue'
+import LeaderboardView from '@/views/history/LeaderboardView.vue'
+import UserStatsView from '@/views/history/UserStatsView.vue'
+import GameRecordDetailView from '@/views/history/GameRecordDetailView.vue'
 import Landing from '../views/landing/index.vue'
 import AccountPorfile from '@/views/account/components/AccountPorfile.vue'
 import AccountPasswordReset from '@/views/account/components/AccountPasswordReset.vue'
@@ -20,6 +23,9 @@ import { useUserStore } from '@/stores/user.js'
 
 import StoryManage from '../views/StoryManage.vue'
 import StoryEditor from '../views/StoryEditor.vue'
+
+
+import history from '@/views/history/HomeView.vue'
 
 const routes = [
   {
@@ -112,7 +118,8 @@ const routes = [
     component: Account,
     children: [
       {
-        path: 'profile-settings', component: () => import('@/views/account/components/AccountProfileSetting.vue')
+        path: 'profile-settings',
+        component: AccountProfileSetting
       },
       {
         path: '',
@@ -128,6 +135,44 @@ const routes = [
       requiresAdmin: false      // 不需要管理员权限
     }
   },
+
+
+  {
+    path: '/history',
+    component: history,
+    meta: {
+      requiresAuth: true,      // 需要登录
+    }  },
+
+  {
+    path: '/records',
+    name: 'game-records',
+    component: GameRecordsView,
+    meta: {
+      requiresAuth: true,      // 需要登录
+    }  },
+  {
+    path: '/leaderboard',
+    name: 'leaderboard',
+    component: LeaderboardView,
+    meta: {
+      requiresAuth: true,      // 需要登录
+    }
+  },
+  {
+    path: '/stats',
+    name: 'user-stats',
+    component: UserStatsView,
+    meta: {
+      requiresAuth: true,      // 需要登录
+    }  },
+  {
+    path: '/records/:id',
+    name: 'game-record-detail',
+    component: GameRecordDetailView,
+    meta: {
+      requiresAuth: true,      // 需要登录
+    }  },
 
 
 

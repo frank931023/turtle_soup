@@ -2,7 +2,7 @@ const User = require("../model/main.js").User; //取得post表ORM
 const { Op } = require('sequelize');
 
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = "your_secret_key_here"; // 這個是用來簽 token 的密鑰，正式上線要放環境變數！
+const SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"; // 這個是用來簽 token 的密鑰，正式上線要放環境變數！
 
 
 // google Oauth

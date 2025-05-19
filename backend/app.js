@@ -44,6 +44,7 @@ app.get("/api/hello", (req, res) => {
 require("./route/user")(app);
 require("./route/agent")(app);
 require("./route/questionbank")(app);
+require("./route/gamerecord")(app);
 
 app.listen(PORT, () => {
   console.log(`後端伺服器正在 http://localhost:${PORT} 上運行`);
