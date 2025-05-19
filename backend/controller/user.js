@@ -613,3 +613,50 @@ exports.getUser = async (req, res) => {
     });
   }
 };
+
+
+
+exports.addScore = async (req, res) => {
+  try {
+    // 從請求中獲取用戶 ID 和要添加的分數
+    const { id } = req.params;
+    const { score } = req.body;
+
+    // 確保分數是數字且有意義
+    if (score === undefined || isNaN(Number(score))) {
+      return res.status(400).send({ message: "請提供有效的分數" });
+    }
+
+    // 查詢用戶
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).send({ message: "找不到用戶" });
+    }
+
+    // 計算新分數 (確保分數永遠不會低於 0)
+    const newScore = Math.max(0, Number(user.score) + Number(score));
+
+    // 更新用戶分數
+    user.score = newScore;
+    await user.save();
+
+    // 返回成功和更新後的分數
+    res.status(200).send({
+      message: "分數更新成功",
+      result: {
+        id: user.id,
+        username: user.username,
+        previousScore: Number(user.score) - Number(score),
+        scoreAdded: Number(score),
+        currentScore: newScore
+      }
+    });
+
+  } catch (error) {
+    console.error("加分 API 錯誤:", error);
+    res.status(500).send({
+      message: "內部伺服器錯誤",
+      error: error.message
+    });
+  }
+};

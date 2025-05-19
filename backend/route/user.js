@@ -1,5 +1,5 @@
 const {loginValidator, googleLogin, githubCallback, checkUserExists, registerUser, setProfile, getProfile,
-    resetPassword, listUsers, getUser, createUser, updateUser, deleteUser
+    resetPassword, listUsers, getUser, createUser, updateUser, deleteUser, addScore
 } = require('../controller/user')
 const {addUser} = require('../controller/user')
 const express = require('express')
@@ -23,7 +23,7 @@ module.exports = (app) => {
     router.post('/createUser', createUser);
     router.put('/updateUser/:id', updateUser);
     router.delete('/deleteUser/:id', deleteUser);
-
+    router.put('/:id/score', addScore);
 
     app.use('/api/user', router)
 }
