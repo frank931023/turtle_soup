@@ -106,15 +106,21 @@ exports.updateGameRecord = async (req, res) => {
 };
 
 // 獲取排行榜
+// 獲取排行榜
 exports.getLeaderboard = async (req, res) => {
     try {
         const leaderboard = await GameRecord.findAll({
             attributes: [
                 'userId',
-                [db.Sequelize.fn('SUM', db.Sequelize.col('score')), 'totalScore'],
-                [db.Sequelize.fn('COUNT', db.Sequelize.col('id')), 'gamesPlayed']
+                [db.Sequelize.fn('SUM', db.Sequelize.col('GameRecord.score')), 'totalScore'],
+                [db.Sequelize.fn('COUNT', db.Sequelize.col('GameRecord.id')), 'gamesPlayed']
             ],
-            group: ['userId'],
+            include: [{
+                model: db.User,  // 假設您的User模型是在db中定義的
+                attributes: ['username'],  // 只獲取用戶名稱
+                required: true  // INNER JOIN
+            }],
+            group: ['userId', 'User.id', 'User.name'],  // 需要包含所有非聚合欄位
             order: [[db.Sequelize.literal('totalScore'), 'DESC']],
             limit: 10
         });

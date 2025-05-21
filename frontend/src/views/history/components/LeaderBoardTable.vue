@@ -22,7 +22,7 @@
         <td class="rank-cell">
           <span class="rank">{{ index + 1 }}</span>
         </td>
-        <td>{{ player.username || `用戶 #${player.userId}` }}</td>
+        <td>{{ player.username || ` ${player.user.username}` }}</td>
         <td>{{ player.totalScore }}</td>
         <td>{{ player.gamesPlayed }}</td>
         <td>{{ calculateAverage(player.totalScore, player.gamesPlayed) }}</td>

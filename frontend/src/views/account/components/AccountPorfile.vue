@@ -55,7 +55,7 @@
 
           <div class="info-item">
             <div class="info-label">
-              <VaIcon name="date_range" color="primary" />
+              <VaIcon name="date" color="primary" />
               加入時間
             </div>
             <div class="info-value">{{ formatDate(user.createdAt) }}</div>
@@ -69,7 +69,7 @@
       <VaCardContent>
         <div class="card-header">
           <h3>
-            <VaIcon name="sports_esports" color="primary" />
+            <VaIcon name="sports esports" color="primary" />
             遊戲紀錄
           </h3>
           <VaButton
@@ -81,26 +81,8 @@
           </VaButton>
         </div>
 
-        <div class="game-records" v-if="user.gameRecords?.length">
-          <div
-            v-for="(record, index) in user.gameRecords"
-            :key="index"
-            class="game-record-item"
-          >
-            <div class="record-info">
-              <span class="game-type">{{ record.gameType }}</span>
-              <span class="game-score">
-                <VaIcon name="star" color="warning" size="small" />
-                {{ record.score }}
-              </span>
-            </div>
-            <span class="game-date">{{ formatDate(record.playedAt) }}</span>
-          </div>
-        </div>
-        <div v-else class="empty-records">
-          <VaIcon name="sports_esports" size="large" color="secondary" />
-          <p>還沒有遊戲紀錄</p>
-        </div>
+        <GameRecordList/>
+
       </VaCardContent>
     </VaCard>
   </section>
@@ -111,6 +93,7 @@ import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import { getProfileAPI } from '@/apis/profile.js'
 import { ElMessage } from 'element-plus'
+import GameRecordList from '@/views/history/components/GameRecordList.vue'
 import {
   VaCard,
   VaCardContent,

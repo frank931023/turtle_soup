@@ -1,27 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
-import { useUserStore } from './user' // 注意這裡是 './user'，不是 './userStore'
+import { useUserStore } from './user'
 
-// API 基礎配置
-const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
-  timeout: 10000
-})
-
-// 請求攔截器，添加授權頭
-api.interceptors.request.use(config => {
-  const userStore = useUserStore()
-  // 檢查各種可能的 token 位置
-  const token = userStore.userInfo?.token ||
-    userStore.userInfo?.accessToken ||
-    userStore.userInfo?.access_token
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+// 導入 API 函數
+import {
+  createGameRecordAPI,
+  getUserRecordsAPI,
+  getGameRecordAPI,
+  updateGameRecordAPI,
+  getLeaderboardAPI,
+  getUserStatsAPI
+} from '@/apis/gameRecord'
 
 export const useGameRecordStore = defineStore('gameRecord', () => {
   // 狀態
@@ -35,7 +24,7 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
   // 計算屬性
   const sortedRecords = computed(() => {
     return [...userRecords.value].sort((a, b) =>
-      new Date(b.createdAt) - new Date(a.createdAt)
+        new Date(b.createdAt) - new Date(a.createdAt)
     )
   })
 
@@ -57,8 +46,8 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
       const userStore = useUserStore()
       // 檢查 userInfo 中可能的 userId 位置
       const userId = userStore.userInfo?.id ||
-        userStore.userInfo?.userId ||
-        userStore.userInfo?._id
+          userStore.userInfo?.userId ||
+          userStore.userInfo?._id
 
       if (!userId) {
         throw new Error('未找到用戶ID，請確保已登入')
@@ -70,11 +59,11 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
         userId: userId
       }
 
-      const response = await api.post('/gameRecord/create', dataWithUserId)
-      userRecords.value.push(response.data.data)
-      return response.data
+      const res = await createGameRecordAPI(dataWithUserId)
+      userRecords.value.push(res.data)
+      return res
     } catch (err) {
-      error.value = err.response?.data?.error || '創建遊戲記錄失敗'
+      error.value = err.message || '創建遊戲記錄失敗'
       throw err
     } finally {
       loading.value = false
@@ -86,12 +75,11 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      // 修正 API 端點，應該是 '/gameRecord/history' 而不是 '/gameRecord/record'
-      const response = await api.get('/gameRecord/history')
-      userRecords.value = response.data.data
+      const res = await getUserRecordsAPI()
+      userRecords.value = res.data
       return userRecords.value
     } catch (err) {
-      error.value = err.response?.data?.error || '獲取遊戲記錄失敗'
+      error.value = err.message || '獲取遊戲記錄失敗'
       throw err
     } finally {
       loading.value = false
@@ -103,11 +91,11 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      const response = await api.get(`/gameRecord/record/${id}`)
-      currentRecord.value = response.data.data
+      const res = await getGameRecordAPI(id)
+      currentRecord.value = res.data
       return currentRecord.value
     } catch (err) {
-      error.value = err.response?.data?.error || '獲取遊戲記錄失敗'
+      error.value = err.message || '獲取遊戲記錄失敗'
       throw err
     } finally {
       loading.value = false
@@ -119,19 +107,18 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      // 修正 API 端點，應該是 '/gameRecord/update/${id}'
-      const response = await api.put(`/gameRecord/update/${id}`, data)
+      const res = await updateGameRecordAPI(id, data)
 
       // 更新記錄在陣列中
       const index = userRecords.value.findIndex(record => record.id === id)
       if (index !== -1) {
-        userRecords.value[index] = response.data.data
+        userRecords.value[index] = res.data
       }
 
-      currentRecord.value = response.data.data
+      currentRecord.value = res.data
       return currentRecord.value
     } catch (err) {
-      error.value = err.response?.data?.error || '更新遊戲記錄失敗'
+      error.value = err.message || '更新遊戲記錄失敗'
       throw err
     } finally {
       loading.value = false
@@ -143,11 +130,11 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      const response = await api.get('/gameRecord/leaderboard')
-      leaderboard.value = response.data.data
+      const res = await getLeaderboardAPI()
+      leaderboard.value = res.data
       return leaderboard.value
     } catch (err) {
-      error.value = err.response?.data?.error || '獲取排行榜失敗'
+      error.value = err.message || '獲取排行榜失敗'
       throw err
     } finally {
       loading.value = false
@@ -159,11 +146,11 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      const response = await api.get('/gameRecord/stats')
-      userStats.value = response.data.data
+      const res = await getUserStatsAPI()
+      userStats.value = res.data
       return userStats.value
     } catch (err) {
-      error.value = err.response?.data?.error || '獲取用戶統計失敗'
+      error.value = err.message || '獲取用戶統計失敗'
       throw err
     } finally {
       loading.value = false

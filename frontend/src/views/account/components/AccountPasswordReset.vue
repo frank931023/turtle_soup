@@ -6,7 +6,7 @@
         <div class="page-header">
           <div class="header-content">
             <h1 class="title">
-              <VaIcon name="lock_reset" color="primary" />
+              <VaIcon name="password reset" color="primary" />
               重設密碼
             </h1>
             <p class="subtitle">請輸入舊密碼與新密碼</p>
@@ -31,7 +31,7 @@
                 show-password
               >
                 <template #prefix>
-                  <VaIcon name="lock" color="secondary" />
+                  <VaIcon color="secondary" />
                 </template>
               </el-input>
             </el-form-item>
@@ -45,7 +45,7 @@
                   show-password
                 >
                   <template #prefix>
-                    <VaIcon name="vpn_key" color="primary" />
+                    <VaIcon color="primary" />
                   </template>
                 </el-input>
               </el-form-item>
@@ -58,7 +58,7 @@
                   show-password
                 >
                   <template #prefix>
-                    <VaIcon name="check_circle" color="success" />
+                    <VaIcon color="success" />
                   </template>
                 </el-input>
               </el-form-item>

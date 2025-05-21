@@ -50,8 +50,9 @@
                   <el-button
                     v-if="profileForm.avatarUrl"
                     @click="resetAvatar"
-                    icon="Delete"
-                  />
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
                 </template>
               </el-input>
             </el-form-item>
@@ -155,6 +156,7 @@ const submitting = ref(false)
 // 用于预览的头像URL和原始头像URL
 const previewAvatarUrl = ref('')
 const originalAvatarUrl = ref('')
+import { Delete } from '@element-plus/icons-vue'
 
 // 表单数据
 const profileForm = reactive({
