@@ -1,69 +1,578 @@
 <template>
-  <div class="min-h-screen bg-black text-white p-6">
-    <div class="max-w-4xl mx-auto space-y-10">
-      <!-- Title Section -->
-      <h1
-        class="text-5xl font-extrabold text-red-600 mb-6 border-b-4 border-red-600 pb-3 shadow-xl"
-      >
-        血衣業：罷免與執政的對決
-      </h1>
-
-      <!-- Content Section 1 -->
-      <div class="bg-gradient-to-r from-red-500 to-yellow-500 p-6 rounded-lg shadow-lg">
-        <p class="mb-4 text-xl leading-relaxed text-gray-100">
-          在台灣政壇，國民黨與民進黨長年角力，如今進入一個火藥味十足的階段。
-          國民黨主打罷免行動，鎖定賴清德執政的破口，試圖重挾民意再起。
-        </p>
+  <div class="about-page">
+    <!-- 保留星空背景，調整透明度 -->
+    <div class="stars-container">
+      <div class="stars"></div>
+      <div class="stars2"></div>
+      <div class="stars3"></div>
+    </div>
+    
+    <div class="content-container">
+      <!-- 頂部標題 -->
+      <div class="floating-title">
+        <div class="title-inner">
+          <h1>海龜湯</h1>
+          <div class="subtitle">TURTLE SOUP</div>
+        </div>
       </div>
-
-      <!-- Content Section 2 -->
-      <div class="bg-gradient-to-l from-blue-500 to-indigo-700 p-6 rounded-lg shadow-lg">
-        <p class="mb-4 text-xl leading-relaxed text-gray-100">
-          而另一方面，民進黨則企圖穩住政權，以賴清德為核心，強調穩健執政、對抗威權陰影。
-          兩黨如同古戰場中的血衣士，踏著選票與民意的波濤，展開一次又一次的意識形態之戰。
-        </p>
-      </div>
-
-      <!-- Quote Section -->
-      <div class="bg-gradient-to-r from-purple-600 to-pink-500 p-8 rounded-lg text-center">
-        <p class="mb-4 text-2xl font-semibold text-yellow-50">
-          民意是利劍，罷免是戰鼓，執政是修羅場。
-        </p>
-      </div>
-
-      <!-- Footer Section -->
-      <p class="mt-6 text-sm text-gray-400 italic text-right">
-        —— 記於2025年的春末，霧氣未散，政局已赤。
-      </p>
+      
+      <!-- 團隊區塊 -->
+      <section class="team-section reveal-section">
+        <div class="section-header">
+          <span class="section-number">01</span>
+          <h2>團隊成員</h2>
+          <div class="header-line"></div>
+        </div>
+        
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>魏仁祥</h3>
+              <div class="student-id">112403026</div>
+              <p>Backend Development and Integration</p>
+            </div>
+          </div>
+          
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>傅聖祐</h3>
+              <div class="student-id">112403523</div>
+              <p>Visual Storytelling and Frontend Development</p>
+            </div>
+          </div>
+          
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>謝曉崴</h3>
+              <div class="student-id">112403511</div>
+              <p>Report Writing and Frontend Development</p>
+            </div>
+          </div>
+          
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>黃偉鴻</h3>
+              <div class="student-id">112403524</div>
+              <p>Backend Development and LLM APIs integration</p>
+            </div>
+          </div>
+          
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>楊佩蓉</h3>
+              <div class="student-id">112403509</div>
+              <p>UI/UX Enhancement and Frontend Development</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 亮點設計區塊 -->
+      <section class="highlights-section reveal-section">
+        <div class="section-header right-aligned">
+          <span class="section-number">02</span>
+          <h2>亮點設計</h2>
+          <div class="header-line"></div>
+        </div>
+        
+        <div class="highlights-container">
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M21,9H15V7h6Zm0,2H15v2h6Zm0,4H3v2H21Zm0,4H3v2H21ZM13,9H7V7h6Zm0,2H7v2H6ZM3,7H5V5H3Zm0,2H5v2H3Z"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>沉浸式 AI 劇情互動</h3>
+              <p>融合 LangGraph 多代理 AI 系統，模擬具個性與記憶的 NPC，玩家可進行開放式提問並從 AI 獲得「是」、「不是」或「不相關」回覆，營造類似文字冒險小說的體驗。</p>
+            </div>
+          </div>
+          
+          <div class="highlight-card">
+            <div class="highlight-icon">
+              <svg viewBox="0 0 24 24" class="icon"><path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2ZM9.4,16.6,4.8,12l1.4-1.4,3.2,3.2,8.4-8.4,1.4,1.4Z"/></svg>
+            </div>
+            <div class="highlight-content">
+              <h3>AI 輔助偵探解謎體驗</h3>
+              <p>玩家扮演偵探角色，藉由詢問 NPC 串出完整事件脈絡。AI 不僅回答問題，還會根據玩家行為主動提供提示或誤導訊息，強化推理難度與真實感。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 系統架構區塊 - 更完整內容 -->
+      <section class="architecture-section reveal-section">
+        <div class="section-header">
+          <span class="section-number">03</span>
+          <h2>系統架構</h2>
+          <div class="header-line"></div>
+        </div>
+        
+        <div class="architecture-container">
+          <div class="arch-card">
+            <h3>前端</h3>
+            <div class="tech">Vue.js</div>
+            <div class="arch-content">
+              <h4>主要功能：</h4>
+              <ul>
+                <li>玩家登入、進入遊戲介面</li>
+                <li>題目展示、對話框輸入與回應顯示</li>
+                <li>根據遊戲狀態動態顯示提示、NPC 回應與進度</li>
+              </ul>
+              
+              <h4>互動流程：</h4>
+              <ul>
+                <li>玩家輸入問題或選擇互動選項</li>
+                <li>請求發送至後端 API</li>
+                <li>取得 AI 回覆後渲染到畫面</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="arch-card">
+            <h3>後端</h3>
+            <div class="tech">Node.js + Express.js</div>
+            <div class="arch-content">
+              <h4>主要功能：</h4>
+              <ul>
+                <li>提供 RESTful API 給前端使用（送出問題、取得回應、載入遊戲資料等）</li>
+                <li>整合 LangGraph 架構管理 AI 對話流程</li>
+                <li>控制 NPC 的行為邏輯與對話記憶</li>
+              </ul>
+              
+              <h4>AI 整合：</h4>
+              <ul>
+                <li>使用 LangGraph 建構多角色 AI 流程圖</li>
+                <li>每個 NPC 對應一個具獨立邏輯的 AI Agent</li>
+                <li>可視需求串接外部大型語言模型（如 OpenAI API）</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="arch-card">
+            <h3>資料庫</h3>
+            <div class="tech">SQLite</div>
+            <div class="arch-content">
+              <h4>儲存內容：</h4>
+              <ul>
+                <li>玩家帳號、遊玩紀錄</li>
+                <li>題目資料（分類、難度、狀態、標籤等）</li>
+                <li>玩家與 AI/NPC 的對話紀錄（供日後回顧或進度續玩）</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
-<script setup>
-// 無需額外邏輯
-</script>
-
 <style scoped>
-/* Custom Styles */
-.shadow-xl {
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.08);
+/* 基本設置與背景 */
+.about-page {
+  position: relative;
+  min-height: 100vh;
+  background: #0f1424;
+  color: #fff;
+  overflow: hidden;
+  font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
 }
 
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+/* 星空背景 - 保持星星背景 */
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  opacity: 0.5; /* 增加星星可見度 */
 }
 
-.bg-gradient-to-l {
-  background-image: linear-gradient(to left, var(--tw-gradient-stops));
+@keyframes animateStars {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2000px); }
 }
 
-.text-yellow-50 {
-  color: #fefcbf;
+.stars, .stars2, .stars3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5000px;
+  background: transparent;
+  z-index: 0;
 }
 
-.text-gray-100 {
-  color: #f5f5f5;
+.stars {
+  background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                    radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: animateStars 150s linear infinite;
+}
+
+.stars2, .stars3 {
+  background-image: radial-gradient(1px 1px at 25px 5px, #fff, rgba(0,0,0,0)),
+                    radial-gradient(1px 1px at 50px 80px, #eee, rgba(0,0,0,0)),
+                    radial-gradient(1px 1px at 125px 20px, #ddd, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: animateStars 100s linear infinite;
+}
+
+/* 內容容器 */
+.content-container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 30px 80px;
+  z-index: 1;
+}
+
+/* 標題 */
+.floating-title {
+  position: relative;
+  text-align: center;
+  margin-bottom: 100px;
+  padding-top: 40px;
+}
+
+.title-inner {
+  display: inline-block;
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating-title h1 {
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(76, 201, 240, 0.5);
+}
+
+.floating-title .subtitle {
+  font-size: 1.5rem;
+  letter-spacing: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-10px);
+}
+
+/* 區段共通樣式 */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(50px);
+  animation: reveal 1s ease-out forwards;
+  margin-bottom: 120px;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 50px;
+  position: relative;
+}
+
+.section-header.right-aligned {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.section-number {
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.386);
+  line-height: 1;
+  margin-right: 20px;
+}
+
+.right-aligned .section-number {
+  margin-right: 0;
+  margin-left: 20px;
+}
+
+.section-header h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  position: relative;
+  z-index: 2;
+}
+
+.header-line {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent);
+  flex-grow: 1;
+  margin-left: 30px;
+}
+
+.right-aligned .header-line {
+  margin-left: 0;
+  margin-right: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5));
+}
+
+/* 團隊區塊 - 白色卡片 */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.team-card {
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 250px; /* 固定高度確保一致性 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.team-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.member-avatar {
+  height: 100px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.member-info {
+  padding: 25px 20px;
+  background: #fff;
+  color: #222;
+}
+
+.member-info h3 {
+  margin: 0 0 5px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.student-id {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  font-family: monospace;
+}
+
+.member-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* 亮點設計區塊 - 白色卡片 */
+.highlights-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+.highlight-card {
+  display: flex;
+  gap: 30px;
+  position: relative;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  min-height: 180px; /* 確保最小高度一致 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #222;
+}
+
+.highlight-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.highlight-icon {
+  flex: 0 0 80px;
+  height: 80px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eaeaea;
+}
+
+.highlight-icon .icon {
+  width: 40px;
+  height: 40px;
+  fill: #444;
+}
+
+.highlight-content {
+  flex: 1;
+}
+
+.highlight-content h3 {
+  font-size: 1.6rem;
+  margin: 0 0 15px;
+  color: #222;
+  position: relative;
+  display: inline-block;
+}
+
+.highlight-content h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  height: 2px;
+  width: 50%;
+  background: #e0e0e0;
+}
+
+.highlight-content p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #444;
+  margin: 0;
+}
+
+/* 系統架構區塊 - 白色卡片 */
+.architecture-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.arch-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  min-height: 220px; /* 確保最小高度一致 */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #222;
+}
+
+.arch-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.arch-card h3 {
+  font-size: 1.6rem;
+  margin: 0 0 10px;
+  color: #222;
+}
+
+.tech {
+  display: inline-block;
+  background: #f5f5f5;
+  color: #444;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  border: 1px solid #eaeaea;
+}
+
+.arch-card ul {
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+.arch-card li {
+  margin-bottom: 8px;
+  color: #444;
+}
+/* 系統架構區塊 - 增強樣式 */
+.arch-card {
+  min-height: 360px; /* 增加高度以容納更多內容 */
+}
+
+.arch-content h4 {
+  font-size: 1.2rem;
+  margin: 20px 0 10px;
+  color: #333;
+  font-weight: 600;
+  border-left: 3px solid #ddd;
+  padding-left: 10px;
+}
+
+.arch-content h4:first-child {
+  margin-top: 0;
+}
+
+.arch-content ul {
+  margin-bottom: 20px;
+}
+
+.arch-content li {
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* 響應式設計 */
+@media (max-width: 992px) {
+  .content-container {
+    padding: 80px 20px 50px;
+  }
+  
+  .floating-title h1 {
+    font-size: 3.5rem;
+  }
+  
+  .team-card {
+    height: auto; /* 移動設備上允許高度自適應 */
+    min-height: 240px; /* 但設置最小高度 */
+  }
+  
+  .highlight-card {
+    flex-direction: column;
+    gap: 20px;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .floating-title h1 {
+    font-size: 2.8rem;
+  }
+  
+  .section-number {
+    font-size: 3.2rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
 }
 </style>
