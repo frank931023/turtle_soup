@@ -6,6 +6,18 @@
       <span class="animation-text">找到關鍵線索！</span>
     </div>
 
+    <!-- 添加錯誤動畫元素 -->
+    <div class="wrong-animation" ref="wrongElement">
+      <img src="@/assets/wrong.PNG" alt="錯誤" />
+      <span class="animation-text">排除了一個可能性！</span>
+    </div>
+
+    <!-- 添加無關動畫元素 -->
+    <div class="not-relevant-animation" ref="notRelevantElement">
+      <img src="@/assets/notrelevant.PNG" alt="無關" />
+      <span class="animation-text">這與謎底無關！</span>
+    </div>
+
     <div class="game-container">
       <!-- 頂部導航 -->
 
@@ -30,7 +42,8 @@
             <span class="solve-rate">{{ storyData.solveRate }}</span>
           </div>
           <div class="puzzle-hint">
-            你擁有{{ questionCount }}次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有 是/不是/不相關。
+            你擁有{{ questionCount }}次提問機會，如"他之前有喝過海龜湯嗎？"，回答只有
+            是/不是/不相關。
           </div>
         </div>
       </div>
@@ -52,30 +65,56 @@
         </div>
       </div>
 
+      <!-- 提示框：對話次數用完 -->
+      <div v-if="showFailedDialog && !isSolved" class="failed-dialog">
+        <div class="failed-content">
+          <h2>❌ 問題次數已用完 ❌</h2>
+          <p class="puzzle-name">「{{ storyData.questionName }}」</p>
+          <p>你已經使用了所有 {{ questionCount }} 次提問機會，但尚未解開謎題。</p>
+          <!-- <div class="soup-answer">
+            <h3>謎底揭曉：</h3>
+            <p>{{ storyData.soupAnswer }}</p>
+          </div> -->
+          <div class="action-buttons">
+            <button @click="resetGame" class="restart-btn">再試一次</button>
+            <router-link to="/" class="home-btn">返回首頁</router-link>
+          </div>
+        </div>
+      </div>
+
       <div class="content-wrapper">
         <!-- 左側聊天區域 -->
         <div class="chat-container">
           <h2 class="title">AI 湯神</h2>
 
-          <div class="chat-box">
+          <div class="chat-box" ref="chatBoxRef">
             <div
               v-for="(msg, index) in messages"
               :key="index"
-              :class="['message', msg.from === 'user' ? 'user' : 'ai']"
+              :class="['message', getMessageClass(msg)]"
             >
-              <span class="icon">{{ msg.from === 'user' ? '🐢' : '🍲' }}</span>
-              <span class="text">{{ msg.text }}</span>
+              <span class="icon">{{ getMessageIcon(msg) }}</span>
+              <span class="text" v-if="msg.type !== 'loading'">{{ msg.text }}</span>
+              <span class="text loading-animation" v-else>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </span>
             </div>
           </div>
 
+          <!-- 輸入框部分 -->
           <div class="input-box">
             <input
               v-model="input"
-              @keyup.enter="sendMessage"
+              @keyup.enter="handleEnterKey"
               placeholder="輸入你的問題..."
-              :disabled="usedQuestions >= questionCount || isSolved"
+              :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse"
             />
-            <button @click="sendMessage" :disabled="usedQuestions >= questionCount || isSolved">
+            <button
+              @click="sendMessage"
+              :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse"
+            >
               ➤
             </button>
           </div>
@@ -118,7 +157,7 @@
             </button>
           </div>
 
-          <div class="clues-container">
+          <div class="clues-container" ref="cluesContainerRef">
             <div v-if="filteredClues.length === 0" class="no-clues">
               {{
                 activeFilter === 'all'
@@ -143,10 +182,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getStoryByIdAPI } from '@/apis/story.js'
 import { hostAnswerAPI, aiPlayerQuestionAPI, npcQuestionAPI } from '@/apis/agent.js'
+import { useGameRecordStore } from '@/stores/gameRecordStore'
+import { useUserStore } from '@/stores/user'
+
+// 初始化 stores
+const gameRecordStore = useGameRecordStore()
+const userStore = useUserStore()
 
 const route = useRoute()
 // 修正獲取 storyId 的方式，確保能正確接收來自首頁的參數
@@ -167,12 +212,15 @@ const storyData = ref({
   views: 0,
   solveRate: '0%',
   imageUrl: '',
-  soupAnswer: '' // 添加謎底欄位
+  soupAnswer: '', // 添加謎底欄位
 })
 
 const input = ref('')
 const messages = ref([{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }])
 const thumbsUpElement = ref(null)
+const chatBoxRef = ref(null)
+const wrongElement = ref(null)
+const notRelevantElement = ref(null)
 
 // 用於追蹤已使用的提問次數
 const usedQuestions = ref(0)
@@ -189,6 +237,20 @@ const isSolved = ref(false)
 // 添加當前 NPC 索引，用於追蹤輪到哪個 NPC 提問
 const currentNpcIndex = ref(0)
 
+// 添加加載狀態
+const isLoading = ref(false)
+
+// 添加一個 ref 引用右側線索容器
+const cluesContainerRef = ref(null)
+
+// 添加提示框狀態變量
+const showFailedDialog = ref(false)
+
+// 添加顯示對話次數用完提示框的函數
+const showQuestionsUsedUpDialog = () => {
+  showFailedDialog.value = true
+}
+
 // 獲取故事詳情
 const fetchStoryDetails = async () => {
   try {
@@ -203,7 +265,7 @@ const fetchStoryDetails = async () => {
           views: response.data.views || Math.floor(Math.random() * 2000 + 500),
           solveRate: response.data.solveRate || `${Math.floor(Math.random() * 50 + 30)}%`,
           imageUrl: response.data.imageURL || '@/assets/question1.png',
-          soupAnswer: response.data.soup || '謎底未設定' // 儲存謎底，顯示在解謎對話框
+          soupAnswer: response.data.soup || '謎底未設定', // 儲存謎底，顯示在解謎對話框
         }
         console.log('成功獲取故事資料:', storyData.value)
       } else {
@@ -245,29 +307,113 @@ const showThumbsUpAnimation = () => {
   }
 }
 
+// 添加錯誤動畫函數
+const showWrongAnimation = () => {
+  if (wrongElement.value) {
+    // 先移除任何現有的類
+    wrongElement.value.classList.remove('exit')
+
+    // 添加顯示類
+    wrongElement.value.classList.add('show')
+
+    // 2秒後開始退出動畫
+    setTimeout(() => {
+      wrongElement.value.classList.remove('show')
+      wrongElement.value.classList.add('exit')
+
+      // 確保動畫完成後重置
+      setTimeout(() => {
+        wrongElement.value.classList.remove('exit')
+      }, 1000)
+    }, 2000)
+  }
+}
+
+// 不相關動畫函數
+const showNotRelevantAnimation = () => {
+  if (notRelevantElement.value) {
+    // 先移除任何現有的類
+    notRelevantElement.value.classList.remove('exit')
+
+    // 添加顯示類
+    notRelevantElement.value.classList.add('show')
+
+    // 2秒後開始退出動畫
+    setTimeout(() => {
+      notRelevantElement.value.classList.remove('show')
+      notRelevantElement.value.classList.add('exit')
+
+      // 確保動畫完成後重置
+      setTimeout(() => {
+        notRelevantElement.value.classList.remove('exit')
+      }, 1000)
+    }, 2000)
+  }
+}
+
 // scrollToBottom 函數應該使用引入的 nextTick
 const scrollToBottom = async () => {
   await nextTick()
-  const chatContainer = document.querySelector('.chat-messages')
-  if (chatContainer) {
-    chatContainer.scrollTop = chatContainer.scrollHeight
-  }
+  setTimeout(() => {
+    if (chatBoxRef.value) {
+      chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight
+    } else {
+      const chatContainer = document.querySelector('.chat-box')
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight
+      }
+    }
+  }, 50)
+}
+
+// 新增右側線索滾動到底部的函數
+const scrollCluesListToBottom = async () => {
+  await nextTick()
+  // 增加延遲，確保 DOM 完全更新
+  setTimeout(() => {
+    if (cluesContainerRef.value) {
+      // 檢查並輸出目前的滾動高度
+      console.log('滾動高度:', cluesContainerRef.value.scrollHeight)
+      // 強制滾動到底部
+      cluesContainerRef.value.scrollTop = cluesContainerRef.value.scrollHeight + 1000
+
+      // 雙重保險：再次滾動確保到達底部
+      setTimeout(() => {
+        cluesContainerRef.value.scrollTop = cluesContainerRef.value.scrollHeight + 1000
+      }, 100)
+    } else {
+      console.warn('線索容器引用未找到')
+    }
+  }, 150) // 延長等待時間
 }
 
 // 修改 sendMessage 函數
 const sendMessage = async () => {
   if (!storyId.value) {
-    console.error("故事ID未定義!");
-    return;
+    console.error('故事ID未定義!')
+    return
   }
 
   const question = input.value.trim()
-  if (!question || usedQuestions.value >= questionCount.value || isSolved.value) return
+  if (
+    !question ||
+    usedQuestions.value >= questionCount.value ||
+    isSolved.value ||
+    isWaitingResponse.value
+  )
+    return
+
+  // 設置為等待回應狀態
+  isWaitingResponse.value = true
 
   // 增加已使用的提問次數 (只有玩家提問才增加)
   usedQuestions.value++
 
   messages.value.push({ from: 'user', text: question })
+
+  // 添加加載消息
+  const loadingMessageIndex = messages.value.length
+  messages.value.push({ type: 'loading', text: '正在思考...' })
 
   // 在用戶訊息添加後捲動到底部
   await scrollToBottom()
@@ -276,66 +422,90 @@ const sendMessage = async () => {
     console.log('發送問題到後端:', question)
     // 使用 AI 關主回答問題
     const response = await hostAnswerAPI({
-      storyId: storyId.value, // 確保這個值存在
-      input: question, // 確保問題不為空
+      storyId: storyId.value,
+      input: question,
     })
     console.log('後端回覆:', response)
+
+    // 移除加載消息
+    messages.value.splice(loadingMessageIndex, 1)
 
     // 儲存問答作為線索
     clues.value.push({
       question,
       answer: response.reply,
     })
+    // 添加自動滾動線索列表
+    scrollCluesListToBottom()
 
-    // 延遲顯示答案
-    setTimeout(() => {
-      messages.value.push({ from: 'ai', text: response.reply })
+    // 顯示答案
+    messages.value.push({ from: 'ai', text: response.reply })
 
-      // 檢查是否猜中謎底 (通過 isSolved 標記判斷)
-      if (response.isSolved) {
-        isSolved.value = true
+    // 檢查是否猜中謎底 (通過 isSolved 標記判斷)
+    if (response.isSolved) {
+      isSolved.value = true
 
-        // 獲取完整謎底 (如果後端有返回)
-        if (response.soup) {
-          storyData.value.soupAnswer = response.soup
-        }
-
-        // 顯示額外的恭喜訊息
-        setTimeout(() => {
-          messages.value.push({
-            from: 'ai',
-            text: '🎉恭喜你成功解出謎題！🎉 遊戲已結束，請查看謎底解析。',
-          })
-
-          // 自動顯示解謎成功對話框
-          showSolvedDialog()
-        }, 1000)
-
-        return // 答對後不再觸發 NPC 提問
+      // 獲取完整謎底 (如果後端有返回)
+      if (response.soup) {
+        storyData.value.soupAnswer = response.soup
       }
 
-      // 只有未解謎時才讓 NPC 提問
-      if (!isSolved.value && npcEnabled.value && npcCount.value > 0) {
-        // 等待一段時間再讓 NPC 提問，增加交互感
-        setTimeout(() => {
-          askNpcQuestion()
-        }, 1500)
-      }
+      // 記錄遊戲通關並提交線索歷史
+      submitGameRecord()
 
-      // AI 訊息添加後也捲動到底部
-      scrollToBottom()
+      // 顯示額外的恭喜訊息
+      setTimeout(() => {
+        messages.value.push({
+          from: 'ai',
+          text: '🎉恭喜你成功解出謎題！🎉 遊戲已結束，請查看謎底解析。',
+        })
 
-      // 修改為:
-      if (response.reply === '是') {
-        showThumbsUpAnimation()
-      }
-    }, 600)
+        // 自動顯示解謎成功對話框
+        showSolvedDialog()
+      }, 1000)
+
+      return // 答對後不再觸發 NPC 提問
+    }
+
+    // 只有未解謎時才讓 NPC 提問
+    if (!isSolved.value && npcEnabled.value && npcCount.value > 0) {
+      // 等待一段時間再讓 NPC 提問，增加交互感
+      setTimeout(() => {
+        askNpcQuestion()
+      }, 1500)
+    }
+
+    // AI 訊息添加後也捲動到底部
+    scrollToBottom()
+
+    // 根據回答類型顯示不同動畫
+    if (response.reply === '是') {
+      showThumbsUpAnimation()
+    } else if (response.reply === '不是') {
+      showWrongAnimation()
+    } else if (response.reply === '不相關') {
+      showNotRelevantAnimation()
+    }
+
+    // 检查是否已用完所有問題且未解謎
+    if (usedQuestions.value >= questionCount.value && !isSolved.value) {
+      // 顯示問題用完對話框
+      setTimeout(() => {
+        showQuestionsUsedUpDialog()
+      }, 1000)
+    }
   } catch (error) {
+    // 移除加載消息
+    messages.value.splice(loadingMessageIndex, 1)
+
     console.error('獲取答案失敗:', error)
     messages.value.push({
       from: 'ai',
       text: '抱歉，無法回答這個問題。請稍後再試。',
     })
+  } finally {
+    // 無論成功或失敗，都恢復輸入狀態
+    isWaitingResponse.value = false
   }
 
   input.value = ''
@@ -357,6 +527,11 @@ const askNpcQuestion = async () => {
     // 使用依序的 NPC 索引，而非隨機選擇
     const npcIndex = currentNpcIndex.value
 
+    // 添加加載消息
+    const loadingMessageIndex = messages.value.length
+    messages.value.push({ type: 'loading', text: '正在思考...' })
+    await scrollToBottom()
+
     // 獲取 NPC 問題
     const response = await npcQuestionAPI({
       storyId: storyId.value,
@@ -364,11 +539,20 @@ const askNpcQuestion = async () => {
       clueHistory: clues.value,
     })
 
+    // 移除加載消息
+    messages.value.splice(loadingMessageIndex, 1)
+
     // 顯示 NPC 問題
     messages.value.push({
-      from: 'user',
+      from: 'npc',
       text: `[NPC ${npcIndex + 1}] ${response.question}`,
     })
+    await scrollToBottom()
+
+    // 再添加一個加載消息表示等待關主回答
+    const hostLoadingIndex = messages.value.length
+    messages.value.push({ type: 'loading', text: '關主思考中...' })
+    await scrollToBottom()
 
     // 獲取關主回答
     const answerResponse = await hostAnswerAPI({
@@ -376,51 +560,57 @@ const askNpcQuestion = async () => {
       input: response.question,
     })
 
+    // 移除關主加載消息
+    messages.value.splice(hostLoadingIndex, 1)
+
     // 儲存問答作為線索
     clues.value.push({
       question: `[NPC ${npcIndex + 1}] ${response.question}`,
       answer: answerResponse.reply,
     })
+    // 添加自動滾动線索列表
+    scrollCluesListToBottom()
 
     // 顯示關主回答
-    setTimeout(() => {
-      messages.value.push({ from: 'ai', text: answerResponse.reply })
+    messages.value.push({ from: 'ai', text: answerResponse.reply })
+    await scrollToBottom()
 
-      // 檢查 NPC 是否猜中謎底
-      if (answerResponse.isSolved) {
-        isSolved.value = true
+    // 檢查 NPC 是否猜中謎底
+    if (answerResponse.isSolved) {
+      isSolved.value = true
 
-        // 獲取完整謎底 (如果後端有返回)
-        if (answerResponse.soup) {
-          storyData.value.soupAnswer = answerResponse.soup
-        }
-
-        // 顯示 NPC 猜中的訊息
-        setTimeout(() => {
-          messages.value.push({
-            from: 'ai',
-            text: `🎉 NPC ${npcIndex + 1} 成功猜中了謎底！遊戲已結束。`,
-          })
-
-          // 自動顯示解謎成功對話框
-          showSolvedDialog()
-        }, 1000)
-        return
+      // 獲取完整謎底 (如果後端有返回)
+      if (answerResponse.soup) {
+        storyData.value.soupAnswer = answerResponse.soup
       }
 
-      // 更新 NPC 索引，讓下一個 NPC 提問
-      currentNpcIndex.value = (currentNpcIndex.value + 1) % npcCount.value
+      // 顯示 NPC 猜中的訊息
+      setTimeout(() => {
+        messages.value.push({
+          from: 'ai',
+          text: `🎉 NPC ${npcIndex + 1} 成功猜中了謎底！遊戲已結束。`,
+        })
 
-      // 看是否還有其他 NPC 要提問
-      if (!isSolved.value && npcCount.value > 1 && currentNpcIndex.value !== 0) {
-        // 等待一段時間再讓下一個 NPC 提問
-        setTimeout(() => {
-          askNpcQuestion()
-        }, 1500)
-      }
-    }, 600)
+        // 自動顯示解謎成功對話框
+        showSolvedDialog()
+      }, 1000)
+      return
+    }
+
+    // 更新 NPC 索引，讓下一個 NPC 提問
+    currentNpcIndex.value = (currentNpcIndex.value + 1) % npcCount.value
+
+    // 看是否還有其他 NPC 要提問
+    if (!isSolved.value && npcCount.value > 1 && currentNpcIndex.value !== 0) {
+      // 等待一段時間再讓下一個 NPC 提問
+      setTimeout(() => {
+        askNpcQuestion()
+      }, 1500)
+    }
   } catch (error) {
     console.error('NPC 提問失敗:', error)
+    // 移除可能的加載消息
+    messages.value = messages.value.filter((msg) => msg.type !== 'loading')
     // 出錯時也要更新 NPC 索引，避免卡住
     currentNpcIndex.value = (currentNpcIndex.value + 1) % npcCount.value
   }
@@ -433,6 +623,7 @@ const resetGame = () => {
   messages.value = [{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }]
   activeFilter.value = 'all'
   isSolved.value = false // 重置解謎狀態
+  showFailedDialog.value = false // 重置失敗對話框狀態
   currentNpcIndex.value = 0 // 重置 NPC 索引
 
   // 如果需要重新獲取故事資料
@@ -455,18 +646,39 @@ const handleScroll = () => {
   }
 }
 
+// 監聽過濾器變化
+watch(activeFilter, () => {
+  nextTick(() => {
+    if (cluesContainerRef.value) {
+      cluesContainerRef.value.scrollTop = 0
+    }
+  })
+})
+
+// 監聽 clues 數組變化
+watch(
+  clues,
+  () => {
+    // 等待 DOM 更新後滾動到底部
+    nextTick(() => {
+      scrollCluesListToBottom()
+    })
+  },
+  { deep: true }
+) // deep: true 確保監聽深層變化
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
-  
+
   // 立即執行獲取故事詳情
   fetchStoryDetails()
-  
+
   // 如果 npcEnabled，可以在這裡初始化 NPC 相關邏輯
   console.log('遊戲設置:', {
     storyId: storyId.value,
     npcCount: npcCount.value,
     questionCount: questionCount.value,
-    playAlone: playAlone.value
+    playAlone: playAlone.value,
   })
 })
 
@@ -478,7 +690,72 @@ onUnmounted(() => {
   if (thumbsUp && thumbsUp.classList.contains('show')) {
     thumbsUp.classList.remove('show')
   }
+
+  // 清除錯誤動畫
+  const wrong = wrongElement.value
+  if (wrong && wrong.classList.contains('show')) {
+    wrong.classList.remove('show')
+  }
+
+  // 清除無關動畫
+  const notRelevant = notRelevantElement.value
+  if (notRelevant && notRelevant.classList.contains('show')) {
+    notRelevant.classList.remove('show')
+  }
 })
+
+// 添加等待回應的狀態
+const isWaitingResponse = ref(false)
+
+// 獲取消息的樣式類別
+const getMessageClass = (msg) => {
+  if (msg.type === 'loading') return 'ai loading' // 加載動畫顯示在左側
+  if (msg.from === 'user') return 'user'
+  if (msg.from === 'npc') return 'npc'
+  return 'ai'
+}
+
+// 獲取消息的圖標
+const getMessageIcon = (msg) => {
+  if (msg.type === 'loading') return '⏳'
+  if (msg.from === 'user') return '🐢'
+  if (msg.from === 'npc') return '🔍'
+  return '🍲'
+}
+
+// 添加一個新的函數來處理按下 Enter 鍵事件
+const handleEnterKey = () => {
+  // 先執行發送訊息函數
+  sendMessage()
+  // 無論發送成功與否，都清空輸入框
+  input.value = ''
+}
+
+// 提交遊戲記錄和增加分數
+const submitGameRecord = async () => {
+  try {
+    // 計算遊戲時間（如果需要）
+    const timeSpent = 300.5
+
+    // 1. 創建遊戲記錄
+    const recordData = {
+      questionId: storyId.value,
+      score: 10,
+      userAnswer: '測試，gemini說對就對',
+      isCompleted: true,
+      timeSpent: timeSpent,
+      clueHistory: clues.value,
+    }
+
+    const recordResponse = await gameRecordStore.createGameRecord(recordData)
+    console.log('遊戲記錄已成功提交:', recordResponse)
+
+    // 關於分數增加，您可以在後端自動處理
+    // 或者您可以檢查 userStore 是否有更新分數的方法
+  } catch (error) {
+    console.error('提交遊戲記錄失敗:', error)
+  }
+}
 </script>
   
 <style scoped>
@@ -733,7 +1010,7 @@ onUnmounted(() => {
   }
 }
 
-/* 當滾動到一定位置時顯示題目標題欄 */
+/* 當滾动到一定位置時顯示題目標題欄 */
 .game-container.scrolled .puzzle-title-bar {
   display: block;
   transform: translateY(0);
@@ -762,6 +1039,43 @@ onUnmounted(() => {
   border: 1px solid #eee;
   border-radius: 8px;
   background: #fff;
+}
+
+.loading-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  min-width: 60px;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background-color: #888;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
 }
 
 .message {
@@ -862,15 +1176,31 @@ button:disabled {
   border-bottom: 1px solid #ddd;
 }
 
+/* 修改 .clues-container 樣式 */
 .clues-container {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto !important;
   margin-bottom: 16px;
-  max-height: 400px; /* 限制最大高度 */
+  max-height: 450px;
+  min-height: 300px;
   border: 1px solid #e8e8e8;
   border-radius: 8px;
   padding: 8px;
   background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.clue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+/* 重要：確保滾動發生在正確元素上 */
+.clue-item:last-child {
+  margin-bottom: 20px;
 }
 
 .no-clues {
@@ -878,12 +1208,6 @@ button:disabled {
   text-align: center;
   padding: 20px 0;
   font-style: italic;
-}
-
-.clue-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .clue-item {
@@ -1103,6 +1427,39 @@ button:disabled {
   }
 }
 
+/* 問題用完未解謎對話框樣式 */
+.failed-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.failed-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.failed-content h2 {
+  color: #dc3545;
+  margin-bottom: 16px;
+  font-size: 28px;
+}
+
 /* 響應式設計 */
 @media (max-width: 768px) {
   .game-container {
@@ -1117,5 +1474,85 @@ button:disabled {
     margin-top: 20px;
     height: 300px;
   }
+}
+
+/* 錯誤動畫樣式 */
+.wrong-animation {
+  position: fixed;
+  top: 40%;
+  left: -300px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #8b0000, #b22222);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wrong-animation img {
+  width: 80px;
+  height: 80px;
+  animation: pulse 1s infinite alternate;
+  background: transparent;
+  object-fit: contain;
+}
+
+.wrong-animation .animation-text {
+  font-size: 24px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* 無關動畫樣式 */
+.not-relevant-animation {
+  position: fixed;
+  top: 40%;
+  left: -300px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #9e9e9e, #757575);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.not-relevant-animation img {
+  width: 80px;
+  height: 80px;
+  animation: pulse 1s infinite alternate;
+  background: transparent;
+  object-fit: contain;
+}
+
+.not-relevant-animation .animation-text {
+  font-size: 24px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* 共用的動畫類 */
+.wrong-animation.show,
+.not-relevant-animation.show {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+
+.wrong-animation.exit,
+.not-relevant-animation.exit {
+  left: 120%;
+  opacity: 0;
 }
 </style>

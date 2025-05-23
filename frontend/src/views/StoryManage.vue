@@ -364,7 +364,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-:root{
+:root {
   --header-height: 64px;
 }
 

@@ -133,16 +133,23 @@ export default {
   },
   methods: {
     // 獲取故事詳情
-    async fetchStoryDetails() {
+    async fetchStoryDetails(storyIdOverride) {
       try {
-        if (this.storyId) {
-          const response = await getStoryByIdAPI(this.storyId)
+        const storyIdToUse = storyIdOverride || this.storyId
+
+        if (storyIdToUse) {
+          console.log('正在獲取故事詳情，ID:', storyIdToUse)
+          const response = await getStoryByIdAPI(storyIdToUse)
+
           if (response && response.success && response.data) {
             this.storyName = response.data.questionName || '未知故事'
+            console.log('成功獲取故事名稱:', this.storyName)
           } else {
             this.storyName = '未能載入故事名稱'
             console.error('獲取故事詳情失敗:', response)
           }
+        } else {
+          console.error('缺少故事 ID')
         }
       } catch (error) {
         this.storyName = '未能載入故事名稱'
@@ -151,12 +158,15 @@ export default {
     },
 
     // 打開模態框
-    async openModal() {
+    async openModal(directStoryId) {
       this.showModal = true
       this.currentStep = 0
 
+      // 如果直接提供了故事ID，優先使用它
+      const storyIdToUse = directStoryId || this.storyId
+
       // 獲取故事詳情
-      await this.fetchStoryDetails()
+      await this.fetchStoryDetails(storyIdToUse)
     },
     closeModal() {
       this.showModal = false
@@ -179,6 +189,7 @@ export default {
     },
     selectPlayAlone() {
       this.playAlone = true
+      this.npcCount = 0 // 添加這一行
       this.startGame()
     },
     selectPlayWithOthers() {
