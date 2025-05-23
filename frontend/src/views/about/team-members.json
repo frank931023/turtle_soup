@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "魏仁祥",
+    "studentId": "112403026",
+    "role": "Backend Development",
+    "avatarUrl": "https://randomuser.me/api/portraits/men/1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "傅聖祐",
+    "studentId": "112403523",
+    "role": "Visual Storytelling",
+    "avatarUrl": "https://randomuser.me/api/portraits/men/2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "楊佩蓉",
+    "studentId": "112403509",
+    "role": "UI/UX Enhancement",
+    "avatarUrl": "https://randomuser.me/api/portraits/women/1.jpg"
+  },
+  {
+    "id": 4,
+    "name": "謝曉崴",
+    "studentId": "112403511",
+    "role": "Report Writing",
+    "avatarUrl": "https://randomuser.me/api/portraits/men/3.jpg"
+  },
+  {
+    "id": 5,
+    "name": "黃偉鴻",
+    "studentId": "112403524",
+    "role": "LLM APIs Integration",
+    "avatarUrl": "https://randomuser.me/api/portraits/men/4.jpg"
+  }
+]

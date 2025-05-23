@@ -1,188 +1,159 @@
 <template>
-  <header class="main-header">
-    <div class="container m-top-20">
-      <h1 class="logo">
-        <RouterLink to="/">請喝湯</RouterLink>
-      </h1>
-      <div class="entry-group">
-        <button class="enter-button" @click="goToHome">
-          進入大廳
-        </button>
-      </div>
-    </div>
-  </header>
-  <div class="about-page">
-    <!-- 保留星空背景，調整透明度 -->
-    <div class="stars-container">
-      <div class="stars"></div>
-      <div class="stars2"></div>
-      <div class="stars3"></div>
-    </div>
-    
-    <div class="content-container">
-      <!-- 頂部標題 -->
-      <div class="floating-title">
-        <div class="title-inner">
-          <h1>海龜湯</h1>
-          <div class="subtitle">TURTLE SOUP</div>
+  <div>
+    <header class="main-header">
+      <div class="container m-top-20">
+        <h1 class="logo">
+          <RouterLink to="/">請喝湯</RouterLink>
+        </h1>
+        <div class="entry-group">
+          <button class="enter-button" @click="goToHome">進入大廳</button>
         </div>
       </div>
-      
-      <!-- 團隊區塊 - 單排顯示 -->
-      <section class="team-section reveal-section">
-        <div class="section-header">
-          <span class="section-number">01</span>
-          <h2>團隊成員</h2>
-          <div class="header-line"></div>
-        </div>
-        
-        <div class="team-grid single-row">
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>魏仁祥</h3>
-              <div class="student-id">112403026</div>
-              <p>Backend Development</p>
-            </div>
+    </header>
+    <div class="about-page">
+      <!-- 保留星空背景，調整透明度 -->
+      <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+      </div>
+
+      <div class="content-container">
+        <!-- 頂部標題 -->
+        <div class="floating-title">
+          <div class="title-inner">
+            <h1>海龜湯</h1>
+            <div class="subtitle">TURTLE SOUP</div>
           </div>
-          
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>傅聖祐</h3>
-              <div class="student-id">112403523</div>
-              <p>Visual Storytelling</p>
-            </div>
+        </div>
+
+        <!-- 團隊區塊 - 單排顯示 -->
+        <section class="team-section reveal-section">
+          <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>團隊成員</h2>
+            <div class="header-line"></div>
           </div>
 
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>楊佩蓉</h3>
-              <div class="student-id">112403509</div>
-              <p>UI/UX Enhancement</p>
+          <div class="team-grid single-row">
+            <div class="team-card" v-for="member in teamMembers" :key="member.id">
+              <div
+                class="member-avatar"
+                :style="
+                  member.avatarUrl
+                    ? `background-image: url(${member.avatarUrl}); background-size: cover; background-position: center;`
+                    : ''
+                "
+              ></div>
+              <div class="member-info">
+                <h3>{{ member.name }}</h3>
+                <div class="student-id">{{ member.studentId }}</div>
+                <p>{{ member.role }}</p>
+              </div>
             </div>
           </div>
-          
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>謝曉崴</h3>
-              <div class="student-id">112403511</div>
-              <p>Report Writing</p>
+        </section>
+
+        <!-- 亮點設計區塊 -->
+        <section class="highlights-section reveal-section">
+          <div class="section-header right-aligned">
+            <span class="section-number">02</span>
+            <h2>亮點設計</h2>
+            <div class="header-line"></div>
+          </div>
+
+          <div class="highlights-container">
+            <div class="highlight-card" v-for="highlight in highlights" :key="highlight.id">
+              <div class="highlight-icon">
+                <svg viewBox="0 0 24 24" class="icon"><path :d="highlight.icon" /></svg>
+              </div>
+              <div class="highlight-content">
+                <h3>{{ highlight.title }}</h3>
+                <p>{{ highlight.description }}</p>
+              </div>
             </div>
           </div>
-          
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>黃偉鴻</h3>
-              <div class="student-id">112403524</div>
-              <p>LLM APIs Integration</p>
+        </section>
+
+        <!-- 系統架構區塊 - 更完整內容 -->
+        <section class="architecture-section reveal-section">
+          <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>系統架構</h2>
+            <div class="header-line"></div>
+          </div>
+
+          <div class="architecture-container">
+            <div class="arch-card">
+              <h3>前端</h3>
+              <div class="tech">Vue.js</div>
+              <div class="arch-content">
+                <h4>主要功能：</h4>
+                <ul>
+                  <li>玩家登入、進入遊戲介面</li>
+                  <li>題目展示、對話框輸入與回應顯示</li>
+                  <li>根據遊戲狀態動態顯示提示、NPC 回應與進度</li>
+                </ul>
+
+                <h4>互動流程：</h4>
+                <ul>
+                  <li>玩家輸入問題或選擇互動選項</li>
+                  <li>請求發送至後端 API</li>
+                  <li>取得 AI 回覆後渲染到畫面</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="arch-card">
+              <h3>後端</h3>
+              <div class="tech">Node.js + Express.js</div>
+              <div class="arch-content">
+                <h4>主要功能：</h4>
+                <ul>
+                  <li>提供 RESTful API 給前端使用（送出問題、取得回應、載入遊戲資料等）</li>
+                  <li>整合 LangGraph 架構管理 AI 對話流程</li>
+                  <li>控制 NPC 的行為邏輯與對話記憶</li>
+                </ul>
+
+                <h4>AI 整合：</h4>
+                <ul>
+                  <li>使用 LangGraph 建構多角色 AI 流程圖</li>
+                  <li>每個 NPC 對應一個具獨立邏輯的 AI Agent</li>
+                  <li>可視需求串接外部大型語言模型（如 OpenAI API）</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="arch-card">
+              <h3>資料庫</h3>
+              <div class="tech">SQLite</div>
+              <div class="arch-content">
+                <h4>儲存內容：</h4>
+                <ul>
+                  <li>玩家帳號、遊玩紀錄</li>
+                  <li>題目資料（分類、難度、狀態、標籤等）</li>
+                  <li>玩家與 AI/NPC 的對話紀錄（供日後回顧或進度續玩）</li>
+                </ul>
+              </div>
             </div>
           </div>
-          
-          
-        </div>
-      </section>
-      
-      <!-- 亮點設計區塊 -->
-      <section class="highlights-section reveal-section">
-        <div class="section-header right-aligned">
-          <span class="section-number">02</span>
-          <h2>亮點設計</h2>
-          <div class="header-line"></div>
-        </div>
-        
-        <div class="highlights-container">
-          <div class="highlight-card" v-for="highlight in highlights" :key="highlight.id">
-            <div class="highlight-icon">
-              <svg viewBox="0 0 24 24" class="icon"><path :d="highlight.icon" /></svg>
-            </div>
-            <div class="highlight-content">
-              <h3>{{ highlight.title }}</h3>
-              <p>{{ highlight.description }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      <!-- 系統架構區塊 - 更完整內容 -->
-      <section class="architecture-section reveal-section">
-        <div class="section-header">
-          <span class="section-number">03</span>
-          <h2>系統架構</h2>
-          <div class="header-line"></div>
-        </div>
-        
-        <div class="architecture-container">
-          <div class="arch-card">
-            <h3>前端</h3>
-            <div class="tech">Vue.js</div>
-            <div class="arch-content">
-              <h4>主要功能：</h4>
-              <ul>
-                <li>玩家登入、進入遊戲介面</li>
-                <li>題目展示、對話框輸入與回應顯示</li>
-                <li>根據遊戲狀態動態顯示提示、NPC 回應與進度</li>
-              </ul>
-              
-              <h4>互動流程：</h4>
-              <ul>
-                <li>玩家輸入問題或選擇互動選項</li>
-                <li>請求發送至後端 API</li>
-                <li>取得 AI 回覆後渲染到畫面</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="arch-card">
-            <h3>後端</h3>
-            <div class="tech">Node.js + Express.js</div>
-            <div class="arch-content">
-              <h4>主要功能：</h4>
-              <ul>
-                <li>提供 RESTful API 給前端使用（送出問題、取得回應、載入遊戲資料等）</li>
-                <li>整合 LangGraph 架構管理 AI 對話流程</li>
-                <li>控制 NPC 的行為邏輯與對話記憶</li>
-              </ul>
-              
-              <h4>AI 整合：</h4>
-              <ul>
-                <li>使用 LangGraph 建構多角色 AI 流程圖</li>
-                <li>每個 NPC 對應一個具獨立邏輯的 AI Agent</li>
-                <li>可視需求串接外部大型語言模型（如 OpenAI API）</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="arch-card">
-            <h3>資料庫</h3>
-            <div class="tech">SQLite</div>
-            <div class="arch-content">
-              <h4>儲存內容：</h4>
-              <ul>
-                <li>玩家帳號、遊玩紀錄</li>
-                <li>題目資料（分類、難度、狀態、標籤等）</li>
-                <li>玩家與 AI/NPC 的對話紀錄（供日後回顧或進度續玩）</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-import highlightsData from './light-design.json';
+import { useRouter } from 'vue-router'
+import highlightsData from './light-design.json'
+import teamMembersData from './team-members.json'
 
-const router = useRouter();
-const highlights = highlightsData;
+const router = useRouter()
+const highlights = highlightsData
+const teamMembers = teamMembersData
 
 function goToHome() {
-  router.push('/');
+  router.push('/')
 }
 </script>
 
@@ -210,11 +181,17 @@ function goToHome() {
 }
 
 @keyframes animateStars {
-  from { transform: translateY(0); }
-  to { transform: translateY(-2000px); }
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2000px);
+  }
 }
 
-.stars, .stars2, .stars3 {
+.stars,
+.stars2,
+.stars3 {
   position: absolute;
   top: 0;
   left: 0;
@@ -225,18 +202,21 @@ function goToHome() {
 }
 
 .stars {
-  background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-                    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-                    radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0));
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 90px 40px, #fff, rgba(0, 0, 0, 0));
   background-repeat: repeat;
   background-size: 200px 200px;
   animation: animateStars 150s linear infinite;
 }
 
-.stars2, .stars3 {
-  background-image: radial-gradient(1px 1px at 25px 5px, #fff, rgba(0,0,0,0)),
-                    radial-gradient(1px 1px at 50px 80px, #eee, rgba(0,0,0,0)),
-                    radial-gradient(1px 1px at 125px 20px, #ddd, rgba(0,0,0,0));
+.stars2,
+.stars3 {
+  background-image:
+    radial-gradient(1px 1px at 25px 5px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 50px 80px, #eee, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 125px 20px, #ddd, rgba(0, 0, 0, 0));
   background-repeat: repeat;
   background-size: 200px 200px;
   animation: animateStars 100s linear infinite;
@@ -266,9 +246,15 @@ function goToHome() {
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .floating-title h1 {
@@ -589,22 +575,22 @@ function goToHome() {
   .content-container {
     padding: 80px 20px 50px;
   }
-  
+
   .floating-title h1 {
     font-size: 3.5rem;
   }
-  
+
   .team-card {
     height: auto; /* 移動設備上允許高度自適應 */
     min-height: 240px; /* 但設置最小高度 */
   }
-  
+
   .highlight-card {
     flex-direction: column;
     gap: 20px;
     min-height: auto;
   }
-  
+
   .team-grid.single-row {
     grid-template-columns: repeat(3, 1fr); /* 中等屏幕顯示3列 */
     gap: 20px;
@@ -615,15 +601,15 @@ function goToHome() {
   .floating-title h1 {
     font-size: 2.8rem;
   }
-  
+
   .section-number {
     font-size: 3.2rem;
   }
-  
+
   .section-header h2 {
     font-size: 1.8rem;
   }
-  
+
   .team-grid.single-row {
     grid-template-columns: repeat(2, 1fr); /* 小屏幕顯示2列 */
   }
@@ -663,7 +649,7 @@ function goToHome() {
   .team-grid.single-row {
     padding-bottom: 15px;
   }
-  
+
   .team-grid.single-row .team-card {
     flex: 0 0 190px;
     height: 220px;
@@ -675,7 +661,7 @@ function goToHome() {
   .team-grid.single-row .team-card {
     flex: 0 0 170px;
   }
-  
+
   .team-grid.single-row .member-info h3 {
     font-size: 1.2rem;
   }
@@ -684,59 +670,59 @@ function goToHome() {
 .main-header {
   background: #e8e8e8;
   border-bottom: 1px solid #f3f3f3;
+}
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.main-header .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      margin-left: 10px;
+.main-header .logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-left: 10px;
+}
 
-      a {
-        color: var(--text-color);
-        text-decoration: none;
-      }
-    }
+.main-header .logo a {
+  color: var(--text-color);
+  text-decoration: none;
+}
 
-    .entry-group {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      margin-left: auto;
-    }
+.main-header .entry-group {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-left: auto;
+}
 
-    .entry {
-      font-size: 16px;
-      color: var(--text-color);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.6s ease;
+.main-header .entry {
+  font-size: 16px;
+  color: var(--text-color);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.6s ease;
+}
 
-      i {
-        font-size: 14px;
-        margin-left: 4px;
-      }
+.main-header .entry i {
+  font-size: 14px;
+  margin-left: 4px;
+}
 
-      &.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
+.main-header .entry.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-      &:hover {
-        text-decoration: none;
-        transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
-        transition: all 0.3s ease;
-      }
-    }
-  }
+.main-header .entry:hover {
+  text-decoration: none;
+  transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
+  transition: all 0.3s ease;
 }
 </style>
