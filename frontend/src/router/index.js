@@ -27,6 +27,8 @@ import StoryEditor from '../views/StoryEditor.vue'
 
 import history from '@/views/history/HomeView.vue'
 
+
+
 const routes = [
   {
     path: '/',

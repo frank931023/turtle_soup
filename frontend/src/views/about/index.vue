@@ -1,4 +1,16 @@
 <template>
+  <header class="main-header">
+    <div class="container m-top-20">
+      <h1 class="logo">
+        <RouterLink to="/">請喝湯</RouterLink>
+      </h1>
+      <div class="entry-group">
+        <button class="enter-button" @click="goToHome">
+          進入大廳
+        </button>
+      </div>
+    </div>
+  </header>
   <div class="about-page">
     <!-- 保留星空背景，調整透明度 -->
     <div class="stars-container">
@@ -16,7 +28,7 @@
         </div>
       </div>
       
-      <!-- 團隊區塊 -->
+      <!-- 團隊區塊 - 單排顯示 -->
       <section class="team-section reveal-section">
         <div class="section-header">
           <span class="section-number">01</span>
@@ -24,13 +36,13 @@
           <div class="header-line"></div>
         </div>
         
-        <div class="team-grid">
+        <div class="team-grid single-row">
           <div class="team-card">
             <div class="member-avatar"></div>
             <div class="member-info">
               <h3>魏仁祥</h3>
               <div class="student-id">112403026</div>
-              <p>Backend Development and Integration</p>
+              <p>Backend Development</p>
             </div>
           </div>
           
@@ -39,7 +51,16 @@
             <div class="member-info">
               <h3>傅聖祐</h3>
               <div class="student-id">112403523</div>
-              <p>Visual Storytelling and Frontend Development</p>
+              <p>Visual Storytelling</p>
+            </div>
+          </div>
+
+          <div class="team-card">
+            <div class="member-avatar"></div>
+            <div class="member-info">
+              <h3>楊佩蓉</h3>
+              <div class="student-id">112403509</div>
+              <p>UI/UX Enhancement</p>
             </div>
           </div>
           
@@ -48,7 +69,7 @@
             <div class="member-info">
               <h3>謝曉崴</h3>
               <div class="student-id">112403511</div>
-              <p>Report Writing and Frontend Development</p>
+              <p>Report Writing</p>
             </div>
           </div>
           
@@ -57,18 +78,11 @@
             <div class="member-info">
               <h3>黃偉鴻</h3>
               <div class="student-id">112403524</div>
-              <p>Backend Development and LLM APIs integration</p>
+              <p>LLM APIs Integration</p>
             </div>
           </div>
           
-          <div class="team-card">
-            <div class="member-avatar"></div>
-            <div class="member-info">
-              <h3>楊佩蓉</h3>
-              <div class="student-id">112403509</div>
-              <p>UI/UX Enhancement and Frontend Development</p>
-            </div>
-          </div>
+          
         </div>
       </section>
       
@@ -81,23 +95,13 @@
         </div>
         
         <div class="highlights-container">
-          <div class="highlight-card">
+          <div class="highlight-card" v-for="highlight in highlights" :key="highlight.id">
             <div class="highlight-icon">
-              <svg viewBox="0 0 24 24" class="icon"><path d="M21,9H15V7h6Zm0,2H15v2h6Zm0,4H3v2H21Zm0,4H3v2H21ZM13,9H7V7h6Zm0,2H7v2H6ZM3,7H5V5H3Zm0,2H5v2H3Z"/></svg>
+              <svg viewBox="0 0 24 24" class="icon"><path :d="highlight.icon" /></svg>
             </div>
             <div class="highlight-content">
-              <h3>沉浸式 AI 劇情互動</h3>
-              <p>融合 LangGraph 多代理 AI 系統，模擬具個性與記憶的 NPC，玩家可進行開放式提問並從 AI 獲得「是」、「不是」或「不相關」回覆，營造類似文字冒險小說的體驗。</p>
-            </div>
-          </div>
-          
-          <div class="highlight-card">
-            <div class="highlight-icon">
-              <svg viewBox="0 0 24 24" class="icon"><path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2ZM9.4,16.6,4.8,12l1.4-1.4,3.2,3.2,8.4-8.4,1.4,1.4Z"/></svg>
-            </div>
-            <div class="highlight-content">
-              <h3>AI 輔助偵探解謎體驗</h3>
-              <p>玩家扮演偵探角色，藉由詢問 NPC 串出完整事件脈絡。還可以選擇NPC一起遊戲，強化推理難度與真實感。</p>
+              <h3>{{ highlight.title }}</h3>
+              <p>{{ highlight.description }}</p>
             </div>
           </div>
         </div>
@@ -169,6 +173,18 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router';
+import highlightsData from './light-design.json';
+
+const router = useRouter();
+const highlights = highlightsData;
+
+function goToHome() {
+  router.push('/');
+}
+</script>
 
 <style scoped>
 /* 基本設置與背景 */
@@ -339,6 +355,12 @@
   gap: 30px;
 }
 
+.team-grid.single-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5個成員，5列 */
+  gap: 15px;
+}
+
 .team-card {
   background: #ffffff;
   border-radius: 10px;
@@ -350,6 +372,11 @@
   height: 250px; /* 固定高度確保一致性 */
   border: 1px solid rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+}
+
+.team-grid.single-row .team-card {
+  height: 220px;
+  width: 100%; /* 讓卡片寬度自適應 */
 }
 
 .team-card:hover {
@@ -369,11 +396,20 @@
   color: #222;
 }
 
+.team-grid.single-row .member-info {
+  padding: 15px;
+}
+
 .member-info h3 {
   margin: 0 0 5px;
   font-size: 1.4rem;
   font-weight: 600;
   color: #222;
+}
+
+.team-grid.single-row .member-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 3px;
 }
 
 .student-id {
@@ -383,11 +419,19 @@
   font-family: monospace;
 }
 
+.team-grid.single-row .student-id {
+  margin-bottom: 8px;
+}
+
 .member-info p {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
   color: #555;
+}
+
+.team-grid.single-row .member-info p {
+  font-size: 0.85rem;
 }
 
 /* 亮點設計區塊 - 白色卡片 */
@@ -560,6 +604,11 @@
     gap: 20px;
     min-height: auto;
   }
+  
+  .team-grid.single-row {
+    grid-template-columns: repeat(3, 1fr); /* 中等屏幕顯示3列 */
+    gap: 20px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -573,6 +622,121 @@
   
   .section-header h2 {
     font-size: 1.8rem;
+  }
+  
+  .team-grid.single-row {
+    grid-template-columns: repeat(2, 1fr); /* 小屏幕顯示2列 */
+  }
+}
+
+/* 團隊單排顯示樣式 - 避免滾動 */
+.team-grid.single-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5個成員，5列 */
+  gap: 15px;
+}
+
+.team-grid.single-row .team-card {
+  height: 220px;
+  width: 100%; /* 讓卡片寬度自適應 */
+}
+
+.team-grid.single-row .member-info {
+  padding: 15px;
+}
+
+.team-grid.single-row .member-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 3px;
+}
+
+.team-grid.single-row .student-id {
+  margin-bottom: 8px;
+}
+
+.team-grid.single-row .member-info p {
+  font-size: 0.85rem;
+}
+
+/* 確保在移動設備上可以良好顯示 */
+@media (max-width: 992px) {
+  .team-grid.single-row {
+    padding-bottom: 15px;
+  }
+  
+  .team-grid.single-row .team-card {
+    flex: 0 0 190px;
+    height: 220px;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .team-grid.single-row .team-card {
+    flex: 0 0 170px;
+  }
+  
+  .team-grid.single-row .member-info h3 {
+    font-size: 1.2rem;
+  }
+}
+
+.main-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #f3f3f3;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 10px;
+
+      a {
+        color: var(--text-color);
+        text-decoration: none;
+      }
+    }
+
+    .entry-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .entry {
+      font-size: 16px;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.6s ease;
+
+      i {
+        font-size: 14px;
+        margin-left: 4px;
+      }
+
+      &.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      &:hover {
+        text-decoration: none;
+        transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
+        transition: all 0.3s ease;
+      }
+    }
   }
 }
 </style>
