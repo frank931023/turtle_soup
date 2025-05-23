@@ -22,9 +22,7 @@
               class="question-slider"
             />
             <div class="question-count">{{ questionCount }} 題</div>
-            <div class="question-description">
-              {{ getQuestionCountDescription() }}
-            </div>
+      <div class="question-description" v-html="getQuestionCountDescription()"></div>
           </div>
         </div>
 
@@ -164,11 +162,11 @@ export default {
     },
     getQuestionCountDescription() {
       if (this.questionCount <= 15) {
-        return '快速遊戲'
+        return '<span style="color: #2ecc71;">淺嚐湯面，初探謎底</span>';
       } else if (this.questionCount <= 30) {
-        return '標準遊戲長度'
+        return '<span style="color: #f39c12;">深入湯碗，探索真相</span>';
       } else {
-        return '長時間遊戲，更多問題'
+        return '<span style="color: #e74c3c;">徹底搜查，抽絲剝繭</span>';
       }
     },
     goToNextStep() {
@@ -334,12 +332,54 @@ export default {
 .npc-slider {
   width: 100%;
   margin-bottom: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.npc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 35px;
+  background-image: url('@/assets/turtlepic.jpg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.npc-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.npc-slider::-moz-range-thumb {
+  width: 50px;
+  height: 35px;
+  background-image: url('@/assets/turtlepic.jpg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.npc-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
 }
 
 .npc-count {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 8px;
+  margin-top: 15px; /* Add this line to push the text down */
 }
 
 .npc-description {
@@ -414,11 +454,37 @@ export default {
 .question-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
-  background: #3498db;
-  border-radius: 50%;
+  width: 50px; /* 增加寬度，讓海龜圖示更明顯 */
+  height: 35px; /* 保持高度 */
+  background-image: url('@/assets/turtlepic.jpg'); /* 使用PNG格式支持透明背景 */
+  background-size: contain; /* 確保圖像完整顯示 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent; /* 背景透明 */
+  border: none;
   cursor: pointer;
+  transition: transform 0.2s ease; /* 添加過渡效果 */
+}
+
+.question-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15); /* 懸停時輕微放大 */
+}
+
+.question-slider::-moz-range-thumb {
+  width: 50px;
+  height: 35px;
+  background-image: url('@/assets/turtlepic.jpg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent; /* 背景透明 */
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.question-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
 }
 
 .question-count {
