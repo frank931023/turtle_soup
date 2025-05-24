@@ -739,16 +739,19 @@ export default {
 }
 
 .main-content {
-  max-width: 1000px;
+  max-width: 76%;
+  width: 90%;
   margin: 0 auto;
   padding: 20px;
-  background-color: rgb(31, 31, 31); /* 維持半透明黑色背景 */
+  background-color: rgba(255, 255, 255, 0.95); 
   min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   z-index: 1;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border-radius: 0px;
 }
 
 .puzzle-introduction {
@@ -812,14 +815,14 @@ export default {
 
 /* 修改按鈕樣式：默認白色背景 */
 .puzzle-option {
-  background-color: white; /* 改為白底 */
-  border: none;
-  border-radius: 10px; /* 四個角都是圓角 */
+  background-color: white;
+  border: 3px solid #dddddd; /* 統一邊框 */
+  border-radius: 10px;
   padding: 16px 25px;
   text-align: center;
   font-size: 17px;
   font-weight: 600;
-  color: var(--story-text-color, #4caf50); /* 保留彩色文字 */
+  color: #444444;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -831,11 +834,6 @@ export default {
   width: 100%;
   letter-spacing: 0.5px;
   margin-bottom: 0;
-  border-left: 4px solid var(--story-border-color, #4caf50); /* 保留彩色邊框 */
-}
-
-.puzzle-option.expanded {
-  transform: translateX(5px);
 }
 
 .puzzle-option:hover::before {
@@ -843,27 +841,28 @@ export default {
   opacity: 1;
 }
 
-.puzzle-option.active {
+.puzzle-option.active,
+.puzzle-option.expanded {
   border-radius: 10px 10px 0 0; /* 只保留上方圓角 */
-  border-bottom: none;
+  border-bottom: 3px solid #dddddd; /* 保持底部邊框 */
+  border-bottom-style: dashed; /* 使用虛線邊框分隔 */
 }
 
 /* 重新設計描述框，確保無縫連接 */
 .puzzle-description {
   position: relative;
   width: 100%;
-  background-color: white; /* 白色背景 */
-  border-radius: 0 0 10px 10px; /* 只保留下方圓角 */
+  background-color: white;
+  border-radius: 0 0 10px 10px;
   padding: 15px 25px 18px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 4;
   transform-origin: top center;
   margin-top: 0;
-  border-top: none;
-  border-left: 4px solid var(--story-border-color, #4caf50);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border: 3px solid #dddddd; /* 完整邊框 */
+  border-top: none; /* 頂部不需要邊框，與按鈕連接 */
 }
+
 
 /* 修改展開動畫以避免視覺上的突變 */
 @keyframes smoothExpand {
@@ -885,7 +884,7 @@ export default {
   line-height: 1.6;
   padding-top: 8px;
   position: relative;
-  color: var(--story-text-color, #4caf50); /* 使用變數設置文字顏色 */
+  color: #444444; /* 統一為深灰色文字 */
 }
 
 .puzzle-option-container {
@@ -902,45 +901,8 @@ export default {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 當展開時添加底部邊框 */
 }
 
-/* 添加新的描述框樣式 */
-.puzzle-description {
-  position: relative;
-  width: 100%;
-  background-color: white;
-  border-radius: 0 0 10px 10px; /* 只保留下方圓角 */
-  padding: 15px 25px 18px; /* 增加頂部間距 */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 4; /* 確保在按鈕下方 */
-  transform-origin: top center;
-  border-top: none; /* 移除頂部邊框 */
-  margin-top: 0; /* 消除頂部間距 */
-  border-left: 4px solid var(--story-border-color, #4caf50); /* 保持左側邊框與按鈕一致 */
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* 使用CSS變數動態設置描述框顏色 */
-.puzzle-option-container .puzzle-description {
-  background-color: white; /* 覆蓋變數，強制使用白色背景 */
-  border-left: 4px solid var(--story-border-color, #4caf50);
-  border-right: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
-  border-bottom: 1px solid var(--story-border-color, rgba(76, 175, 80, 0.2));
-}
-
-.description-content {
-  font-size: 14px;
-  line-height: 1.6;
-  padding-top: 8px;
-  position: relative;
-}
-
-/* 使用CSS變數動態設置描述文字顏色 */
-.puzzle-option-container .description-content {
-  color: var(--story-text-color, #4caf50);
-}
-
 .slide-fade-enter-active {
-  animation: smoothExpand 0.3s ease-out;
+  animation: smoothExpand 0.25s ease-out;
 }
 
 .slide-fade-leave-active {
@@ -978,10 +940,10 @@ export default {
 .filter-section h3 {
   font-size: 22px;
   margin-bottom: 15px;
-  color: #f5f5f5;
+  color: #333333; /* 改為深灰色 */
   font-weight: 600;
   letter-spacing: 1px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: none; /* 移除文字陰影 */
   padding-bottom: 8px;
   position: relative;
 }
@@ -1053,19 +1015,19 @@ export default {
 .difficulty-btn {
   padding: 10px 18px;
   border-radius: 25px;
-  border: 1px solid #555;
-  background-color: #333;
+  border: 1px solid #dddddd; /* 淺灰色邊框 */
+  background-color: white; /* 改為白色背景 */
   cursor: pointer;
   font-size: 14px;
-  color: #ddd;
+  color: #333333; /* 改為深灰色文字 */
   transition: all 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 減輕陰影 */
 }
 
 .difficulty-btn:hover {
-  background-color: #444;
+  background-color: #f5f5f5; /* 懸停時淺灰背景 */
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .difficulty-options button:nth-child(1).active {
@@ -1110,24 +1072,25 @@ export default {
   gap: 8px;
 }
 
+/* 分類標籤改為白色 */
 .category-tag {
   display: flex;
-  align-items: center; /* 垂直居中 */
-  justify-content: center; /* 水平居中 */
-  padding: 8px 15px;
-  background-color: #333;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  background-color: white; /* 改為白色背景 */
+  border: 1px solid #dddddd; /* 淺灰色邊框 */
   border-radius: 20px;
   font-size: 13px;
   cursor: pointer;
   user-select: none;
   transition: all 0.3s;
-  color: #ddd;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  text-align: center; /* 確保文字本身居中 */
-  min-width: 60px; /* 設置最小寬度使每個標籤大小更一致 */
-  min-height: 36px; /* 設置固定高度確保垂直居中效果一致 */
-  line-height: 36px; /* 設置行高等於高度，確保單行文字垂直居中 */
-  padding: 0 15px; /* 調整左右內邊距，移除上下內邊距 */
+  color: #333333; /* 改為深灰色文字 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 減輕陰影 */
+  text-align: center;
+  min-width: 60px;
+  min-height: 36px;
+  line-height: 36px;
 }
 
 .category-tag span {
@@ -1201,23 +1164,23 @@ export default {
 .search-input {
   flex: 1;
   padding: 12px 18px;
-  border: 1px solid #555;
+  border: 1px solid #dddddd; /* 淺灰色邊框 */
   border-radius: 30px;
   font-size: 14px;
-  background-color: #333;
-  color: #eee;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  background-color: white; /* 改為白色背景 */
+  color: #333333; /* 改為深灰色文字 */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
 }
 
 .search-input::placeholder {
-  color: #999;
+  color: #999999; /* 調整placeholder顏色 */
 }
 
 .search-input:focus {
   outline: none;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(76, 175, 80, 0.3);
-  border-color: #4caf50;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(85, 85, 85, 0.2);
+  border-color: #555555; /* 使用灰色主題 */
 }
 
 .search-button {
@@ -1369,8 +1332,14 @@ export default {
 .retry-button {
   margin-top: 15px;
   padding: 8px 16px;
-  background-color: #4caf50;
+  background-color: #555555; /* 改為灰色 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
+
 
 /* 分頁導航樣式 */
 .pagination {
@@ -1379,10 +1348,10 @@ export default {
   flex-direction: column;
   align-items: center;
   margin-top: 20px;
-  padding: 15px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px 0; /* 移除左右內邊距 */
+  background-color: transparent; /* 透明背景 */
+  border-radius: 0;
+  box-shadow: none; /* 移除陰影 */
 }
 
 .pagination-info {
@@ -1400,34 +1369,35 @@ export default {
 }
 
 .pagination-btn {
-  min-width: 35px;
-  height: 35px;
-  padding: 0 10px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ddd;
-  background-color: white;
-  border-radius: 4px;
+  border: 1px solid #dddddd; /* 添加邊框 */
+  background-color: white; /* 改為白色背景 */
+  border-radius: 5px; 
   cursor: pointer;
-  color: #333;
+  color: #555;
   font-size: 14px;
   transition: all 0.2s;
+  margin: 0 2px;
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: #f0f0f0;
+  background-color: #e0e0e0;
 }
 
 .pagination-btn.active {
-  background-color: #4caf50;
+  background-color: #555555; /* 使用灰色主題 */
   color: white;
-  border-color: #4caf50;
 }
 
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: transparent; /* 禁用時透明背景 */
 }
 
 .pagination-btn.dots {
