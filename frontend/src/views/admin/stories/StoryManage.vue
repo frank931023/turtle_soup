@@ -4,7 +4,7 @@
       <h1 class="logo">
         <RouterLink to="/">請喝湯</RouterLink>
       </h1>
-      <RouterLink class="enter-button" to="/">
+      <RouterLink class="enter-button" to="/home">
         進入大廳
         <i class="iconfont icon-angle-right"></i>
         <i class="iconfont icon-angle-right"></i>
@@ -162,7 +162,7 @@ import {
   deleteStoryAPI,
   restoreStoryAPI,
   approveStoryAPI,
-} from '@/apis/story'
+} from '@/apis/story.js'
 
 // 狀態變數
 const allStories = ref([])

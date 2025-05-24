@@ -35,7 +35,7 @@ if (token) {
     }
   })
   ElMessage({type: 'success', message: 'Github登入成功'})
-  router.replace('/')
+  router.replace('/home')
 }
 
 </script>
