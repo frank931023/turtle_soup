@@ -29,9 +29,6 @@
 
     <div class="game-record-actions">
       <button class="btn-view" @click="$emit('view', record.id)">查看詳情</button>
-      <button class="btn-edit" @click="$emit('edit', record.id)" v-if="!record.isCompleted">
-        更新
-      </button>
     </div>
   </div>
 </template>

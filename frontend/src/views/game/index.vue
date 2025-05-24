@@ -246,6 +246,10 @@ const cluesContainerRef = ref(null)
 // 添加提示框狀態變量
 const showFailedDialog = ref(false)
 
+// 遊戲時間
+const gameStartTime = ref(Date.now())
+const gameEndTime = ref(null)
+
 // 添加顯示對話次數用完提示框的函數
 const showQuestionsUsedUpDialog = () => {
   showFailedDialog.value = true
@@ -442,29 +446,28 @@ const sendMessage = async () => {
     messages.value.push({ from: 'ai', text: response.reply })
 
     // 檢查是否猜中謎底 (通過 isSolved 標記判斷)
+    // In your sendMessage function, update the part that checks for completion:
+    // For successful solving
     if (response.isSolved) {
       isSolved.value = true
 
-      // 獲取完整謎底 (如果後端有返回)
+      // Record game information
       if (response.soup) {
         storyData.value.soupAnswer = response.soup
       }
 
-      // 記錄遊戲通關並提交線索歷史
+      // Submit game record for successful solving
       submitGameRecord()
 
-      // 顯示額外的恭喜訊息
       setTimeout(() => {
         messages.value.push({
           from: 'ai',
           text: '🎉恭喜你成功解出謎題！🎉 遊戲已結束，請查看謎底解析。',
         })
-
-        // 自動顯示解謎成功對話框
         showSolvedDialog()
       }, 1000)
 
-      return // 答對後不再觸發 NPC 提問
+      return
     }
 
     // 只有未解謎時才讓 NPC 提問
@@ -488,10 +491,12 @@ const sendMessage = async () => {
     }
 
     // 检查是否已用完所有問題且未解謎
+    // For running out of questions (add at the end of sendMessage)
     if (usedQuestions.value >= questionCount.value && !isSolved.value) {
-      // 顯示問題用完對話框
       setTimeout(() => {
         showQuestionsUsedUpDialog()
+        // Submit game record for unsuccessful attempt
+        submitGameRecord()
       }, 1000)
     }
   } catch (error) {
@@ -576,22 +581,22 @@ const askNpcQuestion = async () => {
     await scrollToBottom()
 
     // 檢查 NPC 是否猜中謎底
+    // In the part where NPC solves the puzzle
     if (answerResponse.isSolved) {
       isSolved.value = true
 
-      // 獲取完整謎底 (如果後端有返回)
       if (answerResponse.soup) {
         storyData.value.soupAnswer = answerResponse.soup
       }
 
-      // 顯示 NPC 猜中的訊息
+      // Submit game record when NPC solves puzzle
+      submitGameRecord()
+
       setTimeout(() => {
         messages.value.push({
           from: 'ai',
           text: `🎉 NPC ${npcIndex + 1} 成功猜中了謎底！遊戲已結束。`,
         })
-
-        // 自動顯示解謎成功對話框
         showSolvedDialog()
       }, 1000)
       return
@@ -622,14 +627,17 @@ const resetGame = () => {
   clues.value = []
   messages.value = [{ from: 'ai', text: '嗨，我是 AI 湯神，你可以問我關於這個謎題的問題！' }]
   activeFilter.value = 'all'
-  isSolved.value = false // 重置解謎狀態
-  showFailedDialog.value = false // 重置失敗對話框狀態
-  currentNpcIndex.value = 0 // 重置 NPC 索引
+  isSolved.value = false
+  showFailedDialog.value = false
+  currentNpcIndex.value = 0
 
-  // 如果需要重新獲取故事資料
+  // Reset game timer
+  gameStartTime.value = Date.now()
+  gameEndTime.value = null
+
+  // Fetch story details
   fetchStoryDetails()
 }
-
 // 監聽滾動事件，控制題目標題欄的顯示
 const handleScroll = () => {
   const puzzleCard = document.querySelector('.puzzle-card')
@@ -670,10 +678,12 @@ watch(
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
 
-  // 立即執行獲取故事詳情
+  // Reset game start time
+  gameStartTime.value = Date.now()
+
+  // Fetch story details
   fetchStoryDetails()
 
-  // 如果 npcEnabled，可以在這裡初始化 NPC 相關邏輯
   console.log('遊戲設置:', {
     storyId: storyId.value,
     npcCount: npcCount.value,
@@ -732,32 +742,99 @@ const handleEnterKey = () => {
 }
 
 // 提交遊戲記錄和增加分數
+// Then replace your submitGameRecord function with this improved version
 const submitGameRecord = async () => {
   try {
-    // 計算遊戲時間（如果需要）
-    const timeSpent = 300.5
+    // 計算實際遊戲時間並四捨五入為整數
+    gameEndTime.value = Date.now()
+    const timeSpentSeconds = (gameEndTime.value - gameStartTime.value) / 1000
+    const timeSpent = Math.round(timeSpentSeconds)
 
-    // 1. 創建遊戲記錄
-    const recordData = {
-      questionId: storyId.value,
-      score: 10,
-      userAnswer: '測試，gemini說對就對',
-      isCompleted: true,
-      timeSpent: timeSpent,
-      clueHistory: clues.value,
+    // 檢查是否有未記錄的最後答案（從 messages 中檢查）
+    const lastUserMessage = messages.value
+      .filter(msg => msg.from === 'user')
+      .pop()
+
+    // 檢查最後一條用戶訊息是否已經在 clues 中
+    let hasLastQuestionInClues = false
+    if (lastUserMessage) {
+      hasLastQuestionInClues = clues.value.some(clue =>
+        clue.question === lastUserMessage.text
+      )
     }
 
-    const recordResponse = await gameRecordStore.createGameRecord(recordData)
-    console.log('遊戲記錄已成功提交:', recordResponse)
+    // 如果最後答案不在 clues 中且遊戲已解決，手動添加它
+    if (lastUserMessage && !hasLastQuestionInClues && isSolved.value) {
+      // 假設最後一個問題是正確的（因為它解決了謎題）
+      clues.value.push({
+        question: lastUserMessage.text,
+        answer: "是",
+        timestamp: new Date().toISOString()
+      })
+      console.log('已添加最後的解題關鍵問題到記錄:', lastUserMessage.text)
+    }
 
-    // 關於分數增加，您可以在後端自動處理
-    // 或者您可以檢查 userStore 是否有更新分數的方法
+    // 找出所有正確回答的問題（那些得到"是"回應的問題）
+    const correctAnswers = clues.value
+      .filter(clue => clue.answer === "是")
+      .map(clue => clue.question)
+
+    // 格式化用戶的答案為所有正確回答問題的集合
+    let userAnswerText = ""
+    if (correctAnswers.length > 0) {
+      userAnswerText = correctAnswers.join("\n")
+    } else {
+      userAnswerText = isSolved.value ? "成功解題，但沒有找到關鍵線索" : "未解出答案"
+    }
+
+    // 只創建後端支持的數據字段
+    const recordData = {
+      questionId: storyId.value,
+      score: calculateScore(),
+      userAnswer: userAnswerText,
+      isCompleted: isSolved.value,
+      timeSpent: timeSpent
+    }
+
+    console.log('提交遊戲記錄:', recordData)
+
+    // 直接調用 API
+    const response = await gameRecordStore.createGameRecord(recordData)
+    console.log('遊戲記錄已成功提交:', response)
+
+    // 向用戶顯示成功訊息
+    messages.value.push({
+      from: 'ai',
+      text: '遊戲記錄已保存！你可以在個人頁面查看你的遊戲歷史。'
+    })
+
   } catch (error) {
     console.error('提交遊戲記錄失敗:', error)
+    // 向用戶顯示錯誤訊息
+    messages.value.push({
+      from: 'ai',
+      text: '遊戲記錄保存失敗，請稍後再試。'
+    })
   }
 }
+
+// Add a function to calculate score based on questions used
+const calculateScore = () => {
+  // Simple scoring example: 100 points base, minus 5 points per question used
+  const baseScore = 100
+  const pointsPerQuestion = 5
+  const usedQuestionsPoints = usedQuestions.value * pointsPerQuestion
+
+  // Bonus for solving with fewer questions
+  const remainingQuestionsBonus = (questionCount.value - usedQuestions.value) * 3
+
+  // Calculate total score (minimum 10 points)
+  const totalScore = Math.max(baseScore - usedQuestionsPoints + remainingQuestionsBonus, 10)
+
+  return isSolved.value ? totalScore : Math.floor(totalScore / 2)
+}
 </script>
-  
+
 <style scoped>
 /* 背景使用圖片 */
 .page-background {

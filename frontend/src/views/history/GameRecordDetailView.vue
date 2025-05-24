@@ -64,13 +64,7 @@
         </div>
 
         <div class="actions">
-          <button
-            v-if="!record.isCompleted"
-            @click="openEditModal"
-            class="btn-edit"
-          >
-            編輯記錄
-          </button>
+
           <button @click="goToQuestion" class="btn-view-question">
             查看問題
           </button>
@@ -221,7 +215,7 @@ const updateRecord = async () => {
 // 跳轉到問題頁面
 const goToQuestion = () => {
   if (record.value && record.value.questionId) {
-    router.push(`/questions/${record.value.questionId}`);
+    router.push(`/game?id=/${record.value.questionId}`);
   }
 };
 
