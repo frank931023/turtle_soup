@@ -22,7 +22,7 @@
               class="question-slider"
             />
             <div class="question-count">{{ questionCount }} 題</div>
-      <div class="question-description" v-html="getQuestionCountDescription()"></div>
+            <div class="question-description" v-html="getQuestionCountDescription()"></div>
           </div>
         </div>
 
@@ -162,11 +162,11 @@ export default {
     },
     getQuestionCountDescription() {
       if (this.questionCount <= 15) {
-        return '<span style="color: #2ecc71;">淺嚐湯面，初探謎底</span>';
+        return '<span style="color: #2ecc71;">淺嚐湯面，初探謎底</span>'
       } else if (this.questionCount <= 30) {
-        return '<span style="color: #f39c12;">深入湯碗，探索真相</span>';
+        return '<span style="color: #f39c12;">深入湯碗，探索真相</span>'
       } else {
-        return '<span style="color: #e74c3c;">徹底搜查，抽絲剝繭</span>';
+        return '<span style="color: #e74c3c;">徹底搜查，抽絲剝繭</span>'
       }
     },
     goToNextStep() {
@@ -240,25 +240,36 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 500px;
+  width: 600px;
+  height: 550px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  padding: 24px;
+  padding: 30px;
   text-align: center;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 450px;
+  padding: 10px 5px;
 }
 
 .modal-title {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   margin-bottom: 1rem;
   color: #44281d; /* 深褐色，海龜湯顏色 */
   font-family: 'Ma Shan Zheng', cursive, sans-serif; /* 添加中文風格字體 */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   position: relative;
 }
-
 
 .modal-question {
   font-size: 1.2rem;
@@ -407,7 +418,7 @@ export default {
 }
 
 .selector-label::after {
-  content: "❓";
+  content: '❓';
   display: inline-flex;
   justify-content: center;
   align-items: center;
