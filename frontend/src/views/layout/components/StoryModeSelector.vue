@@ -251,15 +251,20 @@ export default {
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: #44281d; /* 深褐色，海龜湯顏色 */
+  font-family: 'Ma Shan Zheng', cursive, sans-serif; /* 添加中文風格字體 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
+
 
 .modal-question {
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
-  color: #555;
+  color: #594a39;
+  font-weight: 500;
 }
 
 .modal-message {
@@ -398,6 +403,19 @@ export default {
   margin-bottom: 8px;
   font-size: 1.1rem;
   color: #333;
+  position: relative;
+}
+
+.selector-label::after {
+  content: "❓";
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 1px;
+  font-size: 0.9rem;
+  vertical-align: top; /* Change from 'middle' to 'top' to move it higher */
+  position: relative;
+  top: 1px;
 }
 
 .difficulty-selector {
