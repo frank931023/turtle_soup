@@ -235,9 +235,9 @@
 import { getAllStoriesAPI, getAllPassedStoriesAPI } from '@/apis/story.js'
 import { ElMessage } from 'element-plus'
 import StoryModeSelector from '@/views/layout/components/StoryModeSelector.vue'
-import backgroundImage from '@/assets/home.jpg'; // 引入圖片
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import backgroundImage from '@/assets/home.jpg' // 引入圖片
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'HomePage',
@@ -245,15 +245,15 @@ export default {
     StoryModeSelector,
   },
   setup() {
-    const route = useRoute();
-    const storyId = ref(route.params.id);
+    const route = useRoute()
+    const storyId = ref(route.params.id)
     return {
       storyId,
-    };
+    }
   },
   data() {
     return {
-      backgroundImageUrl: backgroundImage, 
+      backgroundImageUrl: backgroundImage,
       selectedStoryId: null, // 當前選中的故事ID
       hoveredPuzzle: null,
       puzzles: [],
@@ -358,7 +358,7 @@ export default {
           totalPages - 3,
           totalPages - 2,
           totalPages - 1,
-          totalPages,
+          totalPages
         )
       }
       // 當前頁在中間時
@@ -379,9 +379,10 @@ export default {
       if (selectedPuzzle && selectedPuzzle.id) {
         // 設置當前選中的故事ID
         this.selectedStoryId = selectedPuzzle.id
+        console.log('設置選中的故事ID:', this.selectedStoryId)
 
-        // 打開故事模式選擇器模態框
-        this.$refs.storySelectorModal.openModal()
+        // 打開故事模式選擇器模態框，直接傳遞故事ID
+        this.$refs.storySelectorModal.openModal(selectedPuzzle.id)
       } else {
         ElMessage.warning('無法找到該故事的詳細信息')
       }
@@ -407,10 +408,10 @@ export default {
       // Using setTimeout to allow click events to happen before hiding the dropdown
       setTimeout(() => {
         if (!this.preventHistoryClose) {
-          this.showSearchHistory = false;
+          this.showSearchHistory = false
         }
-        this.preventHistoryClose = false;
-      }, 100);
+        this.preventHistoryClose = false
+      }, 100)
     },
 
     handleOutsideClick(event) {
@@ -425,35 +426,35 @@ export default {
 
     // 新增防止失去焦點事件處理器
     preventBlur(event) {
-      event.preventDefault();
+      event.preventDefault()
     },
-    
+
     // 處理搜尋輸入
     handleSearchInput() {
       // 當有輸入文字時，不顯示搜尋歷史
       if (this.filters.searchText.trim() !== '') {
-        this.showSearchHistory = false;
+        this.showSearchHistory = false
       } else {
         // 沒有輸入文字時顯示搜尋歷史
-        this.showSearchHistory = true;
+        this.showSearchHistory = true
       }
     },
 
     // 清除當前搜索
     clearSearch() {
-      this.filters.searchText = '';
+      this.filters.searchText = ''
       // Keep the search history visible when clearing
-      this.preventHistoryClose = true;
-      this.showSearchHistory = true;
-      this.applyFilters();
+      this.preventHistoryClose = true
+      this.showSearchHistory = true
+      this.applyFilters()
     },
-    
+
     // 從歷史記錄中選擇搜索詞
     selectSearchHistory(item) {
-      this.filters.searchText = item;
+      this.filters.searchText = item
       // Hide search history after selecting an item
-      this.showSearchHistory = false;
-      this.applySearch();
+      this.showSearchHistory = false
+      this.applySearch()
     },
 
     // 從後端獲取故事數據
@@ -500,7 +501,7 @@ export default {
         result = result.filter((puzzle) => {
           // 檢查故事的類別是否包含任何所選類別
           return this.filters.categories.some(
-            (cat) => puzzle.category && puzzle.category.includes(cat),
+            (cat) => puzzle.category && puzzle.category.includes(cat)
           )
         })
       }
@@ -511,7 +512,7 @@ export default {
         result = result.filter(
           (puzzle) =>
             (puzzle.name && puzzle.name.toLowerCase().includes(searchTerm)) ||
-            (puzzle.description && puzzle.description.toLowerCase().includes(searchTerm)),
+            (puzzle.description && puzzle.description.toLowerCase().includes(searchTerm))
         )
       }
 
@@ -1107,7 +1108,7 @@ export default {
   box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4); /* 變更為藍色陰影 */
 }
 
-/* 活動狀態的分類標籤懸停效果 - 保持藍色但加深 */
+/* 活動狀态的分類標籤懸停效果 - 保持藍色但加深 */
 .category-tag.active:hover {
   background-color: #1976d2; /* 使用更深的藍色 */
   transform: translateY(-2px);
