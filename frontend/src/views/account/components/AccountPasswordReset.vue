@@ -5,10 +5,7 @@
         <!-- 页面标题区域 -->
         <div class="page-header">
           <div class="header-content">
-            <h1 class="title">
-              <VaIcon name="password reset" color="primary" />
-              重設密碼
-            </h1>
+            <h1 class="title">重設密碼</h1>
             <p class="subtitle">請輸入舊密碼與新密碼</p>
           </div>
         </div>
@@ -66,26 +63,14 @@
 
             <!-- 密码提示 -->
             <div class="password-tips">
-              <VaIcon name="info" color="info" />
-              <span>密碼必須至少包含 6 個字符</span>
+              <span>小提示: 密碼必須至少包含 6 個字符</span>
             </div>
           </div>
 
           <!-- 操作按钮 -->
           <div class="form-actions">
-            <VaButton
-              preset="secondary"
-              icon="refresh"
-              @click="resetForm"
-            >
-              重置
-            </VaButton>
-            <VaButton
-              preset="primary"
-              icon="save"
-              :loading="submitting"
-              @click="submitReset"
-            >
+            <VaButton preset="secondary" icon="refresh" @click="resetForm"> 重置 </VaButton>
+            <VaButton preset="primary" icon="save" :loading="submitting" @click="submitReset">
               更新密碼
             </VaButton>
           </div>
@@ -265,10 +250,13 @@ const submitReset = async () => {
     if (valid) {
       submitting.value = true
       try {
-        await resetPasswordAPI({
-          oldPassword: form.oldPassword,
-          newPassword: form.newPassword
-        }, userStore.token)
+        await resetPasswordAPI(
+          {
+            oldPassword: form.oldPassword,
+            newPassword: form.newPassword,
+          },
+          userStore.token,
+        )
         ElMessage.success('密碼已成功更新')
         resetForm()
       } finally {

@@ -8,7 +8,10 @@
           <div class="avatar-wrapper">
             <img
               class="avatar"
-              :src="user.avatarUrl || 'https://png.pngtree.com/png-clipart/20230817/original/pngtree-anonymous-user-unidentified-contact-avatar-picture-image_7998127.png'"
+              :src="
+                user.avatarUrl ||
+                'https://png.pngtree.com/png-clipart/20230817/original/pngtree-anonymous-user-unidentified-contact-avatar-picture-image_7998127.png'
+              "
               :alt="user.username"
             />
             <div class="score-badge">
@@ -18,10 +21,7 @@
           </div>
           <div class="user-info">
             <h2 class="username">{{ user.username }}</h2>
-            <el-tag
-              :type="user.role === 'admin' ? 'danger' : 'success'"
-              class="role-tag"
-            >
+            <el-tag :type="user.role === 'admin' ? 'danger' : 'success'" class="role-tag">
               {{ user.role }}
             </el-tag>
           </div>
@@ -30,34 +30,22 @@
         <!-- 個人資料列表 -->
         <div class="info-grid">
           <div class="info-item">
-            <div class="info-label">
-              <VaIcon name="person" color="primary" />
-              姓名
-            </div>
+            <div class="info-label">姓名</div>
             <div class="info-value">{{ user.name || '尚未設定' }}</div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <VaIcon name="email" color="primary" />
-              Email
-            </div>
+            <div class="info-label">Email</div>
             <div class="info-value">{{ user.email || '尚未設定' }}</div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <VaIcon name="wc" color="primary" />
-              性別
-            </div>
+            <div class="info-label">性別</div>
             <div class="info-value">{{ formatGender(user.sex) }}</div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <VaIcon name="date" color="primary" />
-              加入時間
-            </div>
+            <div class="info-label">加入時間</div>
             <div class="info-value">{{ formatDate(user.createdAt) }}</div>
           </div>
         </div>
@@ -68,25 +56,14 @@
     <VaCard class="game-history-card">
       <VaCardContent>
         <div class="card-header">
-          <h3>
-            <VaIcon name="sports esports" color="primary" />
-            遊戲紀錄
-          </h3>
-          <VaButton
-            size="small"
-            icon="refresh"
-            @click="refreshGameHistory"
-          >
-            刷新
-          </VaButton>
+          <h3>遊戲紀錄</h3>
+          <VaButton size="small" icon="refresh" @click="refreshGameHistory"> 刷新 </VaButton>
         </div>
 
         <div class="recent-games">
           <h2>最近遊戲</h2>
 
-          <div v-if="loading" class="loading">
-            <span class="loader"></span> 正在加載記錄...
-          </div>
+          <div v-if="loading" class="loading"><span class="loader"></span> 正在加載記錄...</div>
 
           <template v-else>
             <game-record-item
@@ -117,12 +94,7 @@ import { useUserStore } from '@/stores/user.js'
 import { getProfileAPI } from '@/apis/profile.js'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import {
-  VaCard,
-  VaCardContent,
-  VaIcon,
-  VaButton
-} from 'vuestic-ui'
+import { VaCard, VaCardContent, VaIcon, VaButton } from 'vuestic-ui'
 import { useGameRecordStore } from '@/stores/gameRecordStore.js'
 import GameRecordItem from '@/views/history/components/GameRecordItem.vue'
 const gameRecordStore = useGameRecordStore()
@@ -138,7 +110,7 @@ const user = ref({
   email: '',
   sex: '',
   role: '',
-  createdAt: null
+  createdAt: null,
 })
 
 const formatDate = (date) => {
@@ -148,7 +120,7 @@ const formatDate = (date) => {
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -156,7 +128,7 @@ const formatGender = (sex) => {
   const genderMap = {
     male: '男',
     female: '女',
-    other: '其他'
+    other: '其他',
   }
   return genderMap[sex] || '尚未設定'
 }
@@ -175,12 +147,12 @@ const recentRecords = computed(() => {
   return gameRecordStore.userRecords
     .slice()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 3);
-});
+    .slice(0, 3)
+})
 
 const viewRecord = (id) => {
-  router.push(`/records/${id}`);
-};
+  router.push(`/records/${id}`)
+}
 
 onMounted(async () => {
   try {
@@ -194,7 +166,7 @@ onMounted(async () => {
       sex: res.user.sex,
       email: res.user.email,
       role: res.user.role,
-      createdAt: res.user.createdAt
+      createdAt: res.user.createdAt,
     }
   } catch (err) {
     console.error('取得個人資料失敗', err)
@@ -243,7 +215,7 @@ onMounted(async () => {
     background: #fff;
     padding: 4px 8px;
     border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -280,7 +252,7 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #666;
+    color: blue;
     font-size: 0.9rem;
     margin-bottom: 8px;
   }
@@ -392,7 +364,6 @@ game-record-item {
   margin-bottom: 20px;
   color: #333;
 }
-
 
 .view-all-link {
   display: inline-block;

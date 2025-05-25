@@ -12,11 +12,7 @@ const router = useRouter()
           <RouterLink to="/">請喝湯</RouterLink>
         </h1>
         <div class="entry-group">
-
-          <button class="enter-button" @click="router.push('/home')">
-            進入大廳
-          </button>
-
+          <button class="enter-button" @click="router.push('/home')">進入大廳</button>
         </div>
       </div>
     </header>
@@ -33,7 +29,6 @@ const router = useRouter()
                 class="nav-item"
                 :class="{ active: activeTab === 'profile' }"
               >
-                <VaIcon name="person" />
                 <span>帳號資料</span>
               </router-link>
 
@@ -42,7 +37,6 @@ const router = useRouter()
                 class="nav-item"
                 :class="{ active: activeTab === 'settings' }"
               >
-                <VaIcon name="settings" />
                 <span>設定帳號資料</span>
               </router-link>
 
@@ -51,7 +45,6 @@ const router = useRouter()
                 class="nav-item"
                 :class="{ active: activeTab === 'reset' }"
               >
-                <VaIcon name="lock" />
                 <span>重設密碼</span>
               </router-link>
             </nav>
@@ -262,8 +255,4 @@ const router = useRouter()
   opacity: 0;
   transform: translateY(-10px);
 }
-
-
 </style>
-
-
