@@ -7,7 +7,6 @@ import soundOnIcon from '@/assets/sound.png'
 import soundOffIcon from '@/assets/sound-off.png' // 确保您有这个图片
 import { useAudioStore } from '@/stores/audio'
 
-
 const audioStore = useAudioStore()
 const userStore = useUserStore()
 const openSection = ref(null)
@@ -19,7 +18,6 @@ function toggle(section) {
     openSection.value = section
   }
 }
-
 
 const soundIcon = computed(() => {
   return isSoundOn.value ? soundOnIcon : soundOffIcon
@@ -33,7 +31,6 @@ const toggleSound = () => {
   }
   localStorage.setItem('soundEnabled', !isSoundOn.value)
 }
-
 
 function navigateTo(path, section) {
   toggle(section)
@@ -58,7 +55,6 @@ onMounted(() => {
   if (savedSoundState !== null) {
     isSoundOn.value = savedSoundState === 'true'
   }
-
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
@@ -78,28 +74,36 @@ onBeforeUnmount(() => {
 
     <!-- 中間導航選單 -->
     <ul class="animated-nav">
-      <li>
+      <!-- <li>
         <motion.div
           class="nav-item"
           :initial="{ width: '130px', backgroundColor: '#e0e0e0' }"
-          :animate="openSection === 'home' ? { width: '200px', backgroundColor: '#a0c4ff' } : { width: '130px', backgroundColor: '#e0e0e0' }"
+          :animate="
+            openSection === 'home'
+              ? { width: '200px', backgroundColor: '#a0c4ff' }
+              : { width: '130px', backgroundColor: '#e0e0e0' }
+          "
           transition="{ duration: 0.3 }"
           @click="() => navigateTo('/home', 'home')"
         >
           <motion.div class="nav-text">首頁</motion.div>
         </motion.div>
-      </li>
-      <li>
+      </li> -->
+      <!-- <li>
         <motion.div
           class="nav-item"
           :initial="{ width: '130px', backgroundColor: '#e0e0e0' }"
-          :animate="openSection === 'add' ? { width: '200px', backgroundColor: '#ffc6ff' } : { width: '130px', backgroundColor: '#e0e0e0' }"
+          :animate="
+            openSection === 'add'
+              ? { width: '200px', backgroundColor: '#ffc6ff' }
+              : { width: '130px', backgroundColor: '#e0e0e0' }
+          "
           transition="{ duration: 0.3 }"
           @click="() => navigateTo('/home/add-story', 'add')"
         >
           <motion.div class="nav-text">新增故事</motion.div>
         </motion.div>
-      </li>
+      </li> -->
     </ul>
 
     <!-- 右側：帳號資訊 + 喇叭 -->
@@ -107,14 +111,14 @@ onBeforeUnmount(() => {
       <ul class="nav">
         <template v-if="userStore.userInfo.token">
           <li class="user-dropdown" ref="dropdownRef">
-            <div
-              class="btn account-btn"
-              @click="dropdownVisible = !dropdownVisible"
-            >
+            <div class="btn account-btn" @click="dropdownVisible = !dropdownVisible">
               <span class="text">{{ userStore.userInfo.user.username }}</span>
               <img
                 class="avatar"
-                :src="userStore.userInfo.user.avatarUrl || 'https://png.pngtree.com/png-clipart/20230817/original/pngtree-anonymous-user-unidentified-contact-avatar-picture-image_7998127.png'"
+                :src="
+                  userStore.userInfo.user.avatarUrl ||
+                  'https://png.pngtree.com/png-clipart/20230817/original/pngtree-anonymous-user-unidentified-contact-avatar-picture-image_7998127.png'
+                "
                 alt="avatar"
               />
             </div>
@@ -133,6 +137,7 @@ onBeforeUnmount(() => {
                 <router-link to="/admin/questions" class="dropdown-item">題目管理</router-link>
               </template>
               <router-link to="/account" class="dropdown-item">玩家中心</router-link>
+              <router-link to="/home/add-story" class="dropdown-item">新增故事</router-link>
               <router-link to="/history" class="dropdown-item">遊戲歷史</router-link>
               <a href="javascript:;" class="dropdown-item" @click="handleLogout">登出</a>
             </motion.div>
@@ -146,11 +151,7 @@ onBeforeUnmount(() => {
       </ul>
 
       <!-- 喇叭 icon 加入動畫效果 -->
-      <div
-        class="sound-toggle"
-        @click="toggleSound"
-        :title="isSoundOn ? '關閉音效' : '開啟音效'"
-      >
+      <div class="sound-toggle" @click="toggleSound" :title="isSoundOn ? '關閉音效' : '開啟音效'">
         <Transition name="fade" mode="out-in">
           <img
             :key="isSoundOn"
@@ -311,7 +312,6 @@ onBeforeUnmount(() => {
           z-index: 1000;
           padding: 4px;
 
-
           .dropdown-item {
             padding: 10px 16px;
             font-size: 15px;
@@ -357,29 +357,29 @@ onBeforeUnmount(() => {
   transform: translateY(-10px);
 }
 
-  .btn.account-btn {
-    font-size: 18px;
-    font-weight: 600;
-    background-color: #666666;
-    padding: 2px 10px;
-    display: flex;
-    align-items: center;
-    border-radius: 99px;
-    position: relative;
-    transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-    cursor: pointer;
+.btn.account-btn {
+  font-size: 18px;
+  font-weight: 600;
+  background-color: #666666;
+  padding: 2px 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 99px;
+  position: relative;
+  transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  cursor: pointer;
 
-    .avatar {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 10px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-left: 4px;
-      position: relative;
-      top: 5px;
-      z-index: 10;
-    }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 4px;
+    position: relative;
+    top: 5px;
+    z-index: 10;
+  }
 
   .text {
     color: #fff;
@@ -388,7 +388,6 @@ onBeforeUnmount(() => {
     z-index: 5;
     margin-right: 20px;
     margin-left: 20px;
-
   }
 
   svg {
