@@ -36,7 +36,7 @@ window.handleGoogleCallback = async function (response) {
   const id_token = response.credential
   await userStore.getGoogleUserInfo({ id_token })
   ElMessage({type: 'success', message: 'Google登入成功'})
-  router.replace('/')
+  router.replace('/home')
 }
 </script>
 

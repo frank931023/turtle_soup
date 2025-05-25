@@ -8,7 +8,7 @@ import Game from '@/views/game/index.vue'
 import Home from '@/views/home/index.vue'
 import Oauth from '@/views/login/oauth/index.vue'
 import Register from '@/views/register/index.vue'
-import AddNewStory from '@/views/AddNewStory.vue'
+import AddNewStory from '@/views/add-story/AddNewStory.vue'
 import Account from '@/views/account/index.vue'
 import AdminUser from '@/views/admin/users/index.vue'
 import AccountProfileSetting from '@/views/account/components/AccountProfileSetting.vue'
@@ -21,8 +21,8 @@ import AccountPorfile from '@/views/account/components/AccountPorfile.vue'
 import AccountPasswordReset from '@/views/account/components/AccountPasswordReset.vue'
 import { useUserStore } from '@/stores/user.js'
 
-import StoryManage from '../views/StoryManage.vue'
-import StoryEditor from '../views/StoryEditor.vue'
+import StoryManage from '../views/admin/stories/StoryManage.vue'
+import StoryEditor from '../views/admin/stories/StoryEditor.vue'
 
 
 import history from '@/views/history/HomeView.vue'
@@ -31,7 +31,7 @@ import history from '@/views/history/HomeView.vue'
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'Layout',
     component: Layout,
     children: [
@@ -81,7 +81,7 @@ const routes = [
   },
 
   {
-    path: '/landing',
+    path: '/',
     name: 'landing',
     component: Landing,
     meta: {
@@ -207,14 +207,14 @@ router.beforeEach((to, from, next) => {
     // 如果页面需要管理员权限
     if (to.meta.requiresAdmin && userStore.userInfo.user.role !== 'admin') {
       // 不是管理员，重定向到首页
-      next('/')
+      next('/home')
       return
     }
   }
 
   // 如果已登录且要访问登录页，重定向到首页
   if (to.path === '/login' && userStore.userInfo?.token) {
-    next('/')
+    next('/home')
     return
   }
 

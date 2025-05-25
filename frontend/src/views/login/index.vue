@@ -53,7 +53,7 @@ const doLogin = () => {
       await userStore.getUserInfo({username, password})
 
       ElMessage({type: 'success', message: '登入成功'})
-      router.replace({path: "/"})
+      router.replace({path: "/home"})
     }
   })
 }
@@ -79,7 +79,7 @@ onMounted(() => {
         </h1>
         <div class="entry-group">
 
-          <button class="enter-button" @click="router.push('/')">
+          <button class="enter-button" @click="router.push('/home')">
             進入大廳
           </button>
 

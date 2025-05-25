@@ -11,7 +11,7 @@
         <div class="blood-drop blood-3"></div>
       </div>
     </div>
-    
+
     <div v-if="showDetails" class="content-wrapper">
       <div class="text-container fade-in">
         <h1 class="title">海龜湯遊戲</h1>
@@ -53,7 +53,7 @@ const startGame = () => {
 
   // 1秒後跳轉到 HomePage
   setTimeout(() => {
-    router.push('/'); // 使用路由跳轉到 home 頁面
+    router.push('/home'); // 使用路由跳轉到 home 頁面
   }, 300); // 300毫秒後跳轉
 };
 
@@ -261,7 +261,7 @@ const startGame = () => {
 }
 
 .start-button {
-  background-color: #000000; 
+  background-color: #000000;
   border: 3px solid #5b1f17; /* 深紅邊框 */
   color: #e8dcc6; /* 米白文字 */
   font-size: 1.6rem; /* 增大字體 */
@@ -312,7 +312,7 @@ const startGame = () => {
   .start-button-container {
     bottom: 5%;
   }
-  
+
   .start-button {
     font-size: 1.2rem;
     padding: 0.8rem 2rem;
@@ -346,19 +346,19 @@ const startGame = () => {
   .title-img {
     max-width: 200px;
   }
-  
+
   .title {
     font-size: 2.2rem;
   }
-  
+
   .text {
     font-size: 1rem;
   }
-  
+
   .content-wrapper {
     max-width: 400px;
   }
-  
+
   .learn-more-btn {
     font-size: 1.1rem;
     padding: 10px 20px;
@@ -368,19 +368,19 @@ const startGame = () => {
   .title-img {
     max-width: 150px;
   }
-  
+
   .title {
     font-size: 1.8rem;
   }
-  
+
   .text {
     font-size: 0.9rem;
   }
-  
+
   .content-wrapper {
     max-width: 350px;
   }
-  
+
   .learn-more-btn {
     font-size: 1rem;
     padding: 8px 16px;
@@ -391,18 +391,18 @@ const startGame = () => {
   .container {
     padding: 5% 5%;
   }
-  
+
   .title-container {
     top: 20%;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
   }
-  
+
   .title-img {
     max-width: 180px;
   }
-  
+
   .button-container {
     bottom: 20%;
     left: 50%;
@@ -413,11 +413,11 @@ const startGame = () => {
     max-width: 90%;
     margin: 0 auto;
   }
-  
+
   .title {
     font-size: 2rem;
   }
-  
+
   .blood-drop {
     width: 25px;
     height: 50px;
@@ -428,19 +428,19 @@ const startGame = () => {
     padding: 10% 5%;
     justify-content: center;
   }
-  
+
   .title-container {
     top: 15%;
   }
-  
+
   .title-img {
     max-width: 150px;
   }
-  
+
   .button-container {
     bottom: 15%;
   }
-  
+
   .learn-more-btn {
     font-size: 1rem;
     padding: 8px 16px;
@@ -448,26 +448,26 @@ const startGame = () => {
   .content-wrapper {
     max-width: 100%;
   }
-  
+
   .text-container {
     padding: 15px;
   }
-  
+
   .title {
     font-size: 1.8rem;
     margin-bottom: 1rem;
   }
-  
+
   .text {
     font-size: 0.95rem;
     line-height: 1.5;
   }
-  
+
   .warning {
     font-size: 0.9rem;
     padding: 0.8rem;
   }
-  
+
   .close-btn {
     padding: 6px 12px;
     font-size: 0.9rem;
@@ -483,15 +483,15 @@ const startGame = () => {
   .title-container {
     top: 10%;
   }
-  
+
   .title-img {
     max-width: 130px;
   }
-  
+
   .button-container {
     bottom: 10%;
   }
-  
+
   .learn-more-btn {
     font-size: 0.9rem;
     padding: 7px 14px;
@@ -499,7 +499,7 @@ const startGame = () => {
   .title {
     font-size: 1.6rem;
   }
-  
+
   .text {
     font-size: 0.9rem;
   }

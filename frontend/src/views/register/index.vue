@@ -86,7 +86,7 @@ const doRegister = () => {
         // 呼叫 pinia 中的註冊方法，需根據實際方法名修改
         await userStore.getRegisterUser({ username, password })
         ElMessage({ type: 'success',message: '註冊成功' })
-        router.replace({ path: '/' })
+        router.replace({ path: '/home' })
     }
   })
 }
@@ -109,16 +109,18 @@ onMounted(() => {
 
 <template>
   <div>
-    <header class="login-header">
+    <header class="main-header">
       <div class="container m-top-20">
         <h1 class="logo">
           <RouterLink to="/">請喝湯</RouterLink>
         </h1>
-        <RouterLink class="entry" :class="{ show: showEntry }" to="/">
-          進入大廳
-          <i class="iconfont icon-angle-right"></i>
-          <i class="iconfont icon-angle-right"></i>
-        </RouterLink>
+        <div class="entry-group">
+
+          <button class="enter-button" @click="router.push('/home')">
+            進入大廳
+          </button>
+
+        </div>
       </div>
     </header>
     <section
@@ -211,59 +213,6 @@ onMounted(() => {
 /* 整個背景深色 */
 body {
   background: #222;
-}
-
-/* 頂部 header */
-.login-header {
-  background: #e8e8e8;
-  border-bottom: 1px solid #f3f3f3;
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-      margin-left: 10px;
-
-      a {
-        color: var(--text-color);
-        text-decoration: none;
-      }
-    }
-
-    .entry {
-      font-size: 16px;
-      color: var(--text-color);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.6s ease;
-
-      i {
-        font-size: 14px;
-        margin-left: 4px;
-      }
-
-      &.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      &:hover {
-        text-decoration: none;
-        transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
-        transition: all 0.3s ease;
-      }
-    }
-  }
 }
 
 /* 登入區 section */
@@ -424,6 +373,64 @@ body {
     color: #fff;
   }
 }
+.main-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #f3f3f3;
 
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 10px;
+      padding-top: 6px;
+
+      a {
+        color: var(--text-color);
+        text-decoration: none;
+      }
+    }
+
+    .entry-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .entry {
+      font-size: 16px;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.6s ease;
+
+      i {
+        font-size: 14px;
+        margin-left: 4px;
+      }
+
+      &.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      &:hover {
+        text-decoration: none;
+        transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
+        transition: all 0.3s ease;
+      }
+    }
+  }
+}
 
 </style>

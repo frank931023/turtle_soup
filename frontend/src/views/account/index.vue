@@ -1,29 +1,23 @@
+<script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+</script>
+
 <template>
   <div class="account-layout">
     <!-- 头部区域 -->
     <header class="main-header">
-      <div class="container">
-        <div class="header-left">
-          <RouterLink to="/" class="logo-link">
-            <img src="@/assets/soup.png" alt="logo" class="logo-image" />
-            <div class="brand">
-              <h1 class="brand-title">請喝湯</h1>
-              <span class="brand-subtitle">一個人的AI海龜湯</span>
-            </div>
-          </RouterLink>
-        </div>
+      <div class="container m-top-20">
+        <h1 class="logo">
+          <RouterLink to="/">請喝湯</RouterLink>
+        </h1>
+        <div class="entry-group">
 
-        <Transition name="fade-slide">
-          <RouterLink
-            class="enter-button"
-            :class="{ show: showEntry }"
-            to="/"
-          >
+          <button class="enter-button" @click="router.push('/home')">
             進入大廳
-            <i class="iconfont icon-angle-right"></i>
-            <i class="iconfont icon-angle-right"></i>
-          </RouterLink>
-        </Transition>
+          </button>
+
+        </div>
       </div>
     </header>
 
@@ -88,7 +82,7 @@
 .main-header {
   background: #ffffff;
   border-bottom: 1px solid #eaeaea;
-  padding: 16px 0;
+  padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   .container {
@@ -268,4 +262,8 @@
   opacity: 0;
   transform: translateY(-10px);
 }
+
+
 </style>
+
+

@@ -42,12 +42,12 @@ export const useGameRecordStore = defineStore('gameRecord', () => {
     error.value = null
 
     try {
-      // 確保我們有用戶 ID
+      //確保我們有用戶 ID
       const userStore = useUserStore()
+      console.log(userStore.userInfo.user.id)
+
       // 檢查 userInfo 中可能的 userId 位置
-      const userId = userStore.userInfo?.id ||
-          userStore.userInfo?.userId ||
-          userStore.userInfo?._id
+      const userId = userStore.userInfo.user.id
 
       if (!userId) {
         throw new Error('未找到用戶ID，請確保已登入')

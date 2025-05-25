@@ -5,7 +5,7 @@
 <template>
   <div class="container">
     <p class="footer-links">
-      <a href="javascript:;">關於我們</a>
+      <a href="/about">關於我們</a>
       <span>|</span>
       <a href="javascript:;">使用條款</a>
       <span>|</span>

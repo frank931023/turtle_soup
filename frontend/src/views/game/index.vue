@@ -8,18 +8,18 @@
       <PuzzleCard :storyData="storyData" :questionCount="questionCount" />
 
       <!-- 引入對話框組件 -->
-      <DialogComponents 
-        :isSolved="isSolved" 
-        :showFailedDialog="showFailedDialog" 
-        :storyData="storyData" 
-        :usedQuestions="usedQuestions" 
+      <DialogComponents
+        :isSolved="isSolved"
+        :showFailedDialog="showFailedDialog"
+        :storyData="storyData"
+        :usedQuestions="usedQuestions"
         :questionCount="questionCount"
         @reset-game="resetGame"
       />
 
       <div class="content-wrapper">
         <!-- 引入聊天框組件 -->
-        <ChatBox 
+        <ChatBox
           :storyId="storyId"
           :messages="messages"
           :isWaitingResponse="isWaitingResponse"
@@ -188,7 +188,7 @@ const sendMessage = async (question) => {
       question,
       answer: response.reply,
     })
-    
+
     // 添加自動滾動線索列表
     infoPanelRef.value.scrollCluesListToBottom()
 
@@ -196,29 +196,28 @@ const sendMessage = async (question) => {
     messages.value.push({ from: 'ai', text: response.reply })
 
     // 檢查是否猜中謎底 (通過 isSolved 標記判斷)
+    // In your sendMessage function, update the part that checks for completion:
+    // For successful solving
     if (response.isSolved) {
       isSolved.value = true
 
-      // 獲取完整謎底 (如果後端有返回)
+      // Record game information
       if (response.soup) {
         storyData.value.soupAnswer = response.soup
       }
 
-      // 記錄遊戲通關並提交線索歷史
+      // Submit game record for successful solving
       submitGameRecord()
 
-      // 顯示額外的恭喜訊息
       setTimeout(() => {
         messages.value.push({
           from: 'ai',
           text: '🎉恭喜你成功解出謎題！🎉 遊戲已結束，請查看謎底解析。',
         })
-
-        // 自動顯示解謎成功對話框
         showSolvedDialog()
       }, 1000)
 
-      return // 答對後不再觸發 NPC 提問
+      return
     }
 
     // 只有未解謎時才讓 NPC 提問
@@ -242,10 +241,12 @@ const sendMessage = async (question) => {
     }
 
     // 检查是否已用完所有問題且未解謎
+    // For running out of questions (add at the end of sendMessage)
     if (usedQuestions.value >= questionCount.value && !isSolved.value) {
-      // 顯示問題用完對話框
       setTimeout(() => {
         showQuestionsUsedUpDialog()
+        // Submit game record for unsuccessful attempt
+        submitGameRecord()
       }, 1000)
     }
   } catch (error) {
@@ -293,7 +294,7 @@ const askNpcQuestion = async () => {
       const hostLoadingIndex = messages.value.length
       messages.value.push({ type: 'loading', text: '關主思考中...' })
       chatBoxRef.value.scrollToBottom()
-      
+
       return hostLoadingIndex
     }
 
@@ -306,7 +307,7 @@ const askNpcQuestion = async () => {
         question: `[NPC ${npcIndex + 1}] ${question}`,
         answer: answerResponse.reply,
       })
-      
+
       // 添加自動滾动線索列表
       infoPanelRef.value.scrollCluesListToBottom()
 
@@ -334,23 +335,24 @@ const askNpcQuestion = async () => {
           showSolvedDialog()
         }, 1000)
         return true
-      }      return false
+      }
+      return false
     }
 
     // 預先宣告變數，稍後會被賦值
-    let hostLoadingIndex;
-    
+    let hostLoadingIndex
+
     // 準備回調函數
     const answerCallbackFn = async (answerResponse, question, loadingIndex) => {
       const solved = await npcAnswerHandler(answerResponse, question, loadingIndex)
       return solved
-    }    // 獲取 NPC 問題
+    } // 獲取 NPC 問題
     await GameService.askNpcQuestion(
-      storyId.value, 
-      npcIndex, 
-      clues.value, 
+      storyId.value,
+      npcIndex,
+      clues.value,
       npcResponseHandler,
-      answerCallbackFn
+      answerCallbackFn,
     )
 
     // 更新 NPC 索引，讓下一個 NPC 提問
@@ -381,7 +383,7 @@ const resetGame = () => {
   showFailedDialog.value = false // 重置失敗對話框狀態
   currentNpcIndex.value = 0 // 重置 NPC 索引
 
-  // 如果需要重新獲取故事資料
+  // Fetch story details
   fetchStoryDetails()
 }
 
@@ -398,7 +400,6 @@ onMounted(() => {
   // 立即執行獲取故事詳情
   fetchStoryDetails()
 
-  // 如果 npcEnabled，可以在這裡初始化 NPC 相關邏輯
   console.log('遊戲設置:', {
     storyId: storyId.value,
     npcCount: npcCount.value,

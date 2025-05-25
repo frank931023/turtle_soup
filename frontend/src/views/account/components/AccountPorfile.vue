@@ -81,26 +81,53 @@
           </VaButton>
         </div>
 
-        <GameRecordList/>
+        <div class="recent-games">
+          <h2>最近遊戲</h2>
 
+          <div v-if="loading" class="loading">
+            <span class="loader"></span> 正在加載記錄...
+          </div>
+
+          <template v-else>
+            <game-record-item
+              v-for="record in recentRecords"
+              :key="record.id"
+              :record="record"
+              @view="viewRecord"
+            />
+
+            <div v-if="recentRecords.length === 0" class="no-records-message">
+              <p>您還沒有玩過任何遊戲。</p>
+              <router-link to="/" class="btn btn-primary">開始遊戲</router-link>
+            </div>
+
+            <router-link to="/records" class="view-all-link" v-if="recentRecords.length > 0">
+              查看全部記錄 →
+            </router-link>
+          </template>
+        </div>
       </VaCardContent>
     </VaCard>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import { getProfileAPI } from '@/apis/profile.js'
 import { ElMessage } from 'element-plus'
-import GameRecordList from '@/views/history/components/GameRecordList.vue'
+import { useRouter } from 'vue-router'
 import {
   VaCard,
   VaCardContent,
   VaIcon,
   VaButton
 } from 'vuestic-ui'
+import { useGameRecordStore } from '@/stores/gameRecordStore.js'
+import GameRecordItem from '@/views/history/components/GameRecordItem.vue'
+const gameRecordStore = useGameRecordStore()
 
+const router = useRouter()
 const userStore = useUserStore()
 const user = ref({
   username: '',
@@ -143,6 +170,17 @@ const refreshGameHistory = async () => {
     ElMessage.error('更新失敗')
   }
 }
+
+const recentRecords = computed(() => {
+  return gameRecordStore.userRecords
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
+});
+
+const viewRecord = (id) => {
+  router.push(`/records/${id}`);
+};
 
 onMounted(async () => {
   try {
@@ -274,7 +312,7 @@ onMounted(async () => {
   gap: 12px;
 }
 
-.game-record-item {
+game-record-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -344,5 +382,36 @@ onMounted(async () => {
       gap: 4px;
     }
   }
+}
+
+.recent-games {
+  margin-top: 40px;
+}
+
+.recent-games h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+
+.view-all-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #0097a7;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.no-records-message {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.no-records-message p {
+  margin-bottom: 20px;
+  color: #666;
 }
 </style>

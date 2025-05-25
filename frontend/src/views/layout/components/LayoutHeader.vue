@@ -84,7 +84,7 @@ onBeforeUnmount(() => {
           :initial="{ width: '130px', backgroundColor: '#e0e0e0' }"
           :animate="openSection === 'home' ? { width: '200px', backgroundColor: '#a0c4ff' } : { width: '130px', backgroundColor: '#e0e0e0' }"
           transition="{ duration: 0.3 }"
-          @click="() => navigateTo('/', 'home')"
+          @click="() => navigateTo('/home', 'home')"
         >
           <motion.div class="nav-text">首頁</motion.div>
         </motion.div>
@@ -93,20 +93,9 @@ onBeforeUnmount(() => {
         <motion.div
           class="nav-item"
           :initial="{ width: '130px', backgroundColor: '#e0e0e0' }"
-          :animate="openSection === 'multi' ? { width: '200px', backgroundColor: '#bde0fe' } : { width: '130px', backgroundColor: '#e0e0e0' }"
-          transition="{ duration: 0.3 }"
-          @click="() => navigateTo('/', 'multi')"
-        >
-          <motion.div class="nav-text">多人遊戲</motion.div>
-        </motion.div>
-      </li>
-      <li>
-        <motion.div
-          class="nav-item"
-          :initial="{ width: '130px', backgroundColor: '#e0e0e0' }"
           :animate="openSection === 'add' ? { width: '200px', backgroundColor: '#ffc6ff' } : { width: '130px', backgroundColor: '#e0e0e0' }"
           transition="{ duration: 0.3 }"
-          @click="() => navigateTo('/add-story', 'add')"
+          @click="() => navigateTo('/home/add-story', 'add')"
         >
           <motion.div class="nav-text">新增故事</motion.div>
         </motion.div>

@@ -120,7 +120,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getStoryByIdAPI, updateStoryAPI } from '@/apis/story'
+import { getStoryByIdAPI, updateStoryAPI } from '@/apis/story.js'
 
 const route = useRoute()
 const router = useRouter()
