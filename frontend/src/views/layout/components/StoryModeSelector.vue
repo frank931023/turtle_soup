@@ -67,13 +67,31 @@
         </div>
       </div>
 
-      <!-- Step 3: Error message for real players (not implemented) -->
+      <!-- Step 3: Choose to create or join a game with real players -->
       <div v-if="currentStep === 3" class="modal-content">
-        <h2 class="modal-title">未實裝功能</h2>
-        <p class="modal-message">我們還沒設計這邊啦，乖，回去。</p>
+        <h2 class="modal-title">多人遊戲模式</h2>
+        <p class="modal-question">你想建立新遊戲還是加入現有遊戲？</p>
+
+        <div class="multiplayer-buttons">
+          <button class="multiplayer-button create-game" @click="createNewGame">
+            <div class="button-icon">🎮</div>
+            <div class="button-content">
+              <div class="button-title">建立遊戲</div>
+              <div class="button-description">創建一個新的遊戲房間供其他玩家加入</div>
+            </div>
+          </button>
+
+          <button class="multiplayer-button join-game" @click="joinExistingGame">
+            <div class="button-icon">🔍</div>
+            <div class="button-content">
+              <div class="button-title">加入遊戲</div>
+              <div class="button-description">加入朋友已經創建的遊戲房間</div>
+            </div>
+          </button>
+        </div>
 
         <div class="modal-footer">
-          <button class="return-button" @click="currentStep = 2">乖乖返回</button>
+          <button class="return-button" @click="currentStep = 2">返回上一步</button>
         </div>
       </div>
 
@@ -93,6 +111,16 @@
         <div class="modal-footer">
           <button class="confirm-button" @click="startGame">NPC準備好了，讓我們腦補到底！</button>
           <button class="return-button" @click="currentStep = 2">我後悔了，還是回去投胎好了</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Error message for real players (not implemented yet) -->
+      <div v-if="currentStep === 5" class="modal-content">
+        <h2 class="modal-title">功能開發中</h2>
+        <p class="modal-message">多人遊戲功能正在積極開發中，即將推出！</p>
+
+        <div class="modal-footer">
+          <button class="return-button" @click="currentStep = 3">返回上一步</button>
         </div>
       </div>
     </div>
@@ -117,6 +145,7 @@ export default {
       currentStep: 0,
       playAlone: true,
       withRealPlayers: false,
+      isGameHost: false, // 新增：是否為遊戲創建者
       npcCount: 2,
       storyName: '載入中...',
       npcDescriptions: {
@@ -187,20 +216,37 @@ export default {
     },
     selectPlayAlone() {
       this.playAlone = true
-      this.npcCount = 0 // 添加這一行
+      this.npcCount = 0
       this.startGame()
     },
+
     selectPlayWithOthers() {
       this.playAlone = false
       this.currentStep = 2
     },
+
     selectRealPlayers() {
       this.withRealPlayers = true
-      this.currentStep = 3 // Go to error message (not implemented)
+      this.currentStep = 3 // 進入創建/加入遊戲選擇
     },
+
     selectNPCPlayers() {
       this.withRealPlayers = false
-      this.currentStep = 4 // Go to NPC count selection
+      this.currentStep = 4 // 進入NPC數量選擇
+    },
+
+    // 建立新遊戲
+    createNewGame() {
+      console.log('Creating new multiplayer game')
+      this.isGameHost = true
+      this.currentStep = 5 // 導向到功能開發中的頁面（將來會更新為真實功能）
+    },
+
+    // 加入現有遊戲
+    joinExistingGame() {
+      console.log('Joining existing multiplayer game')
+      this.isGameHost = false
+      this.currentStep = 5 // 導向到功能開發中的頁面（將來會更新為真實功能）
     },
     startGame() {
       // Prepare game parameters
@@ -537,5 +583,80 @@ export default {
   font-style: italic;
   color: #7f8c8d;
   margin-bottom: 15px;
+}
+
+/* 多人遊戲按鈕樣式 */
+.multiplayer-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 20px 0 30px;
+}
+
+.multiplayer-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.multiplayer-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.create-game {
+  border-color: #2ecc71;
+}
+
+.create-game:hover {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.join-game {
+  border-color: #3498db;
+}
+
+.join-game:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+.button-icon {
+  font-size: 2.5rem;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.button-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.3;
+}
+
+.create-game:hover .button-description,
+.join-game:hover .button-description {
+  color: rgba(255, 255, 255, 0.9);
 }
 </style>
