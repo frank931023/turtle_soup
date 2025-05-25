@@ -56,3 +56,13 @@ export function checkUserExistsAPI(username) {
     params: { username }
   })
 }
+
+
+// 添加用户分数
+export function addScoreAPI(id, score) {
+  return request({
+    url: `/api/user/${id}/score`,
+    method: 'PUT',
+    data: { score }
+  })
+}

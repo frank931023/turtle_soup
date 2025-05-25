@@ -103,6 +103,10 @@ const showFailedDialog = ref(false)
 // 添加等待回應的狀態
 const isWaitingResponse = ref(false)
 
+// 添加遊戲開始和結束時間
+const gameStartTime = ref(Date.now())
+const gameEndTime = ref(null)
+
 // 添加引用
 const animationsRef = ref(null)
 const chatBoxRef = ref(null)
@@ -146,6 +150,33 @@ const showSolvedDialog = () => {
   console.log('顯示解謎成功對話框')
 }
 
+// 分數計算函數
+const calculateScore = () => {
+  // 基本分數 - 根據是否完成和已使用問題數計算
+  const baseScore = isSolved.value ? 100 : 10
+
+  // 時間獎勵 - 解題越快，獎勵越多
+  const timeBonusMax = 50
+  const gameTime = gameEndTime.value || Date.now()
+  const timeSpentSeconds = (gameTime - gameStartTime.value) / 1000
+
+  // 時間獎勵計算 - 如果小於5分鐘(300秒)獲得獎勵，最多獲得50分
+  let timeBonus = 0
+  if (isSolved.value && timeSpentSeconds < 300) {
+    timeBonus = Math.round(timeBonusMax * (1 - timeSpentSeconds / 300))
+  }
+
+  // 問題效率獎勵 - 用問題少獲得更多獎勵
+  const efficiencyBonusMax = 50
+  let efficiencyBonus = 0
+  if (isSolved.value) {
+    // 問題數越少得分越高
+    efficiencyBonus = Math.round(efficiencyBonusMax * (1 - usedQuestions.value / questionCount.value))
+  }
+
+  return baseScore + timeBonus + efficiencyBonus
+}
+
 // 修改 sendMessage 函數
 const sendMessage = async (question) => {
   if (!storyId.value) {
@@ -187,6 +218,7 @@ const sendMessage = async (question) => {
     clues.value.push({
       question,
       answer: response.reply,
+      timestamp: new Date().toISOString()
     })
 
     // 添加自動滾動線索列表
@@ -306,6 +338,7 @@ const askNpcQuestion = async () => {
       clues.value.push({
         question: `[NPC ${npcIndex + 1}] ${question}`,
         answer: answerResponse.reply,
+        timestamp: new Date().toISOString()
       })
 
       // 添加自動滾动線索列表
@@ -383,20 +416,48 @@ const resetGame = () => {
   showFailedDialog.value = false // 重置失敗對話框狀態
   currentNpcIndex.value = 0 // 重置 NPC 索引
 
+  // 重置遊戲開始時間
+  gameStartTime.value = Date.now()
+  gameEndTime.value = null
+
   // Fetch story details
   fetchStoryDetails()
 }
 
-// 提交遊戲記錄和增加分數
+// 更新後的提交遊戲記錄函數
 const submitGameRecord = async () => {
   try {
-    await GameService.submitGameRecord(storyId.value, clues.value)
+    // 設置遊戲結束時間
+    gameEndTime.value = Date.now()
+
+    // 調用更新後的 GameService.submitGameRecord 方法，傳遞所有必要參數
+    await GameService.submitGameRecord(
+      storyId.value,            // storyId
+      clues.value,              // clues
+      messages.value,           // messages
+      isSolved.value,           // isSolved
+      gameStartTime.value,      // gameStartTime
+      gameEndTime.value,        // gameEndTime
+      calculateScore            // calculateScore 函數
+    )
+
+    // 顯示成功訊息
+    console.log('遊戲記錄已成功提交')
   } catch (error) {
     console.error('提交遊戲記錄失敗:', error)
+
+    // 向用戶顯示錯誤訊息
+    messages.value.push({
+      from: 'ai',
+      text: '遊戲記錄保存失敗，請稍後再試。'
+    })
   }
 }
 
 onMounted(() => {
+  // 設置遊戲開始時間
+  gameStartTime.value = Date.now()
+
   // 立即執行獲取故事詳情
   fetchStoryDetails()
 
