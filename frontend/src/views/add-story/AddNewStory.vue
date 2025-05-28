@@ -1,6 +1,21 @@
 <template>
+  <header class="main-header">
+    <div class="container m-top-20">
+      <h1 class="logo">
+        <RouterLink to="/">請喝湯</RouterLink>
+      </h1>
+      <div class="entry-group">
+
+        <button class="enter-button" @click="router.push('/home')">
+          進入大廳
+        </button>
+
+      </div>
+    </div>
+  </header>
   <div class="fullscreen-background"></div>
   <div class="add-story-container">
+
     <div class="page-header">
       <h1>新增故事</h1>
       <p class="subtitle">創建一個新的海龜湯故事</p>
@@ -210,7 +225,7 @@ const resetForm = () => {
   min-height: calc(100vh - 60px);
   position: relative;
   z-index: 1;
-  
+
 
 
   .page-header {
@@ -301,7 +316,7 @@ const resetForm = () => {
         flex-wrap: wrap;
         gap: 12px;
         padding-top: 10px;
-        
+
         :deep(.el-checkbox) {
           margin-right: 0;
         }
@@ -310,7 +325,7 @@ const resetForm = () => {
           border-radius: 8px;
           padding: 10px 15px;
           transition: all 0.2s;
-          
+
           &:hover {
             border-color: #4C6EB1;
             background: rgba(76, 110, 177, 0.05);
@@ -338,7 +353,7 @@ const resetForm = () => {
 
         :deep(.el-button--default) {
           border: 1px solid #ddd;
-          
+
           &:hover {
             background: #f8f9fa;
             border-color: #ccc;
@@ -349,7 +364,7 @@ const resetForm = () => {
           background: linear-gradient(135deg, #4C6EB1, #5fb0ff);
           border: none;
           box-shadow: 0 4px 10px rgba(76, 110, 177, 0.3);
-          
+
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(76, 110, 177, 0.4);
@@ -364,28 +379,87 @@ const resetForm = () => {
 @media (max-width: 768px) {
   .add-story-container {
     padding: 20px 15px;
-    
+
     .form-container {
       padding: 25px 20px;
       border-radius: 10px;
     }
-    
+
     .form-row {
       flex-direction: column;
       gap: 0 !important;
     }
-    
+
     .page-header {
       margin-bottom: 30px;
-      
+
       h1 {
         font-size: 28px;
       }
     }
-    
+
     .form-actions {
       button {
         padding: 10px 20px !important;
+      }
+    }
+  }
+}
+
+.main-header {
+  background: #e8e8e8;
+  border-bottom: 1px solid #f3f3f3;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 10px;
+
+      a {
+        color: var(--text-color);
+        text-decoration: none;
+      }
+    }
+
+    .entry-group {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .entry {
+      font-size: 16px;
+      color: var(--text-color);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.6s ease;
+
+      i {
+        font-size: 14px;
+        margin-left: 4px;
+      }
+
+      &.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      &:hover {
+        text-decoration: none;
+        transform: scale(1.05) translateY(-2px); /* 放大 + 微微上移 */
+        transition: all 0.3s ease;
       }
     }
   }

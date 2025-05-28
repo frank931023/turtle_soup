@@ -5,7 +5,10 @@
         <!-- 页面标题区域 -->
         <div class="page-header">
           <div class="header-content">
-            <h1 class="title">帳號設定</h1>
+            <h1 class="title">
+              <VaIcon name="settings" color="primary" />
+              帳號設定
+            </h1>
             <p class="subtitle">更新您的帳號資料</p>
           </div>
         </div>
@@ -44,7 +47,10 @@
                 @input="handleAvatarUrlChange"
               >
                 <template #append>
-                  <el-button v-if="profileForm.avatarUrl" @click="resetAvatar">
+                  <el-button
+                    v-if="profileForm.avatarUrl"
+                    @click="resetAvatar"
+                  >
                     <el-icon><Delete /></el-icon>
                   </el-button>
                 </template>
@@ -52,7 +58,12 @@
             </el-form-item>
             <!-- 如果URL与原始头像不同，显示还原按钮 -->
             <div v-if="isAvatarChanged" class="avatar-actions">
-              <el-button size="small" @click="restoreOriginalAvatar" type="info" text>
+              <el-button
+                size="small"
+                @click="restoreOriginalAvatar"
+                type="info"
+                text
+              >
                 <VaIcon name="restore" />
                 還原原始頭像
               </el-button>
@@ -62,30 +73,61 @@
           <!-- 基本信息表单 -->
           <div class="form-grid">
             <el-form-item label="姓名" prop="name">
-              <el-input v-model="profileForm.name" placeholder="請輸入姓名">
-                <template #prefix> </template>
+              <el-input
+                v-model="profileForm.name"
+                placeholder="請輸入姓名"
+              >
+                <template #prefix>
+                  <VaIcon name="person" color="primary" />
+                </template>
               </el-input>
             </el-form-item>
 
             <el-form-item label="Email" prop="email">
-              <el-input v-model="profileForm.email" placeholder="請輸入 Email">
-                <template #prefix> </template>
+              <el-input
+                v-model="profileForm.email"
+                placeholder="請輸入 Email"
+              >
+                <template #prefix>
+                  <VaIcon name="email" color="primary" />
+                </template>
               </el-input>
             </el-form-item>
 
             <el-form-item label="性別" prop="sex">
-              <el-select v-model="profileForm.sex" placeholder="請選擇性別" class="w-full">
-                <el-option label="男性" value="male"> <VaIcon name="male" /> 男性 </el-option>
-                <el-option label="女性" value="female"> <VaIcon name="female" /> 女性 </el-option>
-                <el-option label="其他" value="other"> <VaIcon name="person" /> 其他 </el-option>
+              <el-select
+                v-model="profileForm.sex"
+                placeholder="請選擇性別"
+                class="w-full"
+              >
+                <el-option label="男性" value="male">
+                  <VaIcon name="male" /> 男性
+                </el-option>
+                <el-option label="女性" value="female">
+                  <VaIcon name="female" /> 女性
+                </el-option>
+                <el-option label="其他" value="other">
+                  <VaIcon name="person" /> 其他
+                </el-option>
               </el-select>
             </el-form-item>
           </div>
 
           <!-- 操作按钮 -->
           <div class="form-actions">
-            <VaButton preset="secondary" icon="refresh" @click="resetForm"> 重置 </VaButton>
-            <VaButton preset="primary" icon="save" :loading="submitting" @click="submitForm">
+            <VaButton
+              preset="secondary"
+              icon="refresh"
+              @click="resetForm"
+            >
+              重置
+            </VaButton>
+            <VaButton
+              preset="primary"
+              icon="save"
+              :loading="submitting"
+              @click="submitForm"
+            >
               儲存變更
             </VaButton>
           </div>
@@ -100,7 +142,12 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user.js'
 import { getProfileAPI, setProfileAPI } from '@/apis/profile.js'
-import { VaCard, VaCardContent, VaIcon, VaButton } from 'vuestic-ui'
+import {
+  VaCard,
+  VaCardContent,
+  VaIcon,
+  VaButton
+} from 'vuestic-ui'
 
 const userStore = useUserStore()
 const formRef = ref(null)
@@ -116,7 +163,7 @@ const profileForm = reactive({
   avatarUrl: '',
   name: '',
   email: '',
-  sex: '',
+  sex: ''
 })
 
 // 表单验证规则
@@ -188,7 +235,7 @@ const submitForm = async () => {
           name: profileForm.name,
           avatarUrl: profileForm.avatarUrl,
           email: profileForm.email,
-          sex: profileForm.sex,
+          sex: profileForm.sex
         })
 
         ElMessage.success('帳號資料已更新')
@@ -235,7 +282,7 @@ onMounted(async () => {
       avatarUrl: userData.avatarUrl || '',
       name: userData.name || '',
       email: userData.email || '',
-      sex: userData.sex || '',
+      sex: userData.sex || ''
     })
   } catch (error) {
     console.error('获取用户资料失败:', error)

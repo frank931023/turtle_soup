@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
                 <router-link to="/admin/questions" class="dropdown-item">題目管理</router-link>
               </template>
               <router-link to="/account" class="dropdown-item">玩家中心</router-link>
-              <router-link to="/home/add-story" class="dropdown-item">新增故事</router-link>
+              <router-link to="/add-story" class="dropdown-item">新增故事</router-link>
               <router-link to="/history" class="dropdown-item">遊戲歷史</router-link>
               <a href="javascript:;" class="dropdown-item" @click="handleLogout">登出</a>
             </motion.div>

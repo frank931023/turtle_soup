@@ -40,17 +40,19 @@ const routes = [
         name: 'Home',
         component: Home,
       },
-      {
-        path: 'add-story',
-        name: 'AddNewStory',
-        component: AddNewStory,
-      },
+
       {
         path: '/game',
         name: 'Game',
         component: Game,
       },
     ],
+  },
+
+  {
+    path: '/add-story',
+    name: 'AddNewStory',
+    component: AddNewStory,
   },
 
 
