@@ -60,6 +60,10 @@ const routes = [
     path: '/admin/questions',
     name: 'StoryManage',
     component: StoryManage,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+    },
   },
   {
     path: '/admin/story-edit/:id',
