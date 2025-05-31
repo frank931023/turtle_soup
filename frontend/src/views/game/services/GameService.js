@@ -63,7 +63,15 @@ export const GameService = {
   },
 
   // 提交遊戲記錄和增加分數 (更新後的詳細實現，包含用戶加分)
-  async submitGameRecord(storyId, clues, messages, isSolved, gameStartTime, gameEndTime, calculateScore) {
+  async submitGameRecord(
+    storyId,
+    clues,
+    messages,
+    isSolved,
+    gameStartTime,
+    gameEndTime,
+    calculateScore,
+  ) {
     try {
       const gameRecordStore = useGameRecordStore()
 
@@ -73,16 +81,12 @@ export const GameService = {
       const timeSpent = Math.round(timeSpentSeconds)
 
       // 檢查是否有未記錄的最後答案（從 messages 中檢查）
-      const lastUserMessage = messages
-        .filter(msg => msg.from === 'user')
-        .pop()
+      const lastUserMessage = messages.filter((msg) => msg.from === 'user').pop()
 
       // 檢查最後一條用戶訊息是否已經在 clues 中
       let hasLastQuestionInClues = false
       if (lastUserMessage) {
-        hasLastQuestionInClues = clues.some(clue =>
-          clue.question === lastUserMessage.text
-        )
+        hasLastQuestionInClues = clues.some((clue) => clue.question === lastUserMessage.text)
       }
 
       // 如果最後答案不在 clues 中且遊戲已解決，手動添加它
@@ -90,23 +94,23 @@ export const GameService = {
         // 假設最後一個問題是正確的（因為它解決了謎題）
         clues.push({
           question: lastUserMessage.text,
-          answer: "是",
-          timestamp: new Date().toISOString()
+          answer: '是',
+          timestamp: new Date().toISOString(),
         })
         console.log('已添加最後的解題關鍵問題到記錄:', lastUserMessage.text)
       }
 
       // 找出所有正確回答的問題（那些得到"是"回應的問題）
       const correctAnswers = clues
-        .filter(clue => clue.answer === "是")
-        .map(clue => clue.question)
+        .filter((clue) => clue.answer === '是')
+        .map((clue) => clue.question)
 
       // 格式化用戶的答案為所有正確回答問題的集合
-      let userAnswerText = ""
+      let userAnswerText = ''
       if (correctAnswers.length > 0) {
-        userAnswerText = correctAnswers.join("\n")
+        userAnswerText = correctAnswers.join('\n')
       } else {
-        userAnswerText = isSolved ? "成功解題，但沒有找到關鍵線索" : "未解出答案"
+        userAnswerText = isSolved ? '成功解題，但沒有找到關鍵線索' : '未解出答案'
       }
 
       // 計算遊戲得分
@@ -119,7 +123,7 @@ export const GameService = {
         userAnswer: userAnswerText,
         isCompleted: isSolved,
         timeSpent: timeSpent,
-        clueHistory: clues
+        clueHistory: clues,
       }
 
       console.log('提交遊戲記錄:', recordData)
@@ -154,7 +158,6 @@ export const GameService = {
       }
 
       return response
-
     } catch (error) {
       console.error('提交遊戲記錄失敗:', error)
       throw error
@@ -171,29 +174,29 @@ export const GameService = {
   },
 
   // 發送WebSocket消息
-  sendWebSocketMessage(socket, messageType, data) {
-    if (!socket) return false
+  // sendWebSocketMessage(socket, messageType, data) {
+  //   if (!socket) return false
 
-    try {
-      const message = {
-        type: messageType,
-        data: data,
-        timestamp: new Date().getTime(),
-      }
-      socket.send(JSON.stringify(message))
-      return true
-    } catch (error) {
-      console.error('發送WebSocket消息失敗:', error)
-      return false
-    }
-  },
+  //   try {
+  //     const message = {
+  //       type: messageType,
+  //       data: data,
+  //       timestamp: new Date().getTime(),
+  //     }
+  //     socket.send(JSON.stringify(message))
+  //     return true
+  //   } catch (error) {
+  //     console.error('發送WebSocket消息失敗:', error)
+  //     return false
+  //   }
+  // },
 
   // 關閉WebSocket連接
-  closeWebSocket(socket) {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.close()
-    }
-  },
+  // closeWebSocket(socket) {
+  //   if (socket && socket.readyState === WebSocket.OPEN) {
+  //     socket.close()
+  //   }
+  // },
 }
 
 export default GameService

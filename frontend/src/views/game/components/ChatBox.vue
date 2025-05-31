@@ -1,6 +1,9 @@
 <template>
   <div class="chat-container">
     <h2 class="title">AI 湯神</h2>
+    <p class="current-player" :class="{ 'user-turn': isUserTurn, 'other-turn': !isUserTurn }">
+      {{ isUserTurn ? '輪到你提問' : `${currentQuestioner}正在提問...` }}
+    </p>
 
     <div class="chat-box" ref="chatBoxRef">
       <div v-for="(msg, index) in messages" :key="index" :class="['message', getMessageClass(msg)]">
@@ -20,11 +23,11 @@
         v-model="input"
         @keyup.enter="handleEnterKey"
         placeholder="輸入你的問題..."
-        :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse"
+        :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse || !isUserTurn"
       />
       <button
         @click="sendMessage"
-        :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse"
+        :disabled="usedQuestions >= questionCount || isSolved || isWaitingResponse || !isUserTurn"
       >
         ➤
       </button>
@@ -65,6 +68,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isUserTurn: {
+    type: Boolean,
+    default: true,
+  },
+  currentQuestioner: {
+    type: String,
+    default: '',
+  },
 })
 
 const emit = defineEmits(['send-message'])
@@ -94,7 +105,8 @@ const sendMessage = () => {
     !input.value.trim() ||
     props.isWaitingResponse ||
     props.usedQuestions >= props.questionCount ||
-    props.isSolved
+    props.isSolved ||
+    !props.isUserTurn
   ) {
     return
   }
@@ -156,7 +168,26 @@ onMounted(() => {
 
 .title {
   text-align: center;
+  margin-bottom: 8px;
+}
+
+.current-player {
+  text-align: center;
   margin-bottom: 16px;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.user-turn {
+  color: #28a745;
+  background-color: #e8f5e9;
+  font-weight: bold;
+}
+
+.other-turn {
+  color: #ff5252;
+  background-color: #ffebee;
 }
 
 .chat-box {
@@ -251,6 +282,13 @@ input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
+}
+
+input:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ddd;
 }
 
 button {

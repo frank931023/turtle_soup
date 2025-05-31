@@ -18,6 +18,7 @@
     "motion-v": "^1.1.0-alpha.1",
     "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",
+    "socket.io-client": "^4.8.1",
     "unplugin-element-plus": "^0.10.0",
     "uuid": "^11.1.0",
     "vue": "^3.5.13",

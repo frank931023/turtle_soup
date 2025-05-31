@@ -20,6 +20,7 @@ import Landing from '../views/landing/index.vue'
 import AccountPorfile from '@/views/account/components/AccountPorfile.vue'
 import AccountPasswordReset from '@/views/account/components/AccountPasswordReset.vue'
 import { useUserStore } from '@/stores/user.js'
+import TheChatroom from '@/views/chatroom.vue'
 
 import StoryManage from '../views/admin/stories/StoryManage.vue'
 import StoryEditor from '../views/admin/stories/StoryEditor.vue'
@@ -56,6 +57,11 @@ const routes = [
     component: AddNewStory,
   },
 
+  {
+    path: '/chatroom',
+    name: 'Chatroom',
+    component: TheChatroom,
+  },
   {
     path: '/admin/questions',
     name: 'StoryManage',
