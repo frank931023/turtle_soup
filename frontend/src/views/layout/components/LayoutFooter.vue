@@ -1,6 +1,4 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
   <div class="container">
@@ -11,12 +9,11 @@
       <span>|</span>
       <a href="javascript:;">聯絡我們</a>
     </p>
-    <p class="copyright">© 中央大學，All rights reserved.</p>
+    <p class="copyright">© 請喝湯團隊，All rights reserved.</p>
   </div>
 </template>
 
 <style scoped lang="scss">
-
 .container {
   padding: 30px 0 20px;
   max-width: 1200px;

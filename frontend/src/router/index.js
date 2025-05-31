@@ -24,10 +24,7 @@ import { useUserStore } from '@/stores/user.js'
 import StoryManage from '../views/admin/stories/StoryManage.vue'
 import StoryEditor from '../views/admin/stories/StoryEditor.vue'
 
-
 import history from '@/views/history/HomeView.vue'
-
-
 
 const routes = [
   {
@@ -45,6 +42,10 @@ const routes = [
         path: '/game',
         name: 'Game',
         component: Game,
+        meta: {
+          requiresAuth: true,
+          requiresAdmin: false,
+        },
       },
     ],
   },
@@ -54,7 +55,6 @@ const routes = [
     name: 'AddNewStory',
     component: AddNewStory,
   },
-
 
   {
     path: '/admin/questions',
@@ -77,9 +77,9 @@ const routes = [
     name: 'Login',
     component: Login,
     meta: {
-      requiresAuth: false,      // 不需要登录
-      requiresAdmin: false      // 不需要管理员权限
-    }
+      requiresAuth: false, // 不需要登录
+      requiresAdmin: false, // 不需要管理员权限
+    },
   },
 
   {
@@ -88,8 +88,8 @@ const routes = [
     component: Landing,
     meta: {
       requiresAuth: false,
-      requiresAdmin: false
-    }
+      requiresAdmin: false,
+    },
   },
   {
     path: '/oauth',
@@ -97,25 +97,25 @@ const routes = [
     component: Oauth,
     meta: {
       requiresAuth: false,
-      requiresAdmin: false
-    }
+      requiresAdmin: false,
+    },
   },
   {
     path: '/register',
     name: 'register',
     component: Register,
     meta: {
-      requiresAuth: false,      // 需要登录
-      requiresAdmin: false      // 不需要管理员权限
-    }
+      requiresAuth: false, // 需要登录
+      requiresAdmin: false, // 不需要管理员权限
+    },
   },
   {
     path: '/admin/users',
     component: AdminUser,
     meta: {
       requiresAuth: true,
-      requiresAdmin: true
-    }
+      requiresAdmin: true,
+    },
   },
   {
     path: '/account',
@@ -123,7 +123,7 @@ const routes = [
     children: [
       {
         path: 'profile-settings',
-        component: AccountProfileSetting
+        component: AccountProfileSetting,
       },
       {
         path: '',
@@ -131,64 +131,61 @@ const routes = [
       },
       {
         path: 'change-password',
-        component: AccountPasswordReset
-      }
+        component: AccountPasswordReset,
+      },
     ],
     meta: {
-      requiresAuth: true,      // 需要登录
-      requiresAdmin: false      // 不需要管理员权限
-    }
+      requiresAuth: true, // 需要登录
+      requiresAdmin: false, // 不需要管理员权限
+    },
   },
-
 
   {
     path: '/history',
     component: history,
     meta: {
-      requiresAuth: true,      // 需要登录
-    }  },
+      requiresAuth: true, // 需要登录
+    },
+  },
 
   {
     path: '/records',
     name: 'game-records',
     component: GameRecordsView,
     meta: {
-      requiresAuth: true,      // 需要登录
-    }  },
+      requiresAuth: true, // 需要登录
+    },
+  },
   {
     path: '/leaderboard',
     name: 'leaderboard',
     component: LeaderboardView,
     meta: {
-      requiresAuth: true,      // 需要登录
-    }
+      requiresAuth: true, // 需要登录
+    },
   },
   {
     path: '/stats',
     name: 'user-stats',
     component: UserStatsView,
     meta: {
-      requiresAuth: true,      // 需要登录
-    }  },
+      requiresAuth: true, // 需要登录
+    },
+  },
   {
     path: '/records/:id',
     name: 'game-record-detail',
     component: GameRecordDetailView,
     meta: {
-      requiresAuth: true,      // 需要登录
-    }  },
-
-
-
-
+      requiresAuth: true, // 需要登录
+    },
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
-
-
 
 // 全局导航守卫
 router.beforeEach((to, from, next) => {
@@ -199,15 +196,17 @@ router.beforeEach((to, from, next) => {
     // 检查是否已登录
     if (!userStore.userInfo?.token) {
       // 未登录，重定向到登录页
+      alert('您尚未登入，請先登入')
       next({
         path: '/login',
-        query: { redirect: to.fullPath } // 保存原目标路径
+        query: { redirect: to.fullPath }, // 保存原目标路径
       })
       return
     }
 
     // 如果页面需要管理员权限
     if (to.meta.requiresAdmin && userStore.userInfo.user.role !== 'admin') {
+      alert('您沒有權限訪問此介面')
       // 不是管理员，重定向到首页
       next('/home')
       return
