@@ -76,7 +76,7 @@ const loading = computed(() => gameRecordStore.loading);
 // 嘗試從 userInfo 獲取用戶名
 const username = computed(() => {
   const userInfo = userStore.userInfo;
-  return userInfo?.username || userInfo?.name || '';
+  return userInfo?.user.username || userInfo?.user.name || '';
 });
 
 // 獲取當前日期和時間

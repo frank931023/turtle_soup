@@ -6,10 +6,12 @@ import { ElMessage } from 'element-plus'
 import bgUrl from '@/assets/login-background.png'
 import GoogleLoginButton from "@/views/login/components/LoginGoogle.vue"
 import LoginGithub from '@/views/login/components/LoginGithub.vue'
+import { useGameRecordStore } from '@/stores/gameRecordStore.js'
 
 const showEntry = ref(false);
 const router = useRouter()
 const userStore = useUserStore()
+const gameRecordStore = useGameRecordStore()
 
 const form = ref({
   username: '',
@@ -51,6 +53,7 @@ const doLogin = () => {
     if(valid) {
       // 用pinia封装過的user store 獲取用戶資料 以及登入
       await userStore.getUserInfo({username, password})
+      await gameRecordStore.fetchUserRecords()
 
       ElMessage({type: 'success', message: '登入成功'})
       router.replace({path: "/home"})

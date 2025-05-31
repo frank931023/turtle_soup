@@ -6,9 +6,11 @@ import { useUserStore } from '@/stores/user.js'
 import soundOnIcon from '@/assets/sound.png'
 import soundOffIcon from '@/assets/sound-off.png' // 确保您有这个图片
 import { useAudioStore } from '@/stores/audio'
+import { useGameRecordStore } from '@/stores/gameRecordStore.js'
 
 const audioStore = useAudioStore()
 const userStore = useUserStore()
+const gameRecordStore = useGameRecordStore()
 const openSection = ref(null)
 const dropdownVisible = ref(false)
 const isSoundOn = computed(() => audioStore.isPlaying)
@@ -39,6 +41,7 @@ function navigateTo(path, section) {
 
 function handleLogout() {
   userStore.cleanUserInfo()
+  gameRecordStore.clearGameRecordData()
   router.push('/login')
 }
 
