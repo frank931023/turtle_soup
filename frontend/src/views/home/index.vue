@@ -2,7 +2,6 @@
   <div
     class="turtle-soup-app"
     @click="handleOutsideClick"
-    :style="{ backgroundImage: `url(${backgroundImageUrl})` }"
   >
     <!-- 引入故事模式選擇器組件 -->
     <story-mode-selector
@@ -664,17 +663,22 @@ export default {
 
 .turtle-soup-app {
   font-family: 'Special Elite', 'Noto Sans TC', monospace;
-  /*max-width: 80%;
-  margin: 0 auto;*/
   min-height: 100vh;
   position: relative;
   z-index: 0;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background: transparent;
+  background-color: #000000; /* 改為純黑色背景 */
   width: 100%;
+}
+
+.turtle-soup-app::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background-color: #000000; /* 確保偽元素也是黑色 */
 }
 
 .turtle-soup-app::before {
