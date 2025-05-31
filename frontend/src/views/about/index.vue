@@ -171,7 +171,7 @@ function goToHome() {
 /* 星空背景 - 保持星星背景 */
 .stars-container {
   position: fixed;
-  top: 0;
+  top: 60px;
   left: 0;
   width: 100%;
   height: 100%;
