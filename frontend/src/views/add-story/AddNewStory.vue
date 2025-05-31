@@ -1,101 +1,98 @@
 <template>
-  <header class="main-header">
-    <div class="container m-top-20">
-      <h1 class="logo">
-        <RouterLink to="/">請喝湯</RouterLink>
-      </h1>
-      <div class="entry-group">
-
-        <button class="enter-button" @click="router.push('/home')">
-          進入大廳
-        </button>
-
+  <div>
+    <header class="main-header">
+      <div class="container m-top-20">
+        <h1 class="logo">
+          <RouterLink to="/">請喝湯</RouterLink>
+        </h1>
+        <div class="entry-group">
+          <button class="enter-button" @click="router.push('/home')">進入大廳</button>
+        </div>
       </div>
-    </div>
-  </header>
-  <div class="fullscreen-background"></div>
-  <div class="add-story-container">
+    </header>
+    <div class="fullscreen-background"></div>
+    <div class="add-story-container">
+      <div class="page-header">
+        <h1>新增故事</h1>
+        <p class="subtitle">創建一個新的海龜湯故事</p>
+      </div>
 
-    <div class="page-header">
-      <h1>新增故事</h1>
-      <p class="subtitle">創建一個新的海龜湯故事</p>
-    </div>
-
-    <div class="form-container">
-      <el-form
-        :model="storyForm"
-        :rules="rules"
-        ref="storyFormRef"
-        label-position="top"
-        class="story-form"
-      >
-        <el-form-item label="故事名稱" prop="questionName">
-          <el-input v-model="storyForm.questionName" placeholder="請輸入故事名稱" />
-        </el-form-item>
-
-        <el-form-item label="故事描述" prop="description">
-          <el-input
-            v-model="storyForm.description"
-            type="textarea"
-            :rows="4"
-            placeholder="請輸入故事描述"
-          />
-        </el-form-item>
-
-        <div class="form-row">
-          <el-form-item label="圖片網址" prop="imageURL" class="form-column">
-            <el-input v-model="storyForm.imageURL" placeholder="請輸入圖片網址(選填)" />
+      <div class="form-container">
+        <el-form
+          :model="storyForm"
+          :rules="rules"
+          ref="storyFormRef"
+          label-position="top"
+          class="story-form"
+        >
+          <el-form-item label="故事名稱" prop="questionName">
+            <el-input v-model="storyForm.questionName" placeholder="請輸入故事名稱" />
           </el-form-item>
 
-          <el-form-item label="故事難度" prop="level" class="form-column">
-            <el-select v-model="storyForm.level" placeholder="請選擇難度">
-              <el-option :value="1" label="簡單" />
-              <el-option :value="2" label="普通" />
-              <el-option :value="3" label="困難" />
-            </el-select>
+          <el-form-item label="故事描述" prop="description">
+            <el-input
+              v-model="storyForm.description"
+              type="textarea"
+              :rows="4"
+              placeholder="請輸入故事描述"
+            />
           </el-form-item>
-        </div>
 
-        <el-form-item label="故事內容" prop="story">
-          <el-input
-            v-model="storyForm.story"
-            type="textarea"
-            :rows="6"
-            placeholder="請輸入完整的故事內容"
-          />
-        </el-form-item>
+          <div class="form-row">
+            <el-form-item label="圖片網址" prop="imageURL" class="form-column">
+              <el-input v-model="storyForm.imageURL" placeholder="請輸入圖片網址(選填)" />
+            </el-form-item>
 
-        <el-form-item label="湯底(解答)" prop="soup">
-          <el-input
-            v-model="storyForm.soup"
-            type="textarea"
-            :rows="3"
-            placeholder="請輸入故事謎底"
-          />
-        </el-form-item>
-
-        <el-form-item label="故事分類" prop="category">
-          <div class="tag-container">
-            <el-checkbox-group v-model="storyForm.category">
-              <el-checkbox label="死亡" border>死亡</el-checkbox>
-              <el-checkbox label="誤會" border>誤會</el-checkbox>
-              <el-checkbox label="失憶" border>失憶</el-checkbox>
-              <el-checkbox label="巧合" border>巧合</el-checkbox>
-              <el-checkbox label="身份" border>身份</el-checkbox>
-              <el-checkbox label="時間" border>時間</el-checkbox>
-              <el-checkbox label="報復" border>報復</el-checkbox>
-              <el-checkbox label="心理" border>心理</el-checkbox>
-              <el-checkbox label="語言" border>語言</el-checkbox>
-              <el-checkbox label="奇幻" border>奇幻</el-checkbox>
-            </el-checkbox-group>
+            <el-form-item label="故事難度" prop="level" class="form-column">
+              <el-select v-model="storyForm.level" placeholder="請選擇難度">
+                <el-option :value="1" label="簡單" />
+                <el-option :value="2" label="普通" />
+                <el-option :value="3" label="困難" />
+              </el-select>
+            </el-form-item>
           </div>
-        </el-form-item>
 
-        <div class="form-actions">
-          <el-button @click="resetForm">重置</el-button>
-          <el-button type="primary" @click="submitForm" :loading="submitting">提交</el-button>
-        </div>
-      </el-form>
+          <el-form-item label="故事內容" prop="story">
+            <el-input
+              v-model="storyForm.story"
+              type="textarea"
+              :rows="6"
+              placeholder="請輸入完整的故事內容"
+            />
+          </el-form-item>
+
+          <el-form-item label="湯底(解答)" prop="soup">
+            <el-input
+              v-model="storyForm.soup"
+              type="textarea"
+              :rows="3"
+              placeholder="請輸入故事謎底"
+            />
+          </el-form-item>
+
+          <el-form-item label="故事分類" prop="category">
+            <div class="tag-container">
+              <el-checkbox-group v-model="storyForm.category">
+                <el-checkbox label="死亡" border>死亡</el-checkbox>
+                <el-checkbox label="誤會" border>誤會</el-checkbox>
+                <el-checkbox label="失憶" border>失憶</el-checkbox>
+                <el-checkbox label="巧合" border>巧合</el-checkbox>
+                <el-checkbox label="身份" border>身份</el-checkbox>
+                <el-checkbox label="時間" border>時間</el-checkbox>
+                <el-checkbox label="報復" border>報復</el-checkbox>
+                <el-checkbox label="心理" border>心理</el-checkbox>
+                <el-checkbox label="語言" border>語言</el-checkbox>
+                <el-checkbox label="奇幻" border>奇幻</el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </el-form-item>
+
+          <div class="form-actions">
+            <el-button @click="resetForm">重置</el-button>
+            <el-button type="primary" @click="submitForm" :loading="submitting">提交</el-button>
+          </div>
+        </el-form>
+      </div>
     </div>
   </div>
 </template>
@@ -196,7 +193,8 @@ const resetForm = () => {
 
 <style scoped lang="scss">
 /* 全螢幕背景設置 */
-:deep(body), :deep(html) {
+:deep(body),
+:deep(html) {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -226,8 +224,6 @@ const resetForm = () => {
   position: relative;
   z-index: 1;
 
-
-
   .page-header {
     text-align: center;
     margin-bottom: 40px;
@@ -250,14 +246,14 @@ const resetForm = () => {
       color: white; /* 改為白色標題 */
       margin-bottom: 12px;
       font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 增強陰影使白色文字更可讀 */
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 增強陰影使白色文字更可讀 */
     }
 
     .subtitle {
       font-size: 18px;
       color: rgba(255, 255, 255, 0.9); /* 稍微半透明的白色副標題 */
       font-weight: 300;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.15); /* 輕微陰影增加可讀性 */
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* 輕微陰影增加可讀性 */
     }
   }
 
@@ -287,7 +283,8 @@ const resetForm = () => {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
         transition: all 0.3s;
 
-        &:hover, &:focus-within {
+        &:hover,
+        &:focus-within {
           box-shadow: 0 3px 8px rgba(76, 110, 177, 0.15);
         }
       }
@@ -327,13 +324,13 @@ const resetForm = () => {
           transition: all 0.2s;
 
           &:hover {
-            border-color: #4C6EB1;
+            border-color: #4c6eb1;
             background: rgba(76, 110, 177, 0.05);
           }
         }
 
         :deep(.el-checkbox.is-checked) {
-          border-color: #4C6EB1;
+          border-color: #4c6eb1;
           background: rgba(76, 110, 177, 0.1);
         }
       }
@@ -361,7 +358,7 @@ const resetForm = () => {
         }
 
         :deep(.el-button--primary) {
-          background: linear-gradient(135deg, #4C6EB1, #5fb0ff);
+          background: linear-gradient(135deg, #4c6eb1, #5fb0ff);
           border: none;
           box-shadow: 0 4px 10px rgba(76, 110, 177, 0.3);
 

@@ -6,7 +6,7 @@
           <RouterLink to="/">請喝湯</RouterLink>
         </h1>
         <div class="entry-group">
-          <button class="enter-button" @click="goToHome">進入大廳</button>
+          <button class="enter-button" @click="router.push('/home')">進入大廳</button>
         </div>
       </div>
     </header>
