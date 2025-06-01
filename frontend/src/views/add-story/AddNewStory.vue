@@ -150,7 +150,7 @@ const submitForm = async () => {
           message: '故事提交成功，等待審核!',
         })
         resetForm()
-        router.push('/')
+        router.push('/home')
       } catch (error) {
         console.error('提交故事失敗:', error)
         ElMessage({

@@ -12,7 +12,7 @@
         </div>
         <div class="action-buttons">
           <button @click="resetGame" class="restart-btn">再玩一次</button>
-          <router-link to="/" class="home-btn">返回首頁</router-link>
+          <router-link to="/home" class="home-btn">返回首頁</router-link>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
         <p>你已經使用了所有 {{ questionCount }} 次提問機會，但尚未解開謎題。</p>
         <div class="action-buttons">
           <button @click="resetGame" class="restart-btn">再試一次</button>
-          <router-link to="/" class="home-btn">返回首頁</router-link>
+          <router-link to="/home" class="home-btn">返回首頁</router-link>
         </div>
       </div>
     </div>
